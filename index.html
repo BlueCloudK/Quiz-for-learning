@@ -1013,39 +1013,47 @@
             border-bottom: 2px solid var(--border-color);
         }
 
-        .navigator-timer {
+        /* Fixed Top Timer */
+        .fixed-top-timer {
+            position: fixed;
+            top: 0;
+            left: 50%;
+            transform: translateX(-50%);
             background: linear-gradient(135deg, #ff9a56 0%, #ff6a88 100%);
-            padding: 15px;
-            border-radius: 10px;
-            margin-bottom: 15px;
+            padding: 15px 40px;
+            border-radius: 0 0 15px 15px;
             text-align: center;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.3);
+            z-index: 1000;
             display: none;
         }
 
-        .navigator-timer.active {
+        .fixed-top-timer.active {
             display: block;
         }
 
-        .navigator-timer-text {
-            font-size: 1.8em;
+        .fixed-timer-text {
+            font-size: 2em;
             font-weight: bold;
             color: white;
+            margin: 0;
         }
 
-        .navigator-timer-text.warning {
+        .fixed-timer-text.warning {
             color: #ffeb3b;
         }
 
-        .navigator-timer-text.danger {
+        .fixed-timer-text.danger {
             color: #ff5252;
             animation: pulse 0.5s infinite;
         }
 
-        .navigator-timer-label {
+        .fixed-timer-label {
             color: white;
-            font-size: 0.9em;
-            opacity: 0.9;
+            font-size: 0.95em;
+            opacity: 0.95;
             margin-bottom: 5px;
+            font-weight: 500;
         }
 
         .question-nav-list {
@@ -1187,6 +1195,12 @@
     </style>
 </head>
 <body>
+    <!-- Fixed Top Timer -->
+    <div class="fixed-top-timer" id="fixedTopTimer">
+        <div class="fixed-timer-label" data-i18n="timeRemaining">Thời gian còn lại:</div>
+        <div class="fixed-timer-text" id="fixedTimerText">30:00</div>
+    </div>
+
     <div class="container">
         <div class="header">
             <div class="language-selector">
@@ -1327,12 +1341,6 @@ e. Lựa chọn E</div>
                 <div class="quiz-layout">
                     <!-- Question Navigator Sidebar -->
                     <div class="question-navigator" id="questionNavigator">
-                        <!-- Navigator Timer -->
-                        <div class="navigator-timer" id="navigatorTimer">
-                            <div class="navigator-timer-label" data-i18n="timeRemaining">Thời gian còn lại:</div>
-                            <div class="navigator-timer-text" id="navigatorTimerText">30:00</div>
-                        </div>
-
                         <div class="navigator-header" data-i18n="questionNavigator">Danh Sách Câu Hỏi</div>
 
                         <!-- Question Navigation List -->
@@ -1590,22 +1598,22 @@ e. Lựa chọn E</div>
 
         function updateTimerDisplay() {
             const timerText = document.getElementById('timerText');
-            const navigatorTimerText = document.getElementById('navigatorTimerText');
+            const fixedTimerText = document.getElementById('fixedTimerText');
             const formattedTime = formatTime(timeRemaining);
 
             timerText.textContent = formattedTime;
-            navigatorTimerText.textContent = formattedTime;
+            fixedTimerText.textContent = formattedTime;
 
             // Add warning/danger classes
             timerText.classList.remove('warning', 'danger');
-            navigatorTimerText.classList.remove('warning', 'danger');
+            fixedTimerText.classList.remove('warning', 'danger');
 
             if (timeRemaining <= 60) {
                 timerText.classList.add('danger');
-                navigatorTimerText.classList.add('danger');
+                fixedTimerText.classList.add('danger');
             } else if (timeRemaining <= 300) {
                 timerText.classList.add('warning');
-                navigatorTimerText.classList.add('warning');
+                fixedTimerText.classList.add('warning');
             }
         }
 
@@ -2908,7 +2916,7 @@ Requirements:
                 examModeEnabled = false;
                 document.getElementById('examModeCheckbox').checked = false;
                 document.getElementById('timerDisplay').classList.remove('active');
-                document.getElementById('navigatorTimer').classList.remove('active');
+                document.getElementById('fixedTopTimer').classList.remove('active');
                 document.getElementById('timerMinutes').disabled = false;
             }
 
@@ -2936,7 +2944,7 @@ Requirements:
                 examModeEnabled = false;
                 document.getElementById('examModeCheckbox').checked = false;
                 document.getElementById('timerDisplay').classList.remove('active');
-                document.getElementById('navigatorTimer').classList.remove('active');
+                document.getElementById('fixedTopTimer').classList.remove('active');
                 document.getElementById('timerMinutes').disabled = false;
             }
 
@@ -2984,9 +2992,9 @@ Requirements:
             // Show navigator
             document.getElementById('questionNavigator').classList.add('active');
 
-            // Show navigator timer if exam mode enabled
+            // Show fixed top timer if exam mode enabled
             if (examModeEnabled) {
-                document.getElementById('navigatorTimer').classList.add('active');
+                document.getElementById('fixedTopTimer').classList.add('active');
             }
 
             // Initial update to show pinned status
