@@ -32,6 +32,7 @@
             color: white;
             padding: 30px;
             text-align: center;
+            position: relative;
         }
 
         .header h1 {
@@ -42,6 +43,41 @@
         .header p {
             font-size: 1.1em;
             opacity: 0.9;
+        }
+
+        .language-selector {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .language-selector select {
+            padding: 8px 15px;
+            border: 2px solid white;
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            border-radius: 8px;
+            font-size: 0.9em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .language-selector select:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        .language-selector select option {
+            background: #667eea;
+            color: white;
+        }
+
+        .language-selector label {
+            font-size: 0.9em;
+            font-weight: 600;
         }
 
         .content {
@@ -201,7 +237,8 @@
             gap: 10px;
         }
 
-        .option input[type="radio"] {
+        .option input[type="radio"],
+        .option input[type="checkbox"] {
             width: 20px;
             height: 20px;
             cursor: pointer;
@@ -278,6 +315,96 @@
             display: none;
         }
 
+        .pin-button {
+            background: none;
+            border: none;
+            font-size: 1.5em;
+            cursor: pointer;
+            padding: 5px 10px;
+            margin-left: 10px;
+            transition: all 0.3s;
+            text-transform: none;
+            letter-spacing: normal;
+        }
+
+        .pin-button:hover {
+            transform: scale(1.2);
+        }
+
+        .pin-button.pinned {
+            color: #ffd700;
+        }
+
+        .pin-button.unpinned {
+            color: #ccc;
+        }
+
+        .question-card.pinned {
+            border-left-color: #ffd700;
+            background: #fffdf0;
+        }
+
+        .question-header-container {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .btn-warning {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+        }
+
+        .btn-warning:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(245, 87, 108, 0.4);
+        }
+
+        .btn-info {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            color: white;
+        }
+
+        .btn-info:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(79, 172, 254, 0.4);
+        }
+
+        .filter-section {
+            margin-bottom: 20px;
+            padding: 15px;
+            background: #f0f4ff;
+            border-radius: 10px;
+        }
+
+        .filter-buttons {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .filter-button {
+            padding: 8px 20px;
+            border: 2px solid #667eea;
+            background: white;
+            color: #667eea;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 0.9em;
+            font-weight: 600;
+        }
+
+        .filter-button:hover {
+            background: #667eea;
+            color: white;
+        }
+
+        .filter-button.active {
+            background: #667eea;
+            color: white;
+        }
+
         @media (max-width: 768px) {
             .header h1 {
                 font-size: 1.8em;
@@ -288,8 +415,14 @@
                 align-items: stretch;
             }
 
-            button {
+            button:not(.pin-button):not(.filter-button) {
                 width: 100%;
+            }
+
+            .question-header-container {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 10px;
             }
         }
     </style>
@@ -297,62 +430,63 @@
 <body>
     <div class="container">
         <div class="header">
-            <h1>📝 Ứng dụng Quiz</h1>
-            <p>Tạo bộ câu hỏi, xáo trộn và chấm điểm tự động</p>
+            <div class="language-selector">
+                <label for="languageSelect" data-i18n="language">🌐</label>
+                <select id="languageSelect" onchange="changeLanguage(this.value)">
+                    <option value="vi">Tiếng Việt</option>
+                    <option value="en">English</option>
+                </select>
+            </div>
+            <h1 data-i18n="title">📝 Ứng dụng Quiz</h1>
+            <p data-i18n="subtitle">Tạo bộ câu hỏi, xáo trộn và chấm điểm tự động</p>
         </div>
 
         <div class="content">
             <!-- Input Section -->
             <div class="section" id="inputSection">
-                <h2 class="section-title">Bước 1: Nhập Dữ Liệu</h2>
+                <h2 class="section-title" data-i18n="step1">Bước 1: Nhập Dữ Liệu</h2>
 
                 <div class="input-group">
-                    <label for="questionsInput">Câu hỏi và đáp án:</label>
-                    <textarea id="questionsInput" rows="12" placeholder="Nhập câu hỏi theo định dạng:
-
-1. Câu hỏi thứ nhất?
-a. Đáp án A
-b. Đáp án B
-c. Đáp án C
-d. Đáp án D
-
-2. Câu hỏi thứ hai?
-a. Đáp án A
-b. Đáp án B
-c. Đáp án C
-d. Đáp án D"></textarea>
-                    <p class="hint">Mỗi câu hỏi bắt đầu bằng số thứ tự, các đáp án bắt đầu bằng a, b, c, d...</p>
+                    <label for="questionsInput" data-i18n="questionsLabel">Câu hỏi và đáp án:</label>
+                    <textarea id="questionsInput" rows="12" data-i18n-placeholder="questionsPlaceholder"></textarea>
+                    <p class="hint" data-i18n="questionsHint">Mỗi câu hỏi bắt đầu bằng số thứ tự, các đáp án bắt đầu bằng a, b, c, d...</p>
                 </div>
 
                 <div class="input-group">
-                    <label for="answersInput">Đáp án đúng:</label>
-                    <textarea id="answersInput" rows="6" placeholder="Nhập đáp án theo định dạng:
-
-1. a
-2. b
-3. c
-4. d
-
-Hoặc: 1.a 2.b 3.c 4.d"></textarea>
-                    <p class="hint">Nhập đáp án đúng cho mỗi câu theo số thứ tự</p>
+                    <label for="answersInput" data-i18n="answersLabel">Đáp án đúng:</label>
+                    <textarea id="answersInput" rows="6" data-i18n-placeholder="answersPlaceholder"></textarea>
+                    <p class="hint" data-i18n="answersHint">Nhập đáp án đúng cho mỗi câu theo số thứ tự</p>
                 </div>
 
                 <div class="controls">
                     <div class="checkbox-group">
                         <input type="checkbox" id="shuffleCheckbox">
-                        <label for="shuffleCheckbox">Xáo trộn câu hỏi</label>
+                        <label for="shuffleCheckbox" data-i18n="shuffleLabel">Xáo trộn câu hỏi</label>
                     </div>
-                    <button class="btn-primary" onclick="generateQuiz()">Tạo Quiz</button>
+                    <button class="btn-primary" onclick="generateQuiz()" data-i18n="createQuizBtn">Tạo Quiz</button>
                 </div>
             </div>
 
             <!-- Quiz Section -->
             <div class="section hidden" id="quizSection">
-                <h2 class="section-title">Bước 2: Làm Bài Quiz</h2>
+                <h2 class="section-title" data-i18n="step2">Bước 2: Làm Bài Quiz</h2>
+
+                <!-- Filter Section -->
+                <div class="filter-section" id="filterSection" style="display: none;">
+                    <label style="margin-bottom: 10px;" data-i18n="filterLabel">Lọc câu hỏi:</label>
+                    <div class="filter-buttons">
+                        <button class="filter-button active" onclick="filterQuestions('all')" data-i18n="filterAll">Tất cả</button>
+                        <button class="filter-button" onclick="filterQuestions('pinned')" data-i18n="filterPinned">Câu đã pin</button>
+                        <button class="filter-button" onclick="filterQuestions('incorrect')" data-i18n="filterIncorrect">Câu sai</button>
+                    </div>
+                </div>
+
                 <div id="quizContainer"></div>
                 <div class="controls">
-                    <button class="btn-success" onclick="submitQuiz()">Chấm Điểm</button>
-                    <button class="btn-secondary" onclick="resetQuiz()">Làm Lại</button>
+                    <button class="btn-success" onclick="submitQuiz()" data-i18n="submitBtn">Chấm Điểm</button>
+                    <button class="btn-secondary" onclick="resetQuiz()" data-i18n="resetBtn">Làm Lại</button>
+                    <button class="btn-warning hidden" id="retryIncorrectBtn" onclick="retryIncorrectQuestions()" data-i18n="retryIncorrectBtn">Làm Lại Câu Sai</button>
+                    <button class="btn-info hidden" id="retryPinnedBtn" onclick="retryPinnedQuestions()" data-i18n="retryPinnedBtn">Làm Lại Câu Đã Pin</button>
                 </div>
             </div>
 
@@ -365,6 +499,141 @@ Hoặc: 1.a 2.b 3.c 4.d"></textarea>
         let quizData = [];
         let correctAnswers = {};
         let questionMapping = {}; // Lưu mapping giữa vị trí hiện tại và số thứ tự gốc
+        let pinnedQuestions = new Set(); // Lưu index các câu được pin
+        let incorrectQuestions = new Set(); // Lưu index các câu sai
+        let isGraded = false; // Track xem đã chấm điểm chưa
+        let originalQuestionsText = ''; // Lưu câu hỏi gốc
+        let originalAnswersText = ''; // Lưu đáp án gốc
+        let currentFilter = 'all'; // Bộ lọc hiện tại
+        let currentLanguage = 'vi'; // Ngôn ngữ hiện tại
+
+        // Translations
+        const translations = {
+            vi: {
+                title: '📝 Ứng dụng Quiz',
+                subtitle: 'Tạo bộ câu hỏi, xáo trộn và chấm điểm tự động',
+                step1: 'Bước 1: Nhập Dữ Liệu',
+                step2: 'Bước 2: Làm Bài Quiz',
+                questionsLabel: 'Câu hỏi và đáp án:',
+                questionsPlaceholder: 'Nhập câu hỏi theo định dạng:\n\n1. Câu hỏi thứ nhất?\na. Đáp án A\nb. Đáp án B\nc. Đáp án C\nd. Đáp án D\n\n2. Câu hỏi thứ hai?\na. Đáp án A\nb. Đáp án B\nc. Đáp án C\nd. Đáp án D',
+                questionsHint: 'Mỗi câu hỏi bắt đầu bằng số thứ tự, các đáp án bắt đầu bằng a, b, c, d...',
+                answersLabel: 'Đáp án đúng:',
+                answersPlaceholder: 'Nhập đáp án theo định dạng:\n\n1. a\n2. b\n3. c\n4. d\n\nNhiều đáp án đúng:\n5. a,b,c\n6. abc',
+                answersHint: 'Nhập đáp án đúng cho mỗi câu. Nhiều đáp án: dùng dấu phẩy (a,b,c) hoặc viết liền (abc)',
+                shuffleLabel: 'Xáo trộn câu hỏi',
+                createQuizBtn: 'Tạo Quiz',
+                filterLabel: 'Lọc câu hỏi:',
+                filterAll: 'Tất cả',
+                filterPinned: 'Câu đã pin',
+                filterIncorrect: 'Câu sai',
+                submitBtn: 'Chấm Điểm',
+                resetBtn: 'Làm Lại',
+                retryIncorrectBtn: 'Làm Lại Câu Sai',
+                retryPinnedBtn: 'Làm Lại Câu Đã Pin',
+                question: 'Câu',
+                pinQuestion: 'Pin câu hỏi',
+                unpinQuestion: 'Bỏ pin',
+                correct: '✓ Chính xác!',
+                incorrect: '✗ Sai - Đáp án đúng:',
+                unanswered: 'Chưa trả lời - Đáp án đúng:',
+                resultTitle: '🎉 Kết Quả Của Bạn',
+                totalQuestions: 'Tổng câu',
+                correctAnswers: 'Đúng',
+                incorrectAnswers: 'Sai',
+                unansweredQuestions: 'Chưa trả lời',
+                alertNoData: 'Vui lòng nhập đầy đủ câu hỏi và đáp án!',
+                alertNoQuestions: 'Không tìm thấy câu hỏi hợp lệ! Vui lòng kiểm tra định dạng.',
+                alertNoIncorrect: 'Không có câu sai nào để làm lại!',
+                alertNoPinned: 'Chưa có câu hỏi nào được pin!',
+                alertNoRetry: 'Không có câu hỏi nào để làm lại!',
+                confirmReset: 'Bạn có chắc muốn làm lại? Tất cả câu trả lời sẽ bị xóa.'
+            },
+            en: {
+                title: '📝 Quiz Application',
+                subtitle: 'Create quizzes, shuffle questions, and auto-grade',
+                step1: 'Step 1: Input Data',
+                step2: 'Step 2: Take the Quiz',
+                questionsLabel: 'Questions and Answers:',
+                questionsPlaceholder: 'Enter questions in this format:\n\n1. First question?\na. Answer A\nb. Answer B\nc. Answer C\nd. Answer D\n\n2. Second question?\na. Answer A\nb. Answer B\nc. Answer C\nd. Answer D',
+                questionsHint: 'Each question starts with a number, answers start with a, b, c, d...',
+                answersLabel: 'Correct Answers:',
+                answersPlaceholder: 'Enter answers in this format:\n\n1. a\n2. b\n3. c\n4. d\n\nMultiple correct answers:\n5. a,b,c\n6. abc',
+                answersHint: 'Enter correct answers for each question. Multiple answers: use comma (a,b,c) or write together (abc)',
+                shuffleLabel: 'Shuffle questions',
+                createQuizBtn: 'Create Quiz',
+                filterLabel: 'Filter questions:',
+                filterAll: 'All',
+                filterPinned: 'Pinned',
+                filterIncorrect: 'Incorrect',
+                submitBtn: 'Submit & Grade',
+                resetBtn: 'Reset',
+                retryIncorrectBtn: 'Retry Incorrect',
+                retryPinnedBtn: 'Retry Pinned',
+                question: 'Question',
+                pinQuestion: 'Pin question',
+                unpinQuestion: 'Unpin',
+                correct: '✓ Correct!',
+                incorrect: '✗ Incorrect - Correct answer:',
+                unanswered: 'Not answered - Correct answer:',
+                resultTitle: '🎉 Your Results',
+                totalQuestions: 'Total',
+                correctAnswers: 'Correct',
+                incorrectAnswers: 'Incorrect',
+                unansweredQuestions: 'Not Answered',
+                alertNoData: 'Please enter both questions and answers!',
+                alertNoQuestions: 'No valid questions found! Please check the format.',
+                alertNoIncorrect: 'No incorrect questions to retry!',
+                alertNoPinned: 'No questions have been pinned yet!',
+                alertNoRetry: 'No questions to retry!',
+                confirmReset: 'Are you sure you want to reset? All answers will be lost.'
+            }
+        };
+
+        function changeLanguage(lang) {
+            currentLanguage = lang;
+
+            // Update all elements with data-i18n
+            document.querySelectorAll('[data-i18n]').forEach(element => {
+                const key = element.getAttribute('data-i18n');
+                if (translations[lang][key]) {
+                    element.textContent = translations[lang][key];
+                }
+            });
+
+            // Update placeholders
+            document.querySelectorAll('[data-i18n-placeholder]').forEach(element => {
+                const key = element.getAttribute('data-i18n-placeholder');
+                if (translations[lang][key]) {
+                    element.placeholder = translations[lang][key];
+                }
+            });
+
+            // Update pin button titles if quiz is displayed
+            if (!document.getElementById('quizSection').classList.contains('hidden')) {
+                quizData.forEach((q, index) => {
+                    const originalNumber = questionMapping[index];
+                    const isPinned = pinnedQuestions.has(originalNumber);
+                    const pinButton = document.getElementById(`pin${index}`);
+                    if (pinButton) {
+                        pinButton.title = isPinned ? translations[lang].unpinQuestion : translations[lang].pinQuestion;
+                    }
+                });
+            }
+
+            // Update result section if it exists
+            if (isGraded && !document.getElementById('resultSection').classList.contains('hidden')) {
+                // Re-display results with new language
+                const resultDiv = document.getElementById('resultSection');
+                if (resultDiv.innerHTML) {
+                    // Results will be updated on next submit
+                }
+            }
+        }
+
+        // Initialize language on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            changeLanguage('vi');
+        });
 
         function parseQuestions(text) {
             const questions = [];
@@ -408,19 +677,40 @@ Hoặc: 1.a 2.b 3.c 4.d"></textarea>
 
         function parseAnswers(text) {
             const answers = {};
-            const lines = text.trim().split(/[\n\s]+/);
+            const lines = text.trim().split(/[\n]+/);
 
             for (let line of lines) {
                 line = line.trim();
                 if (!line) continue;
 
-                const match = line.match(/^(\d+)\.?\s*([a-z])/i);
+                // Match pattern: 1. a hoặc 1. a,b,c hoặc 1. abc hoặc 1.a 1.b 1.c
+                const match = line.match(/^(\d+)\.\s*(.+)/);
                 if (match) {
-                    answers[parseInt(match[1])] = match[2].toLowerCase();
+                    const questionNum = parseInt(match[1]);
+                    let answerPart = match[2].trim();
+
+                    // Xử lý các format: "a,b,c" hoặc "abc" hoặc "a b c"
+                    answerPart = answerPart.replace(/\s+/g, ''); // Remove spaces
+
+                    // Nếu có dấu phẩy, split by comma
+                    if (answerPart.includes(',')) {
+                        answers[questionNum] = answerPart.split(',').map(a => a.toLowerCase().trim());
+                    } else if (answerPart.length > 1 && /^[a-z]+$/i.test(answerPart)) {
+                        // Nếu là chuỗi nhiều chữ cái liên tiếp (abc)
+                        answers[questionNum] = answerPart.toLowerCase().split('');
+                    } else {
+                        // Đáp án đơn
+                        answers[questionNum] = answerPart.toLowerCase();
+                    }
                 }
             }
 
             return answers;
+        }
+
+        function isMultipleAnswer(questionNumber) {
+            const answer = correctAnswers[questionNumber];
+            return Array.isArray(answer);
         }
 
         function shuffleArray(array) {
@@ -432,27 +722,53 @@ Hoặc: 1.a 2.b 3.c 4.d"></textarea>
             return newArray;
         }
 
-        function generateQuiz() {
-            const questionsText = document.getElementById('questionsInput').value;
-            const answersText = document.getElementById('answersInput').value;
+        function generateQuiz(specificQuestions = null) {
+            let questionsText, answersText;
+
+            if (specificQuestions) {
+                // Tạo quiz từ câu hỏi cụ thể (pin hoặc sai)
+                questionsText = originalQuestionsText;
+                answersText = originalAnswersText;
+            } else {
+                // Tạo quiz mới từ input
+                questionsText = document.getElementById('questionsInput').value;
+                answersText = document.getElementById('answersInput').value;
+                originalQuestionsText = questionsText;
+                originalAnswersText = answersText;
+                pinnedQuestions.clear();
+                incorrectQuestions.clear();
+                isGraded = false;
+            }
+
             const shouldShuffle = document.getElementById('shuffleCheckbox').checked;
 
             if (!questionsText.trim() || !answersText.trim()) {
-                alert('Vui lòng nhập đầy đủ câu hỏi và đáp án!');
+                alert(translations[currentLanguage].alertNoData);
                 return;
             }
 
             // Parse dữ liệu
-            quizData = parseQuestions(questionsText);
+            let allQuestions = parseQuestions(questionsText);
             correctAnswers = parseAnswers(answersText);
 
-            if (quizData.length === 0) {
-                alert('Không tìm thấy câu hỏi hợp lệ! Vui lòng kiểm tra định dạng.');
+            if (allQuestions.length === 0) {
+                alert(translations[currentLanguage].alertNoQuestions);
                 return;
             }
 
+            // Lọc câu hỏi nếu có specificQuestions
+            if (specificQuestions) {
+                quizData = allQuestions.filter(q => specificQuestions.has(q.number));
+                if (quizData.length === 0) {
+                    alert(translations[currentLanguage].alertNoRetry);
+                    return;
+                }
+            } else {
+                quizData = allQuestions;
+            }
+
             // Xáo trộn nếu cần
-            if (shouldShuffle) {
+            if (shouldShuffle && !specificQuestions) {
                 quizData = shuffleArray(quizData);
             }
 
@@ -461,6 +777,12 @@ Hoặc: 1.a 2.b 3.c 4.d"></textarea>
             quizData.forEach((q, index) => {
                 questionMapping[index] = q.number;
             });
+
+            // Reset trạng thái
+            isGraded = false;
+            document.getElementById('retryIncorrectBtn').classList.add('hidden');
+            document.getElementById('retryPinnedBtn').classList.add('hidden');
+            document.getElementById('filterSection').style.display = 'none';
 
             // Hiển thị quiz
             displayQuiz();
@@ -476,17 +798,38 @@ Hoặc: 1.a 2.b 3.c 4.d"></textarea>
             quizData.forEach((q, index) => {
                 const questionCard = document.createElement('div');
                 questionCard.className = 'question-card';
+                questionCard.id = `card${index}`;
+
+                // Check nếu câu này đã được pin
+                const originalNumber = q.number;
+                const isPinned = pinnedQuestions.has(originalNumber);
+                const isIncorrect = incorrectQuestions.has(originalNumber);
+
+                if (isPinned) {
+                    questionCard.classList.add('pinned');
+                }
 
                 let html = `
-                    <div class="question-header">Câu ${index + 1}</div>
+                    <div class="question-header-container">
+                        <div class="question-header">${translations[currentLanguage].question} ${index + 1}</div>
+                        <button class="pin-button ${isPinned ? 'pinned' : 'unpinned'}"
+                                onclick="togglePin(${index})"
+                                id="pin${index}"
+                                title="${isPinned ? translations[currentLanguage].unpinQuestion : translations[currentLanguage].pinQuestion}">
+                            ${isPinned ? '📌' : '📍'}
+                        </button>
+                    </div>
                     <div class="question-text">${q.question}</div>
                     <div class="options">
                 `;
 
+                const isMultiple = isMultipleAnswer(originalNumber);
+                const inputType = isMultiple ? 'checkbox' : 'radio';
+
                 q.options.forEach(option => {
                     html += `
                         <div class="option">
-                            <input type="radio"
+                            <input type="${inputType}"
                                    name="question${index}"
                                    value="${option.letter}"
                                    id="q${index}_${option.letter}">
@@ -507,39 +850,122 @@ Hoặc: 1.a 2.b 3.c 4.d"></textarea>
             });
         }
 
+        function togglePin(index) {
+            const originalNumber = questionMapping[index];
+            const pinButton = document.getElementById(`pin${index}`);
+            const card = document.getElementById(`card${index}`);
+
+            if (pinnedQuestions.has(originalNumber)) {
+                pinnedQuestions.delete(originalNumber);
+                pinButton.classList.remove('pinned');
+                pinButton.classList.add('unpinned');
+                pinButton.textContent = '📍';
+                pinButton.title = translations[currentLanguage].pinQuestion;
+                card.classList.remove('pinned');
+            } else {
+                pinnedQuestions.add(originalNumber);
+                pinButton.classList.remove('unpinned');
+                pinButton.classList.add('pinned');
+                pinButton.textContent = '📌';
+                pinButton.title = translations[currentLanguage].unpinQuestion;
+                card.classList.add('pinned');
+            }
+
+            // Update button visibility
+            updateRetryButtons();
+        }
+
         function submitQuiz() {
             let correctCount = 0;
             let incorrectCount = 0;
             let unanswered = 0;
 
+            // Clear previous incorrect questions
+            incorrectQuestions.clear();
+
             quizData.forEach((q, index) => {
                 const originalNumber = questionMapping[index];
-                const selectedOption = document.querySelector(`input[name="question${index}"]:checked`);
                 const resultDiv = document.getElementById(`result${index}`);
                 resultDiv.classList.remove('hidden');
 
-                if (!selectedOption) {
+                const isMultiple = isMultipleAnswer(originalNumber);
+                let userAnswer;
+                let isCorrect = false;
+
+                if (isMultiple) {
+                    // Checkbox - multiple answers
+                    const selectedOptions = document.querySelectorAll(`input[name="question${index}"]:checked`);
+                    if (selectedOptions.length === 0) {
+                        userAnswer = null;
+                    } else {
+                        userAnswer = Array.from(selectedOptions).map(opt => opt.value).sort();
+                        const correctAnswer = correctAnswers[originalNumber].slice().sort();
+
+                        // So sánh arrays
+                        isCorrect = userAnswer.length === correctAnswer.length &&
+                                   userAnswer.every((val, idx) => val === correctAnswer[idx]);
+                    }
+                } else {
+                    // Radio - single answer
+                    const selectedOption = document.querySelector(`input[name="question${index}"]:checked`);
+                    if (!selectedOption) {
+                        userAnswer = null;
+                    } else {
+                        userAnswer = selectedOption.value;
+                        isCorrect = userAnswer === correctAnswers[originalNumber];
+                    }
+                }
+
+                // Display result
+                if (userAnswer === null) {
+                    const correctAnswerDisplay = Array.isArray(correctAnswers[originalNumber])
+                        ? correctAnswers[originalNumber].map(a => a.toUpperCase()).join(', ')
+                        : correctAnswers[originalNumber].toUpperCase();
                     resultDiv.className = 'question-result incorrect';
-                    resultDiv.textContent = `Chưa trả lời - Đáp án đúng: ${correctAnswers[originalNumber].toUpperCase()}`;
+                    resultDiv.textContent = `${translations[currentLanguage].unanswered} ${correctAnswerDisplay}`;
                     unanswered++;
                     incorrectCount++;
+                    incorrectQuestions.add(originalNumber);
+                } else if (isCorrect) {
+                    resultDiv.className = 'question-result correct';
+                    resultDiv.textContent = translations[currentLanguage].correct;
+                    correctCount++;
                 } else {
-                    const userAnswer = selectedOption.value;
-                    const correctAnswer = correctAnswers[originalNumber];
-
-                    if (userAnswer === correctAnswer) {
-                        resultDiv.className = 'question-result correct';
-                        resultDiv.textContent = '✓ Chính xác!';
-                        correctCount++;
-                    } else {
-                        resultDiv.className = 'question-result incorrect';
-                        resultDiv.textContent = `✗ Sai - Đáp án đúng: ${correctAnswer.toUpperCase()}`;
-                        incorrectCount++;
-                    }
+                    const correctAnswerDisplay = Array.isArray(correctAnswers[originalNumber])
+                        ? correctAnswers[originalNumber].map(a => a.toUpperCase()).join(', ')
+                        : correctAnswers[originalNumber].toUpperCase();
+                    resultDiv.className = 'question-result incorrect';
+                    resultDiv.textContent = `${translations[currentLanguage].incorrect} ${correctAnswerDisplay}`;
+                    incorrectCount++;
+                    incorrectQuestions.add(originalNumber);
                 }
             });
 
+            isGraded = true;
             displayResults(correctCount, incorrectCount, unanswered);
+            updateRetryButtons();
+
+            // Show filter section after grading
+            if (isGraded) {
+                document.getElementById('filterSection').style.display = 'block';
+            }
+        }
+
+        function updateRetryButtons() {
+            const retryIncorrectBtn = document.getElementById('retryIncorrectBtn');
+            const retryPinnedBtn = document.getElementById('retryPinnedBtn');
+
+            if (isGraded && incorrectQuestions.size > 0) {
+                retryIncorrectBtn.classList.remove('hidden');
+            } else {
+                retryIncorrectBtn.classList.add('hidden');
+            }
+
+            if (pinnedQuestions.size > 0) {
+                retryPinnedBtn.classList.remove('hidden');
+            } else {
+                retryPinnedBtn.classList.add('hidden');
+            }
         }
 
         function displayResults(correct, incorrect, unanswered) {
@@ -548,24 +974,24 @@ Hoặc: 1.a 2.b 3.c 4.d"></textarea>
 
             const resultSection = document.getElementById('resultSection');
             resultSection.innerHTML = `
-                <h2>🎉 Kết Quả Của Bạn</h2>
+                <h2>${translations[currentLanguage].resultTitle}</h2>
                 <div class="score-display">${percentage}%</div>
                 <div class="result-details">
                     <div class="result-item">
-                        <h3>Tổng câu</h3>
+                        <h3>${translations[currentLanguage].totalQuestions}</h3>
                         <p>${total}</p>
                     </div>
                     <div class="result-item">
-                        <h3>Đúng</h3>
+                        <h3>${translations[currentLanguage].correctAnswers}</h3>
                         <p style="color: #38ef7d;">${correct}</p>
                     </div>
                     <div class="result-item">
-                        <h3>Sai</h3>
+                        <h3>${translations[currentLanguage].incorrectAnswers}</h3>
                         <p style="color: #ff6b6b;">${incorrect}</p>
                     </div>
                     ${unanswered > 0 ? `
                     <div class="result-item">
-                        <h3>Chưa trả lời</h3>
+                        <h3>${translations[currentLanguage].unansweredQuestions}</h3>
                         <p style="color: #ffd93d;">${unanswered}</p>
                     </div>
                     ` : ''}
@@ -578,7 +1004,7 @@ Hoặc: 1.a 2.b 3.c 4.d"></textarea>
         }
 
         function resetQuiz() {
-            if (confirm('Bạn có chắc muốn làm lại? Tất cả câu trả lời sẽ bị xóa.')) {
+            if (confirm(translations[currentLanguage].confirmReset)) {
                 document.getElementById('inputSection').classList.remove('hidden');
                 document.getElementById('quizSection').classList.add('hidden');
                 document.getElementById('resultSection').classList.add('hidden');
@@ -588,7 +1014,63 @@ Hoặc: 1.a 2.b 3.c 4.d"></textarea>
                 quizData = [];
                 correctAnswers = {};
                 questionMapping = {};
+                pinnedQuestions.clear();
+                incorrectQuestions.clear();
+                isGraded = false;
+                originalQuestionsText = '';
+                originalAnswersText = '';
             }
+        }
+
+        function retryIncorrectQuestions() {
+            if (incorrectQuestions.size === 0) {
+                alert(translations[currentLanguage].alertNoIncorrect);
+                return;
+            }
+            generateQuiz(incorrectQuestions);
+        }
+
+        function retryPinnedQuestions() {
+            if (pinnedQuestions.size === 0) {
+                alert(translations[currentLanguage].alertNoPinned);
+                return;
+            }
+            generateQuiz(pinnedQuestions);
+        }
+
+        function filterQuestions(filterType) {
+            currentFilter = filterType;
+
+            // Update active filter button
+            document.querySelectorAll('.filter-button').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            event.target.classList.add('active');
+
+            // Filter question cards
+            quizData.forEach((q, index) => {
+                const card = document.getElementById(`card${index}`);
+                const originalNumber = questionMapping[index];
+                let shouldShow = false;
+
+                switch(filterType) {
+                    case 'all':
+                        shouldShow = true;
+                        break;
+                    case 'pinned':
+                        shouldShow = pinnedQuestions.has(originalNumber);
+                        break;
+                    case 'incorrect':
+                        shouldShow = incorrectQuestions.has(originalNumber);
+                        break;
+                }
+
+                if (shouldShow) {
+                    card.style.display = 'block';
+                } else {
+                    card.style.display = 'none';
+                }
+            });
         }
     </script>
 </body>
