@@ -1,0 +1,595 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ứng dụng Quiz - Tạo và Chấm Điểm</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            font-size: 1.1em;
+            opacity: 0.9;
+        }
+
+        .content {
+            padding: 30px;
+        }
+
+        .section {
+            margin-bottom: 30px;
+        }
+
+        .section-title {
+            font-size: 1.5em;
+            color: #667eea;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #667eea;
+        }
+
+        .input-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: #333;
+        }
+
+        textarea {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid #ddd;
+            border-radius: 10px;
+            font-size: 14px;
+            font-family: 'Consolas', 'Monaco', monospace;
+            resize: vertical;
+            transition: border-color 0.3s;
+        }
+
+        textarea:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .hint {
+            font-size: 0.9em;
+            color: #666;
+            margin-top: 5px;
+            font-style: italic;
+        }
+
+        .controls {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+            align-items: center;
+            margin-top: 20px;
+        }
+
+        .checkbox-group {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .checkbox-group input[type="checkbox"] {
+            width: 20px;
+            height: 20px;
+            cursor: pointer;
+        }
+
+        .checkbox-group label {
+            margin: 0;
+            cursor: pointer;
+        }
+
+        button {
+            padding: 12px 30px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+            color: white;
+        }
+
+        .btn-success:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(56, 239, 125, 0.4);
+        }
+
+        .btn-secondary {
+            background: #6c757d;
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background: #5a6268;
+        }
+
+        button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        #quizContainer {
+            margin-top: 30px;
+        }
+
+        .question-card {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 25px;
+            border-left: 5px solid #667eea;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .question-header {
+            font-size: 1.2em;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 15px;
+        }
+
+        .question-text {
+            margin-bottom: 15px;
+            line-height: 1.6;
+        }
+
+        .options {
+            margin-left: 20px;
+        }
+
+        .option {
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .option input[type="radio"] {
+            width: 20px;
+            height: 20px;
+            cursor: pointer;
+        }
+
+        .option label {
+            cursor: pointer;
+            margin: 0;
+            flex: 1;
+        }
+
+        .result-section {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+            padding: 30px;
+            border-radius: 15px;
+            margin-top: 30px;
+            text-align: center;
+        }
+
+        .result-section h2 {
+            font-size: 2em;
+            margin-bottom: 20px;
+        }
+
+        .score-display {
+            font-size: 3em;
+            font-weight: bold;
+            margin: 20px 0;
+        }
+
+        .result-details {
+            display: flex;
+            justify-content: center;
+            gap: 40px;
+            margin-top: 20px;
+            flex-wrap: wrap;
+        }
+
+        .result-item {
+            background: rgba(255, 255, 255, 0.2);
+            padding: 15px 30px;
+            border-radius: 10px;
+        }
+
+        .result-item h3 {
+            font-size: 1.2em;
+            margin-bottom: 5px;
+        }
+
+        .result-item p {
+            font-size: 2em;
+            font-weight: bold;
+        }
+
+        .question-result {
+            margin-top: 10px;
+            padding: 10px;
+            border-radius: 5px;
+            font-weight: 600;
+        }
+
+        .question-result.correct {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .question-result.incorrect {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 1.8em;
+            }
+
+            .controls {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            button {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📝 Ứng dụng Quiz</h1>
+            <p>Tạo bộ câu hỏi, xáo trộn và chấm điểm tự động</p>
+        </div>
+
+        <div class="content">
+            <!-- Input Section -->
+            <div class="section" id="inputSection">
+                <h2 class="section-title">Bước 1: Nhập Dữ Liệu</h2>
+
+                <div class="input-group">
+                    <label for="questionsInput">Câu hỏi và đáp án:</label>
+                    <textarea id="questionsInput" rows="12" placeholder="Nhập câu hỏi theo định dạng:
+
+1. Câu hỏi thứ nhất?
+a. Đáp án A
+b. Đáp án B
+c. Đáp án C
+d. Đáp án D
+
+2. Câu hỏi thứ hai?
+a. Đáp án A
+b. Đáp án B
+c. Đáp án C
+d. Đáp án D"></textarea>
+                    <p class="hint">Mỗi câu hỏi bắt đầu bằng số thứ tự, các đáp án bắt đầu bằng a, b, c, d...</p>
+                </div>
+
+                <div class="input-group">
+                    <label for="answersInput">Đáp án đúng:</label>
+                    <textarea id="answersInput" rows="6" placeholder="Nhập đáp án theo định dạng:
+
+1. a
+2. b
+3. c
+4. d
+
+Hoặc: 1.a 2.b 3.c 4.d"></textarea>
+                    <p class="hint">Nhập đáp án đúng cho mỗi câu theo số thứ tự</p>
+                </div>
+
+                <div class="controls">
+                    <div class="checkbox-group">
+                        <input type="checkbox" id="shuffleCheckbox">
+                        <label for="shuffleCheckbox">Xáo trộn câu hỏi</label>
+                    </div>
+                    <button class="btn-primary" onclick="generateQuiz()">Tạo Quiz</button>
+                </div>
+            </div>
+
+            <!-- Quiz Section -->
+            <div class="section hidden" id="quizSection">
+                <h2 class="section-title">Bước 2: Làm Bài Quiz</h2>
+                <div id="quizContainer"></div>
+                <div class="controls">
+                    <button class="btn-success" onclick="submitQuiz()">Chấm Điểm</button>
+                    <button class="btn-secondary" onclick="resetQuiz()">Làm Lại</button>
+                </div>
+            </div>
+
+            <!-- Result Section -->
+            <div id="resultSection" class="hidden"></div>
+        </div>
+    </div>
+
+    <script>
+        let quizData = [];
+        let correctAnswers = {};
+        let questionMapping = {}; // Lưu mapping giữa vị trí hiện tại và số thứ tự gốc
+
+        function parseQuestions(text) {
+            const questions = [];
+            const lines = text.trim().split('\n');
+            let currentQuestion = null;
+
+            for (let line of lines) {
+                line = line.trim();
+                if (!line) continue;
+
+                // Kiểm tra dòng câu hỏi (bắt đầu bằng số)
+                const questionMatch = line.match(/^(\d+)\.\s*(.+)/);
+                if (questionMatch) {
+                    if (currentQuestion) {
+                        questions.push(currentQuestion);
+                    }
+                    currentQuestion = {
+                        number: parseInt(questionMatch[1]),
+                        question: questionMatch[2],
+                        options: []
+                    };
+                    continue;
+                }
+
+                // Kiểm tra dòng đáp án (bắt đầu bằng chữ cái)
+                const optionMatch = line.match(/^([a-z])\.\s*(.+)/i);
+                if (optionMatch && currentQuestion) {
+                    currentQuestion.options.push({
+                        letter: optionMatch[1].toLowerCase(),
+                        text: optionMatch[2]
+                    });
+                }
+            }
+
+            if (currentQuestion) {
+                questions.push(currentQuestion);
+            }
+
+            return questions;
+        }
+
+        function parseAnswers(text) {
+            const answers = {};
+            const lines = text.trim().split(/[\n\s]+/);
+
+            for (let line of lines) {
+                line = line.trim();
+                if (!line) continue;
+
+                const match = line.match(/^(\d+)\.?\s*([a-z])/i);
+                if (match) {
+                    answers[parseInt(match[1])] = match[2].toLowerCase();
+                }
+            }
+
+            return answers;
+        }
+
+        function shuffleArray(array) {
+            const newArray = [...array];
+            for (let i = newArray.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [newArray[i], newArray[j]] = [newArray[j], newArray[i]];
+            }
+            return newArray;
+        }
+
+        function generateQuiz() {
+            const questionsText = document.getElementById('questionsInput').value;
+            const answersText = document.getElementById('answersInput').value;
+            const shouldShuffle = document.getElementById('shuffleCheckbox').checked;
+
+            if (!questionsText.trim() || !answersText.trim()) {
+                alert('Vui lòng nhập đầy đủ câu hỏi và đáp án!');
+                return;
+            }
+
+            // Parse dữ liệu
+            quizData = parseQuestions(questionsText);
+            correctAnswers = parseAnswers(answersText);
+
+            if (quizData.length === 0) {
+                alert('Không tìm thấy câu hỏi hợp lệ! Vui lòng kiểm tra định dạng.');
+                return;
+            }
+
+            // Xáo trộn nếu cần
+            if (shouldShuffle) {
+                quizData = shuffleArray(quizData);
+            }
+
+            // Tạo mapping
+            questionMapping = {};
+            quizData.forEach((q, index) => {
+                questionMapping[index] = q.number;
+            });
+
+            // Hiển thị quiz
+            displayQuiz();
+            document.getElementById('inputSection').classList.add('hidden');
+            document.getElementById('quizSection').classList.remove('hidden');
+            document.getElementById('resultSection').classList.add('hidden');
+        }
+
+        function displayQuiz() {
+            const container = document.getElementById('quizContainer');
+            container.innerHTML = '';
+
+            quizData.forEach((q, index) => {
+                const questionCard = document.createElement('div');
+                questionCard.className = 'question-card';
+
+                let html = `
+                    <div class="question-header">Câu ${index + 1}</div>
+                    <div class="question-text">${q.question}</div>
+                    <div class="options">
+                `;
+
+                q.options.forEach(option => {
+                    html += `
+                        <div class="option">
+                            <input type="radio"
+                                   name="question${index}"
+                                   value="${option.letter}"
+                                   id="q${index}_${option.letter}">
+                            <label for="q${index}_${option.letter}">
+                                ${option.letter.toUpperCase()}. ${option.text}
+                            </label>
+                        </div>
+                    `;
+                });
+
+                html += `
+                    </div>
+                    <div class="question-result hidden" id="result${index}"></div>
+                `;
+
+                questionCard.innerHTML = html;
+                container.appendChild(questionCard);
+            });
+        }
+
+        function submitQuiz() {
+            let correctCount = 0;
+            let incorrectCount = 0;
+            let unanswered = 0;
+
+            quizData.forEach((q, index) => {
+                const originalNumber = questionMapping[index];
+                const selectedOption = document.querySelector(`input[name="question${index}"]:checked`);
+                const resultDiv = document.getElementById(`result${index}`);
+                resultDiv.classList.remove('hidden');
+
+                if (!selectedOption) {
+                    resultDiv.className = 'question-result incorrect';
+                    resultDiv.textContent = `Chưa trả lời - Đáp án đúng: ${correctAnswers[originalNumber].toUpperCase()}`;
+                    unanswered++;
+                    incorrectCount++;
+                } else {
+                    const userAnswer = selectedOption.value;
+                    const correctAnswer = correctAnswers[originalNumber];
+
+                    if (userAnswer === correctAnswer) {
+                        resultDiv.className = 'question-result correct';
+                        resultDiv.textContent = '✓ Chính xác!';
+                        correctCount++;
+                    } else {
+                        resultDiv.className = 'question-result incorrect';
+                        resultDiv.textContent = `✗ Sai - Đáp án đúng: ${correctAnswer.toUpperCase()}`;
+                        incorrectCount++;
+                    }
+                }
+            });
+
+            displayResults(correctCount, incorrectCount, unanswered);
+        }
+
+        function displayResults(correct, incorrect, unanswered) {
+            const total = quizData.length;
+            const percentage = ((correct / total) * 100).toFixed(1);
+
+            const resultSection = document.getElementById('resultSection');
+            resultSection.innerHTML = `
+                <h2>🎉 Kết Quả Của Bạn</h2>
+                <div class="score-display">${percentage}%</div>
+                <div class="result-details">
+                    <div class="result-item">
+                        <h3>Tổng câu</h3>
+                        <p>${total}</p>
+                    </div>
+                    <div class="result-item">
+                        <h3>Đúng</h3>
+                        <p style="color: #38ef7d;">${correct}</p>
+                    </div>
+                    <div class="result-item">
+                        <h3>Sai</h3>
+                        <p style="color: #ff6b6b;">${incorrect}</p>
+                    </div>
+                    ${unanswered > 0 ? `
+                    <div class="result-item">
+                        <h3>Chưa trả lời</h3>
+                        <p style="color: #ffd93d;">${unanswered}</p>
+                    </div>
+                    ` : ''}
+                </div>
+            `;
+            resultSection.classList.remove('hidden');
+
+            // Scroll to results
+            resultSection.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        }
+
+        function resetQuiz() {
+            if (confirm('Bạn có chắc muốn làm lại? Tất cả câu trả lời sẽ bị xóa.')) {
+                document.getElementById('inputSection').classList.remove('hidden');
+                document.getElementById('quizSection').classList.add('hidden');
+                document.getElementById('resultSection').classList.add('hidden');
+                document.getElementById('questionsInput').value = '';
+                document.getElementById('answersInput').value = '';
+                document.getElementById('shuffleCheckbox').checked = false;
+                quizData = [];
+                correctAnswers = {};
+                questionMapping = {};
+            }
+        }
+    </script>
+</body>
+</html>
