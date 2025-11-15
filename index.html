@@ -233,7 +233,7 @@
         /* File upload styles */
         .upload-container {
             display: flex;
-            gap: 10px;
+            gap: 8px;
             align-items: center;
             margin-top: 8px;
             flex-wrap: wrap;
@@ -241,7 +241,9 @@
 
         .file-upload-btn {
             position: relative;
-            display: inline-block;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
             cursor: pointer;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
@@ -251,6 +253,9 @@
             font-weight: 500;
             transition: transform 0.2s, box-shadow 0.2s;
             box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
+            border: none;
+            white-space: nowrap;
+            min-height: 36px;
         }
 
         .file-upload-btn:hover {
@@ -3387,8 +3392,13 @@ Requirements:
                         const firstSheetName = workbook.SheetNames[0];
                         const worksheet = workbook.Sheets[firstSheetName];
 
-                        // Convert to text (preserving line breaks)
-                        const text = XLSX.utils.sheet_to_txt(worksheet, { FS: '\t', RS: '\n' });
+                        // Convert to CSV then process (better encoding handling)
+                        const csv = XLSX.utils.sheet_to_csv(worksheet, { FS: '\t', RS: '\n' });
+
+                        // Remove BOM (Byte Order Mark) if present
+                        let text = csv.replace(/^\uFEFF/, ''); // UTF-8 BOM
+                        text = text.replace(/^ÿþ/, '');        // UTF-16 LE BOM
+                        text = text.replace(/^\xEF\xBB\xBF/, ''); // UTF-8 BOM (another form)
 
                         // Clean up: remove extra tabs and spaces
                         const cleaned = text.split('\n')
