@@ -1631,14 +1631,15 @@ e. Lựa chọn E</div>
         function startTimer() {
             updateTimerDisplay();
             timerInterval = setInterval(() => {
-                timeRemaining--;
-                updateTimerDisplay();
-
                 if (timeRemaining <= 0) {
                     stopTimer();
                     alert(translations[currentLanguage].timeUp);
                     submitQuiz();
+                    return;
                 }
+
+                timeRemaining--;
+                updateTimerDisplay();
             }, 1000);
         }
 
@@ -1666,9 +1667,11 @@ e. Lựa chọn E</div>
         }
 
         function formatTime(seconds) {
-            const hours = Math.floor(seconds / 3600);
-            const mins = Math.floor((seconds % 3600) / 60);
-            const secs = seconds % 60;
+            // Ensure non-negative time display
+            const time = Math.max(0, seconds);
+            const hours = Math.floor(time / 3600);
+            const mins = Math.floor((time % 3600) / 60);
+            const secs = time % 60;
             return `${hours.toString().padStart(2, '0')}:${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
         }
 
