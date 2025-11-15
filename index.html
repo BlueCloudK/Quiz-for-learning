@@ -405,6 +405,110 @@
             color: white;
         }
 
+        .ai-prompts-section {
+            background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 25px;
+        }
+
+        .ai-prompts-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: pointer;
+            user-select: none;
+        }
+
+        .ai-prompts-header h3 {
+            font-size: 1.2em;
+            color: #333;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .toggle-icon {
+            font-size: 1.2em;
+            transition: transform 0.3s;
+        }
+
+        .toggle-icon.rotated {
+            transform: rotate(180deg);
+        }
+
+        .ai-prompts-content {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease-out;
+        }
+
+        .ai-prompts-content.expanded {
+            max-height: 2000px;
+            margin-top: 20px;
+        }
+
+        .prompt-card {
+            background: white;
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 15px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .prompt-card h4 {
+            color: #667eea;
+            margin-bottom: 10px;
+            font-size: 1.1em;
+        }
+
+        .prompt-card p {
+            color: #666;
+            font-size: 0.9em;
+            margin-bottom: 10px;
+            line-height: 1.5;
+        }
+
+        .prompt-text {
+            background: #f8f9fa;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 12px;
+            font-family: 'Consolas', 'Monaco', monospace;
+            font-size: 0.85em;
+            line-height: 1.6;
+            color: #333;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+            margin-bottom: 10px;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+
+        .copy-btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 8px 20px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.9em;
+            font-weight: 600;
+            transition: all 0.3s;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .copy-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+        }
+
+        .copy-btn.copied {
+            background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+        }
+
         @media (max-width: 768px) {
             .header h1 {
                 font-size: 1.8em;
@@ -442,6 +546,22 @@
         </div>
 
         <div class="content">
+            <!-- AI Prompts Section -->
+            <div class="ai-prompts-section">
+                <div class="ai-prompts-header" onclick="toggleAIPrompts()">
+                    <h3>
+                        <span>🤖</span>
+                        <span data-i18n="aiPromptsTitle">Hướng Dẫn Tạo Câu Hỏi Với AI Chatbot</span>
+                    </h3>
+                    <span class="toggle-icon" id="toggleIcon">▼</span>
+                </div>
+                <div class="ai-prompts-content" id="aiPromptsContent">
+                    <p data-i18n="aiPromptsDesc">Copy các prompt sau và paste vào ChatGPT, Claude, hoặc AI chatbot khác để tự động tạo câu hỏi đúng format:</p>
+
+                    <div id="promptsContainer"></div>
+                </div>
+            </div>
+
             <!-- Input Section -->
             <div class="section" id="inputSection">
                 <h2 class="section-title" data-i18n="step1">Bước 1: Nhập Dữ Liệu</h2>
@@ -546,7 +666,11 @@
                 alertNoIncorrect: 'Không có câu sai nào để làm lại!',
                 alertNoPinned: 'Chưa có câu hỏi nào được pin!',
                 alertNoRetry: 'Không có câu hỏi nào để làm lại!',
-                confirmReset: 'Bạn có chắc muốn làm lại? Tất cả câu trả lời sẽ bị xóa.'
+                confirmReset: 'Bạn có chắc muốn làm lại? Tất cả câu trả lời sẽ bị xóa.',
+                aiPromptsTitle: 'Hướng Dẫn Tạo Câu Hỏi Với AI Chatbot',
+                aiPromptsDesc: 'Copy các prompt sau và paste vào ChatGPT, Claude, hoặc AI chatbot khác để tự động tạo câu hỏi đúng format:',
+                copyBtn: 'Copy',
+                copiedBtn: '✓ Đã copy!'
             },
             en: {
                 title: '📝 Quiz Application',
@@ -585,8 +709,290 @@
                 alertNoIncorrect: 'No incorrect questions to retry!',
                 alertNoPinned: 'No questions have been pinned yet!',
                 alertNoRetry: 'No questions to retry!',
-                confirmReset: 'Are you sure you want to reset? All answers will be lost.'
+                confirmReset: 'Are you sure you want to reset? All answers will be lost.',
+                aiPromptsTitle: 'Generate Questions With AI Chatbot',
+                aiPromptsDesc: 'Copy these prompts and paste into ChatGPT, Claude, or other AI chatbots to automatically generate questions in the correct format:',
+                copyBtn: 'Copy',
+                copiedBtn: '✓ Copied!'
             }
+        };
+
+        // AI Prompts templates
+        const aiPrompts = {
+            vi: [
+                {
+                    title: '📚 Tạo Bộ Câu Hỏi Về Chủ Đề Bất Kỳ',
+                    description: 'Tạo 10 câu hỏi trắc nghiệm về chủ đề bạn muốn học',
+                    prompt: `Hãy tạo 10 câu hỏi trắc nghiệm về [TOPIC] theo định dạng sau:
+
+1. [Câu hỏi]
+a. [Đáp án A]
+b. [Đáp án B]
+c. [Đáp án C]
+d. [Đáp án D]
+
+Sau đó, cung cấp đáp án đúng theo format:
+1. [đáp án đúng]
+
+Ví dụ:
+1. Python là ngôn ngữ lập trình gì?
+a. Compiled
+b. Interpreted
+c. Assembly
+d. Machine code
+
+Đáp án:
+1. b
+
+[Thay TOPIC bằng chủ đề của bạn, ví dụ: Lịch sử Việt Nam, Toán học lớp 10, JavaScript, etc.]`
+                },
+                {
+                    title: '🎓 Ôn Tập Kỳ Thi',
+                    description: 'Tạo câu hỏi ôn tập dựa trên nội dung cụ thể',
+                    prompt: `Dựa trên nội dung sau đây, tạo 10 câu hỏi trắc nghiệm:
+
+[PASTE CONTENT Ở ĐÂY]
+
+Định dạng câu hỏi:
+1. [Câu hỏi]
+a. [Đáp án A]
+b. [Đáp án B]
+c. [Đáp án C]
+d. [Đáp án D]
+
+Định dạng đáp án:
+1. [a/b/c/d]
+
+Lưu ý:
+- Câu hỏi phải kiểm tra sự hiểu biết, không chỉ ghi nhớ
+- Các đáp án sai phải hợp lý và gây nhầm lẫn
+- Đảm bảo chỉ có 1 đáp án đúng`
+                },
+                {
+                    title: '💡 Câu Hỏi Nhiều Đáp Án Đúng',
+                    description: 'Tạo câu hỏi có nhiều đáp án đúng (checkbox)',
+                    prompt: `Tạo 5 câu hỏi về [TOPIC] mà mỗi câu có NHIỀU đáp án đúng:
+
+Định dạng câu hỏi:
+1. [Câu hỏi] (chọn tất cả đáp án đúng)
+a. [Đáp án A]
+b. [Đáp án B]
+c. [Đáp án C]
+d. [Đáp án D]
+e. [Đáp án E]
+
+Định dạng đáp án (nhiều đáp án đúng):
+1. a,c,e
+hoặc
+1. ace
+
+Ví dụ:
+1. Ngôn ngữ nào sau đây hỗ trợ lập trình hướng đối tượng?
+a. Python
+b. Java
+c. C
+d. JavaScript
+e. Assembly
+
+Đáp án:
+1. a,b,d`
+                },
+                {
+                    title: '🌍 Học Ngoại Ngữ',
+                    description: 'Tạo bài tập từ vựng và ngữ pháp',
+                    prompt: `Tạo 10 câu hỏi trắc nghiệm học [NGÔN NGỮ]:
+
+5 câu đầu: Từ vựng (nghĩa của từ)
+5 câu sau: Ngữ pháp (điền từ đúng vào chỗ trống)
+
+Định dạng:
+1. [Câu hỏi]
+a. [Đáp án A]
+b. [Đáp án B]
+c. [Đáp án C]
+d. [Đáp án D]
+
+Đáp án:
+1. [a/b/c/d]
+
+Ví dụ về từ vựng:
+1. "Beautiful" có nghĩa là gì?
+a. Xấu
+b. Đẹp
+c. Tốt
+d. Cao
+
+Ví dụ về ngữ pháp:
+2. She ___ to school every day.
+a. go
+b. goes
+c. going
+d. went
+
+Đáp án:
+1. b
+2. b`
+                },
+                {
+                    title: '🧪 Khoa Học & Công Nghệ',
+                    description: 'Câu hỏi khoa học với nhiều lựa chọn',
+                    prompt: `Tạo 10 câu hỏi khoa học về [TOPIC] với 5-6 lựa chọn cho mỗi câu:
+
+Định dạng:
+1. [Câu hỏi]
+a. [Đáp án A]
+b. [Đáp án B]
+c. [Đáp án C]
+d. [Đáp án D]
+e. [Đáp án E]
+f. [Đáp án F] (nếu cần)
+
+Đáp án:
+1. [a/b/c/d/e/f]
+
+Yêu cầu:
+- Độ khó: trung bình đến khó
+- Bao gồm cả câu hỏi lý thuyết và ứng dụng
+- Đáp án sai phải hợp lý về mặt khoa học`
+                }
+            ],
+            en: [
+                {
+                    title: '📚 Create Quiz on Any Topic',
+                    description: 'Generate 10 multiple choice questions about any subject',
+                    prompt: `Create 10 multiple choice questions about [TOPIC] in this format:
+
+1. [Question]
+a. [Answer A]
+b. [Answer B]
+c. [Answer C]
+d. [Answer D]
+
+Then provide correct answers in this format:
+1. [correct answer]
+
+Example:
+1. What type of programming language is Python?
+a. Compiled
+b. Interpreted
+c. Assembly
+d. Machine code
+
+Answers:
+1. b
+
+[Replace TOPIC with your subject, e.g.: World History, Calculus, JavaScript, etc.]`
+                },
+                {
+                    title: '🎓 Exam Review',
+                    description: 'Create review questions based on specific content',
+                    prompt: `Based on the following content, create 10 multiple choice questions:
+
+[PASTE CONTENT HERE]
+
+Question format:
+1. [Question]
+a. [Answer A]
+b. [Answer B]
+c. [Answer C]
+d. [Answer D]
+
+Answer format:
+1. [a/b/c/d]
+
+Note:
+- Questions should test understanding, not just memorization
+- Wrong answers should be plausible and challenging
+- Ensure only one correct answer`
+                },
+                {
+                    title: '💡 Multiple Correct Answers',
+                    description: 'Create questions with multiple correct answers (checkbox)',
+                    prompt: `Create 5 questions about [TOPIC] where each has MULTIPLE correct answers:
+
+Question format:
+1. [Question] (select all that apply)
+a. [Answer A]
+b. [Answer B]
+c. [Answer C]
+d. [Answer D]
+e. [Answer E]
+
+Answer format (multiple correct):
+1. a,c,e
+or
+1. ace
+
+Example:
+1. Which languages support object-oriented programming?
+a. Python
+b. Java
+c. C
+d. JavaScript
+e. Assembly
+
+Answers:
+1. a,b,d`
+                },
+                {
+                    title: '🌍 Language Learning',
+                    description: 'Create vocabulary and grammar exercises',
+                    prompt: `Create 10 multiple choice questions for learning [LANGUAGE]:
+
+First 5: Vocabulary (word meanings)
+Last 5: Grammar (fill in the blank)
+
+Format:
+1. [Question]
+a. [Answer A]
+b. [Answer B]
+c. [Answer C]
+d. [Answer D]
+
+Answers:
+1. [a/b/c/d]
+
+Vocabulary example:
+1. What does "Beautiful" mean?
+a. Ugly
+b. Pretty
+c. Good
+d. Tall
+
+Grammar example:
+2. She ___ to school every day.
+a. go
+b. goes
+c. going
+d. went
+
+Answers:
+1. b
+2. b`
+                },
+                {
+                    title: '🧪 Science & Technology',
+                    description: 'Science questions with more options',
+                    prompt: `Create 10 science questions about [TOPIC] with 5-6 options each:
+
+Format:
+1. [Question]
+a. [Answer A]
+b. [Answer B]
+c. [Answer C]
+d. [Answer D]
+e. [Answer E]
+f. [Answer F] (if needed)
+
+Answers:
+1. [a/b/c/d/e/f]
+
+Requirements:
+- Difficulty: medium to hard
+- Include both theoretical and applied questions
+- Wrong answers should be scientifically plausible`
+                }
+            ]
         };
 
         function changeLanguage(lang) {
@@ -628,12 +1034,58 @@
                     // Results will be updated on next submit
                 }
             }
+
+            // Re-render AI prompts with new language
+            renderAIPrompts();
         }
 
         // Initialize language on page load
         document.addEventListener('DOMContentLoaded', function() {
             changeLanguage('vi');
+            renderAIPrompts();
         });
+
+        function toggleAIPrompts() {
+            const content = document.getElementById('aiPromptsContent');
+            const icon = document.getElementById('toggleIcon');
+
+            content.classList.toggle('expanded');
+            icon.classList.toggle('rotated');
+        }
+
+        function renderAIPrompts() {
+            const container = document.getElementById('promptsContainer');
+            const prompts = aiPrompts[currentLanguage];
+
+            container.innerHTML = prompts.map((prompt, index) => `
+                <div class="prompt-card">
+                    <h4>${prompt.title}</h4>
+                    <p>${prompt.description}</p>
+                    <div class="prompt-text" id="prompt${index}">${prompt.prompt}</div>
+                    <button class="copy-btn" onclick="copyPrompt(${index})" id="copyBtn${index}">
+                        <span>${translations[currentLanguage].copyBtn}</span>
+                    </button>
+                </div>
+            `).join('');
+        }
+
+        function copyPrompt(index) {
+            const promptText = aiPrompts[currentLanguage][index].prompt;
+            const button = document.getElementById(`copyBtn${index}`);
+
+            navigator.clipboard.writeText(promptText).then(() => {
+                button.classList.add('copied');
+                button.innerHTML = `<span>${translations[currentLanguage].copiedBtn}</span>`;
+
+                setTimeout(() => {
+                    button.classList.remove('copied');
+                    button.innerHTML = `<span>${translations[currentLanguage].copyBtn}</span>`;
+                }, 2000);
+            }).catch(err => {
+                console.error('Failed to copy:', err);
+                alert('Không thể copy. Vui lòng copy thủ công.');
+            });
+        }
 
         function parseQuestions(text) {
             const questions = [];
