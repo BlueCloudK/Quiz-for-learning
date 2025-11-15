@@ -123,7 +123,12 @@
             transform: scale(1.05);
         }
 
-        .language-selector select {
+        .language-buttons {
+            display: flex;
+            gap: 5px;
+        }
+
+        .language-button {
             padding: 8px 15px;
             border: 2px solid white;
             background: rgba(255, 255, 255, 0.2);
@@ -135,18 +140,14 @@
             transition: all 0.3s;
         }
 
-        .language-selector select:hover {
+        .language-button:hover {
             background: rgba(255, 255, 255, 0.3);
         }
 
-        .language-selector select option {
-            background: #667eea;
-            color: white;
-        }
-
-        .language-selector label {
-            font-size: 0.9em;
-            font-weight: 600;
+        .language-button.active {
+            background: rgba(76, 175, 80, 0.8);
+            border-color: #4caf50;
+            box-shadow: 0 0 10px rgba(76, 175, 80, 0.5);
         }
 
         .content {
@@ -1272,6 +1273,7 @@
             <button class="btn-success btn-nav" onclick="submitQuiz()" data-i18n="submitBtn">Chấm Điểm</button>
             <button class="btn-secondary btn-nav" onclick="backToEdit()" data-i18n="backToEditBtn">⬅️ Quay Lại</button>
             <button class="btn-secondary btn-nav" onclick="restartQuiz()" data-i18n="restartBtn">🔄 Làm Lại</button>
+            <button class="btn-primary btn-nav hidden" id="retryAllBtn" onclick="retryAllQuestions()" data-i18n="retryAllBtn">🔄 Làm Lại Tất Cả</button>
             <button class="btn-warning btn-nav hidden" id="retryIncorrectBtn" onclick="retryIncorrectQuestions()" data-i18n="retryIncorrectBtn">Làm Lại Câu Sai</button>
             <button class="btn-info btn-nav hidden" id="retryPinnedBtn" onclick="retryPinnedQuestions()" data-i18n="retryPinnedBtn">Làm Lại Câu Đã Pin</button>
         </div>
@@ -1283,11 +1285,10 @@
                 <button class="theme-toggle" onclick="toggleTheme()" id="themeToggle" title="Toggle dark mode">
                     🌙
                 </button>
-                <label for="languageSelect" data-i18n="language">🌐</label>
-                <select id="languageSelect" onchange="changeLanguage(this.value)">
-                    <option value="vi">Tiếng Việt</option>
-                    <option value="en">English</option>
-                </select>
+                <div class="language-buttons">
+                    <button class="language-button active" id="langVi" onclick="changeLanguage('vi')">🇻🇳 VI</button>
+                    <button class="language-button" id="langEn" onclick="changeLanguage('en')">🇬🇧 EN</button>
+                </div>
             </div>
             <h1 data-i18n="title">📝 BlueQuiz</h1>
             <p data-i18n="subtitle">Tạo bộ câu hỏi, xáo trộn và chấm điểm tự động</p>
@@ -1567,7 +1568,6 @@ e. Lựa chọn E</div>
             // Load language preference
             const savedLanguage = loadFromStorage(STORAGE_KEYS.LANGUAGE, 'vi');
             currentLanguage = savedLanguage;
-            document.getElementById('languageSelect').value = savedLanguage;
 
             // Load questions and answers
             const savedQuestions = loadFromStorage(STORAGE_KEYS.QUESTIONS, '');
@@ -1915,6 +1915,7 @@ e. Lựa chọn E</div>
                 submitBtn: 'Chấm Điểm',
                 backToEditBtn: '⬅️ Quay Lại',
                 restartBtn: '🔄 Làm Lại',
+                retryAllBtn: '🔄 Làm Lại Tất Cả',
                 retryIncorrectBtn: 'Làm Lại Câu Sai',
                 retryPinnedBtn: 'Làm Lại Câu Đã Pin',
                 questionNavigator: 'Danh Sách Câu Hỏi',
@@ -1998,6 +1999,7 @@ e. Lựa chọn E</div>
                 submitBtn: 'Submit & Grade',
                 backToEditBtn: '⬅️ Back',
                 restartBtn: '🔄 Restart',
+                retryAllBtn: '🔄 Retry All Questions',
                 retryIncorrectBtn: 'Retry Incorrect',
                 retryPinnedBtn: 'Retry Pinned',
                 questionNavigator: 'Question List',
@@ -2394,6 +2396,15 @@ Requirements:
         function changeLanguage(lang) {
             currentLanguage = lang;
             saveLanguage(lang); // Save language preference
+
+            // Update language button active state
+            document.querySelectorAll('.language-button').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            const activeButton = lang === 'vi' ? document.getElementById('langVi') : document.getElementById('langEn');
+            if (activeButton) {
+                activeButton.classList.add('active');
+            }
 
             // Update all elements with data-i18n
             document.querySelectorAll('[data-i18n]').forEach(element => {
@@ -2904,10 +2915,17 @@ Requirements:
         }
 
         function updateRetryButtons() {
+            const retryAllBtn = document.getElementById('retryAllBtn');
             const retryIncorrectBtn = document.getElementById('retryIncorrectBtn');
             const retryPinnedBtn = document.getElementById('retryPinnedBtn');
 
             // Only show retry buttons after quiz is graded
+            if (isGraded) {
+                retryAllBtn.classList.remove('hidden');
+            } else {
+                retryAllBtn.classList.add('hidden');
+            }
+
             if (isGraded && incorrectQuestions.size > 0) {
                 retryIncorrectBtn.classList.remove('hidden');
             } else {
@@ -3136,6 +3154,11 @@ Requirements:
                     updateQuestionNavigator();
                 });
             });
+        }
+
+        function retryAllQuestions() {
+            // Retry all original questions
+            generateQuiz();
         }
 
         function retryIncorrectQuestions() {
