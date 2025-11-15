@@ -644,16 +644,24 @@
             transition: background 0.3s ease, color 0.3s ease;
         }
 
-        /* Exam Mode Styles */
-        .exam-mode-section {
-            background: linear-gradient(135deg, #ff9a56 0%, #ff6a88 100%);
-            padding: 15px;
-            border-radius: 10px;
-            margin-bottom: 20px;
+        /* Quiz Section Header */
+        .quiz-section-header {
             display: flex;
             align-items: center;
             justify-content: space-between;
+            margin-bottom: 20px;
+            gap: 20px;
             flex-wrap: wrap;
+        }
+
+        .quiz-section-header .section-title {
+            margin: 0;
+        }
+
+        /* Exam Mode Styles */
+        .exam-mode-section {
+            display: flex;
+            align-items: center;
             gap: 15px;
         }
 
@@ -1154,7 +1162,13 @@
                 grid-template-columns: 1fr;
             }
 
+            .quiz-section-header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
             .exam-mode-section {
+                width: 100%;
                 flex-direction: column;
                 align-items: stretch;
             }
@@ -1359,21 +1373,23 @@ e. Lựa chọn E</div>
 
             <!-- Quiz Section -->
             <div class="section hidden" id="quizSection">
-                <h2 class="section-title" data-i18n="step2">Bước 2: Làm Bài Quiz</h2>
+                <div class="quiz-section-header">
+                    <h2 class="section-title" data-i18n="step2">Bước 2: Làm Bài Quiz</h2>
 
-                <!-- Exam Mode Section -->
-                <div class="exam-mode-section" id="examModeSection" style="display: none;">
-                    <div class="exam-mode-controls">
-                        <span class="exam-mode-label">⏱️ <span data-i18n="examMode">Chế độ thi</span></span>
-                        <div class="checkbox-group">
-                            <input type="checkbox" id="examModeCheckbox" onchange="toggleExamMode()">
-                            <label for="examModeCheckbox" data-i18n="enableExamMode">Bật chế độ thi</label>
-                        </div>
-                        <div class="timer-input-group">
-                            <label for="timerHours" data-i18n="hours">Giờ:</label>
-                            <input type="number" id="timerHours" min="0" max="23" value="0" />
-                            <label for="timerMinutes" data-i18n="minutes">Phút:</label>
-                            <input type="number" id="timerMinutes" min="0" max="59" value="30" />
+                    <!-- Exam Mode Section -->
+                    <div class="exam-mode-section" id="examModeSection" style="display: none;">
+                        <div class="exam-mode-controls">
+                            <span class="exam-mode-label">⏱️ <span data-i18n="examMode">Chế độ thi</span></span>
+                            <div class="checkbox-group">
+                                <input type="checkbox" id="examModeCheckbox" onchange="toggleExamMode()">
+                                <label for="examModeCheckbox" data-i18n="enableExamMode">Bật chế độ thi</label>
+                            </div>
+                            <div class="timer-input-group">
+                                <label for="timerHours" data-i18n="hours">Giờ:</label>
+                                <input type="number" id="timerHours" min="0" max="23" value="0" />
+                                <label for="timerMinutes" data-i18n="minutes">Phút:</label>
+                                <input type="number" id="timerMinutes" min="0" max="59" value="30" />
+                            </div>
                         </div>
                     </div>
                 </div>
