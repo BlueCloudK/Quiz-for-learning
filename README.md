@@ -51,6 +51,45 @@ A powerful, interactive quiz application that helps you create, manage, and prac
 
 ### Manual Input Method
 
+**Quick Copy Templates** - Copy these ready-to-use templates:
+
+<details>
+<summary><b>📋 Click to expand: Questions Template (Copy & Paste Ready)</b></summary>
+
+```
+1. Câu hỏi thứ nhất?
+a. Đáp án A
+b. Đáp án B
+c. Đáp án C
+d. Đáp án D
+
+2. Câu hỏi thứ hai?
+a. Đáp án A
+b. Đáp án B
+c. Đáp án C
+d. Đáp án D
+
+3. Câu hỏi thứ ba (nhiều đáp án đúng)?
+a. Lựa chọn A
+b. Lựa chọn B
+c. Lựa chọn C
+d. Lựa chọn D
+e. Lựa chọn E
+```
+</details>
+
+<details>
+<summary><b>📋 Click to expand: Answers Template (Copy & Paste Ready)</b></summary>
+
+```
+1. a
+2. b
+3. a,c,e
+```
+</details>
+
+---
+
 ### Step 1: Input Questions and Answers
 
 **Question Format:**

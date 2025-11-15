@@ -509,6 +509,55 @@
             background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
         }
 
+        .quick-templates {
+            background: rgba(255, 255, 255, 0.5);
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 20px;
+        }
+
+        .template-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-top: 15px;
+        }
+
+        .template-item {
+            background: white;
+            border-radius: 8px;
+            padding: 12px;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .template-label {
+            font-weight: 600;
+            color: #667eea;
+            margin-bottom: 8px;
+            font-size: 0.95em;
+        }
+
+        .template-box {
+            background: #f8f9fa;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            padding: 10px;
+            font-family: 'Consolas', 'Monaco', monospace;
+            font-size: 0.8em;
+            line-height: 1.5;
+            color: #333;
+            white-space: pre-wrap;
+            margin-bottom: 10px;
+            max-height: 150px;
+            overflow-y: auto;
+        }
+
+        @media (max-width: 768px) {
+            .template-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
         @media (max-width: 768px) {
             .header h1 {
                 font-size: 1.8em;
@@ -557,6 +606,50 @@
                 </div>
                 <div class="ai-prompts-content" id="aiPromptsContent">
                     <p data-i18n="aiPromptsDesc">Copy các prompt sau và paste vào ChatGPT, Claude, hoặc AI chatbot khác để tự động tạo câu hỏi đúng format:</p>
+
+                    <!-- Quick Copy Templates -->
+                    <div class="quick-templates">
+                        <h4 style="color: #333; margin-bottom: 10px;" data-i18n="quickTemplatesTitle">📋 Hoặc Copy Template Mẫu Để Paste Trực Tiếp:</h4>
+
+                        <div class="template-grid">
+                            <div class="template-item">
+                                <div class="template-label" data-i18n="templateQuestionsLabel">Mẫu Câu Hỏi:</div>
+                                <div class="template-box" id="questionsTemplate">1. Câu hỏi thứ nhất?
+a. Đáp án A
+b. Đáp án B
+c. Đáp án C
+d. Đáp án D
+
+2. Câu hỏi thứ hai?
+a. Đáp án A
+b. Đáp án B
+c. Đáp án C
+d. Đáp án D
+
+3. Câu hỏi thứ ba (nhiều đáp án đúng)?
+a. Lựa chọn A
+b. Lựa chọn B
+c. Lựa chọn C
+d. Lựa chọn D
+e. Lựa chọn E</div>
+                                <button class="copy-btn" onclick="copyTemplate('questions')" id="copyQuestionsBtn">
+                                    <span data-i18n="copyBtn">Copy</span>
+                                </button>
+                            </div>
+
+                            <div class="template-item">
+                                <div class="template-label" data-i18n="templateAnswersLabel">Mẫu Đáp Án:</div>
+                                <div class="template-box" id="answersTemplate">1. a
+2. b
+3. a,c,e</div>
+                                <button class="copy-btn" onclick="copyTemplate('answers')" id="copyAnswersBtn">
+                                    <span data-i18n="copyBtn">Copy</span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <hr style="margin: 25px 0; border: none; border-top: 1px solid #ddd;">
 
                     <div id="promptsContainer"></div>
                 </div>
@@ -669,6 +762,9 @@
                 confirmReset: 'Bạn có chắc muốn làm lại? Tất cả câu trả lời sẽ bị xóa.',
                 aiPromptsTitle: 'Hướng Dẫn Tạo Câu Hỏi Với AI Chatbot',
                 aiPromptsDesc: 'Copy các prompt sau và paste vào ChatGPT, Claude, hoặc AI chatbot khác để tự động tạo câu hỏi đúng format:',
+                quickTemplatesTitle: '📋 Hoặc Copy Template Mẫu Để Paste Trực Tiếp:',
+                templateQuestionsLabel: 'Mẫu Câu Hỏi:',
+                templateAnswersLabel: 'Mẫu Đáp Án:',
                 copyBtn: 'Copy',
                 copiedBtn: '✓ Đã copy!'
             },
@@ -712,8 +808,61 @@
                 confirmReset: 'Are you sure you want to reset? All answers will be lost.',
                 aiPromptsTitle: 'Generate Questions With AI Chatbot',
                 aiPromptsDesc: 'Copy these prompts and paste into ChatGPT, Claude, or other AI chatbots to automatically generate questions in the correct format:',
+                quickTemplatesTitle: '📋 Or Copy Sample Templates to Paste Directly:',
+                templateQuestionsLabel: 'Questions Template:',
+                templateAnswersLabel: 'Answers Template:',
                 copyBtn: 'Copy',
                 copiedBtn: '✓ Copied!'
+            }
+        };
+
+        // Template data for quick copy
+        const templates = {
+            vi: {
+                questions: `1. Câu hỏi thứ nhất?
+a. Đáp án A
+b. Đáp án B
+c. Đáp án C
+d. Đáp án D
+
+2. Câu hỏi thứ hai?
+a. Đáp án A
+b. Đáp án B
+c. Đáp án C
+d. Đáp án D
+
+3. Câu hỏi thứ ba (nhiều đáp án đúng)?
+a. Lựa chọn A
+b. Lựa chọn B
+c. Lựa chọn C
+d. Lựa chọn D
+e. Lựa chọn E`,
+                answers: `1. a
+2. b
+3. a,c,e`
+            },
+            en: {
+                questions: `1. First question?
+a. Answer A
+b. Answer B
+c. Answer C
+d. Answer D
+
+2. Second question?
+a. Answer A
+b. Answer B
+c. Answer C
+d. Answer D
+
+3. Third question (multiple correct answers)?
+a. Option A
+b. Option B
+c. Option C
+d. Option D
+e. Option E`,
+                answers: `1. a
+2. b
+3. a,c,e`
             }
         };
 
@@ -1037,6 +1186,19 @@ Requirements:
 
             // Re-render AI prompts with new language
             renderAIPrompts();
+
+            // Update templates
+            updateTemplates();
+        }
+
+        function updateTemplates() {
+            const questionsTemplate = document.getElementById('questionsTemplate');
+            const answersTemplate = document.getElementById('answersTemplate');
+
+            if (questionsTemplate && answersTemplate) {
+                questionsTemplate.textContent = templates[currentLanguage].questions;
+                answersTemplate.textContent = templates[currentLanguage].answers;
+            }
         }
 
         // Initialize language on page load
@@ -1080,6 +1242,25 @@ Requirements:
                 setTimeout(() => {
                     button.classList.remove('copied');
                     button.innerHTML = `<span>${translations[currentLanguage].copyBtn}</span>`;
+                }, 2000);
+            }).catch(err => {
+                console.error('Failed to copy:', err);
+                alert('Không thể copy. Vui lòng copy thủ công.');
+            });
+        }
+
+        function copyTemplate(type) {
+            const templateText = templates[currentLanguage][type];
+            const button = document.getElementById(`copy${type.charAt(0).toUpperCase() + type.slice(1)}Btn`);
+
+            navigator.clipboard.writeText(templateText).then(() => {
+                const originalHTML = button.innerHTML;
+                button.classList.add('copied');
+                button.innerHTML = `<span>${translations[currentLanguage].copiedBtn}</span>`;
+
+                setTimeout(() => {
+                    button.classList.remove('copied');
+                    button.innerHTML = originalHTML;
                 }, 2000);
             }).catch(err => {
                 console.error('Failed to copy:', err);
