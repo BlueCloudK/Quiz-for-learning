@@ -2705,6 +2705,8 @@ Requirements:
 
             // Start timer if exam mode is enabled
             if (examModeEnabled) {
+                // Stop any existing timer first to prevent multiple intervals
+                stopTimer();
                 const hours = parseInt(document.getElementById('timerHours').value) || 0;
                 const minutes = parseInt(document.getElementById('timerMinutes').value) || 30;
                 timeRemaining = (hours * 3600) + (minutes * 60);
