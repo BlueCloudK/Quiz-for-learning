@@ -990,11 +990,6 @@
 
         .quiz-main-content {
             margin-left: 0;
-            transition: margin-left 0.3s ease;
-        }
-
-        .quiz-main-content.with-navigator {
-            margin-left: 320px;
         }
 
         .navigator-header {
@@ -1043,7 +1038,7 @@
 
         .question-nav-list {
             display: grid;
-            grid-template-columns: repeat(4, 1fr);
+            grid-template-columns: repeat(5, 1fr);
             gap: 8px;
         }
 
@@ -1103,6 +1098,22 @@
             background: linear-gradient(135deg, #ffd700 0%, #a8e6cf 100%);
         }
 
+        .navigator-controls {
+            margin-top: 20px;
+            padding-top: 15px;
+            border-top: 2px solid var(--border-color);
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .btn-nav {
+            width: 100%;
+            padding: 10px;
+            font-size: 0.9em;
+            border-radius: 8px;
+        }
+
         @media (max-width: 768px) {
             .template-grid {
                 grid-template-columns: 1fr;
@@ -1133,10 +1144,6 @@
             }
 
             .quiz-main-content {
-                margin-left: 0 !important;
-            }
-
-            .quiz-main-content.with-navigator {
                 margin-left: 0 !important;
             }
 
@@ -1308,17 +1315,26 @@ e. Lựa chọn E</div>
                 <div class="quiz-layout">
                     <!-- Question Navigator Sidebar -->
                     <div class="question-navigator" id="questionNavigator">
-                        <div class="navigator-header" data-i18n="questionNavigator">Danh Sách Câu Hỏi</div>
-
                         <!-- Navigator Timer -->
                         <div class="navigator-timer" id="navigatorTimer">
                             <div class="navigator-timer-label" data-i18n="timeRemaining">Thời gian còn lại:</div>
                             <div class="navigator-timer-text" id="navigatorTimerText">30:00</div>
                         </div>
 
+                        <div class="navigator-header" data-i18n="questionNavigator">Danh Sách Câu Hỏi</div>
+
                         <!-- Question Navigation List -->
                         <div class="question-nav-list" id="questionNavList">
                             <!-- Question nav items will be inserted here -->
+                        </div>
+
+                        <!-- Navigator Controls -->
+                        <div class="navigator-controls">
+                            <button class="btn-success btn-nav" onclick="submitQuiz()" data-i18n="submitBtn">Chấm Điểm</button>
+                            <button class="btn-secondary btn-nav" onclick="backToEdit()" data-i18n="backToEditBtn">⬅️ Quay Lại</button>
+                            <button class="btn-secondary btn-nav" onclick="restartQuiz()" data-i18n="restartBtn">🔄 Làm Lại</button>
+                            <button class="btn-warning btn-nav hidden" id="retryIncorrectBtn" onclick="retryIncorrectQuestions()" data-i18n="retryIncorrectBtn">Làm Lại Câu Sai</button>
+                            <button class="btn-info btn-nav hidden" id="retryPinnedBtn" onclick="retryPinnedQuestions()" data-i18n="retryPinnedBtn">Làm Lại Câu Đã Pin</button>
                         </div>
                     </div>
 
@@ -1335,13 +1351,6 @@ e. Lựa chọn E</div>
                         </div>
 
                         <div id="quizContainer"></div>
-                        <div class="controls">
-                            <button class="btn-success" onclick="submitQuiz()" data-i18n="submitBtn">Chấm Điểm</button>
-                            <button class="btn-secondary" onclick="backToEdit()" data-i18n="backToEditBtn">⬅️ Quay Lại</button>
-                            <button class="btn-secondary" onclick="restartQuiz()" data-i18n="restartBtn">🔄 Làm Lại</button>
-                            <button class="btn-warning hidden" id="retryIncorrectBtn" onclick="retryIncorrectQuestions()" data-i18n="retryIncorrectBtn">Làm Lại Câu Sai</button>
-                            <button class="btn-info hidden" id="retryPinnedBtn" onclick="retryPinnedQuestions()" data-i18n="retryPinnedBtn">Làm Lại Câu Đã Pin</button>
-                        </div>
                     </div>
                 </div>
             </div>
@@ -2875,7 +2884,6 @@ Requirements:
 
             // Hide navigator
             document.getElementById('questionNavigator').classList.remove('active');
-            document.querySelector('.quiz-main-content').classList.remove('with-navigator');
 
             // Show input section, hide quiz and result sections
             document.getElementById('inputSection').classList.remove('hidden');
@@ -2942,9 +2950,8 @@ Requirements:
                 navList.appendChild(navItem);
             });
 
-            // Show navigator and adjust layout
+            // Show navigator
             document.getElementById('questionNavigator').classList.add('active');
-            document.querySelector('.quiz-main-content').classList.add('with-navigator');
 
             // Show navigator timer if exam mode enabled
             if (examModeEnabled) {
