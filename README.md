@@ -17,6 +17,7 @@ A powerful, interactive quiz application that helps you create, manage, and prac
 - **🔄 Retry Pinned**: Practice your bookmarked questions
 - **🔍 Filter Questions**: View all, pinned, or incorrect questions
 - **🌐 Bilingual**: Switch between Vietnamese and English
+- **🤖 AI Prompt Templates**: Ready-to-use prompts for ChatGPT, Claude, and other AI chatbots to generate questions automatically
 
 ### User Interface
 - Beautiful gradient design
@@ -30,6 +31,25 @@ A powerful, interactive quiz application that helps you create, manage, and prac
 2. That's it! No installation needed.
 
 ## 📖 How to Use
+
+### Quick Start with AI (Recommended for Beginners)
+
+**NEW!** Don't want to write questions manually? Use our AI prompt templates:
+
+1. Click on "🤖 Generate Questions With AI Chatbot" section at the top
+2. Choose a template that matches your needs:
+   - 📚 General Topic Quiz
+   - 🎓 Exam Review
+   - 💡 Multiple Correct Answers
+   - 🌍 Language Learning
+   - 🧪 Science & Technology
+3. Click "Copy" button
+4. Open ChatGPT, Claude, or any AI chatbot
+5. Paste the prompt and replace [TOPIC] with your subject
+6. Copy the AI's response back into the quiz app
+7. Done! Your quiz is ready
+
+### Manual Input Method
 
 ### Step 1: Input Questions and Answers
 
