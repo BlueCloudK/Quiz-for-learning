@@ -995,34 +995,59 @@
         }
 
         .timer-display-box {
-            background: linear-gradient(135deg, #ff9a56 0%, #ff6a88 100%);
+            background: linear-gradient(135deg, #ffd700 0%, #ffed4e 100%);
             padding: 30px 20px;
             border-radius: 10px;
             text-align: center;
+            border: 3px solid #f0c000;
+        }
+
+        body.dark-mode .timer-display-box {
+            background: linear-gradient(135deg, #2d3436 0%, #1a1a2e 100%);
+            border-color: #4a5568;
         }
 
         .fixed-timer-text {
             font-size: 2.5em;
             font-weight: bold;
-            color: white;
+            color: #1a1a2e;
             margin: 0;
+            text-shadow: 0 1px 2px rgba(255, 255, 255, 0.5);
+        }
+
+        body.dark-mode .fixed-timer-text {
+            color: #4ade80;
+            text-shadow: 0 0 10px rgba(74, 222, 128, 0.3);
         }
 
         .fixed-timer-text.warning {
-            color: #ffeb3b;
+            color: #d97706;
+        }
+
+        body.dark-mode .fixed-timer-text.warning {
+            color: #fbbf24;
+            text-shadow: 0 0 15px rgba(251, 191, 36, 0.4);
         }
 
         .fixed-timer-text.danger {
-            color: #ff5252;
+            color: #dc2626;
             animation: pulse 0.5s infinite;
         }
 
+        body.dark-mode .fixed-timer-text.danger {
+            color: #f87171;
+            text-shadow: 0 0 20px rgba(248, 113, 113, 0.6);
+        }
+
         .fixed-timer-label {
-            color: white;
+            color: #374151;
             font-size: 1em;
-            opacity: 0.95;
+            font-weight: 600;
             margin-bottom: 10px;
-            font-weight: 500;
+        }
+
+        body.dark-mode .fixed-timer-label {
+            color: #9ca3af;
         }
 
         .question-nav-list {
@@ -2935,16 +2960,8 @@ Requirements:
                 return;
             }
 
-            // Stop timer if running
-            if (examModeEnabled) {
-                stopTimer();
-                examModeEnabled = false;
-                document.getElementById('examModeCheckbox').checked = false;
-                document.getElementById('fixedRightTimer').classList.remove('active');
-                document.getElementById('fixedControlPanel').classList.remove('active');
-                document.getElementById('timerHours').disabled = false;
-                document.getElementById('timerMinutes').disabled = false;
-            }
+            // Keep timer running - don't stop exam mode
+            // Just reset the quiz state
 
             // Clear answers but keep questions
             isGraded = false;
