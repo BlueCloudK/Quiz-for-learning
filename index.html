@@ -963,6 +963,126 @@
             background: #da190b;
         }
 
+        /* Question Navigator Sidebar */
+        .quiz-layout {
+            display: grid;
+            grid-template-columns: 280px 1fr;
+            gap: 20px;
+            position: relative;
+        }
+
+        .question-navigator {
+            position: sticky;
+            top: 20px;
+            height: fit-content;
+            max-height: calc(100vh - 40px);
+            background: var(--card-bg);
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 2px 10px var(--shadow-color);
+            transition: background 0.3s ease;
+            overflow-y: auto;
+        }
+
+        .navigator-header {
+            font-weight: 600;
+            font-size: 1.1em;
+            color: var(--text-primary);
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid var(--border-color);
+        }
+
+        .navigator-timer {
+            background: linear-gradient(135deg, #ff9a56 0%, #ff6a88 100%);
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 15px;
+            text-align: center;
+            display: none;
+        }
+
+        .navigator-timer.active {
+            display: block;
+        }
+
+        .navigator-timer-text {
+            font-size: 1.8em;
+            font-weight: bold;
+            color: white;
+        }
+
+        .navigator-timer-text.warning {
+            color: #ffeb3b;
+        }
+
+        .navigator-timer-text.danger {
+            color: #ff5252;
+            animation: pulse 0.5s infinite;
+        }
+
+        .navigator-timer-label {
+            color: white;
+            font-size: 0.9em;
+            opacity: 0.9;
+            margin-bottom: 5px;
+        }
+
+        .question-nav-list {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 8px;
+        }
+
+        .question-nav-item {
+            aspect-ratio: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: var(--input-bg);
+            border: 2px solid var(--border-color);
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 0.95em;
+            transition: all 0.3s;
+            color: var(--text-primary);
+        }
+
+        .question-nav-item:hover {
+            transform: scale(1.05);
+            border-color: #667eea;
+            background: #667eea;
+            color: white;
+        }
+
+        .question-nav-item.answered {
+            background: #e3f2fd;
+            border-color: #2196f3;
+        }
+
+        .question-nav-item.correct {
+            background: #4caf50;
+            border-color: #4caf50;
+            color: white;
+        }
+
+        .question-nav-item.incorrect {
+            background: #ff5722;
+            border-color: #ff5722;
+            color: white;
+        }
+
+        .question-nav-item.current {
+            border-color: #667eea;
+            border-width: 3px;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.3);
+        }
+
+        .quiz-main-content {
+            min-width: 0;
+        }
+
         @media (max-width: 768px) {
             .template-grid {
                 grid-template-columns: 1fr;
@@ -980,6 +1100,21 @@
 
             .timer-display {
                 text-align: center;
+            }
+
+            .quiz-layout {
+                grid-template-columns: 1fr;
+            }
+
+            .question-navigator {
+                position: relative;
+                top: 0;
+                max-height: none;
+                margin-bottom: 20px;
+            }
+
+            .question-nav-list {
+                grid-template-columns: repeat(6, 1fr);
             }
         }
 
@@ -1142,23 +1277,45 @@ e. Lựa chọn E</div>
                     </div>
                 </div>
 
-                <!-- Filter Section -->
-                <div class="filter-section" id="filterSection" style="display: none;">
-                    <label style="margin-bottom: 10px;" data-i18n="filterLabel">Lọc câu hỏi:</label>
-                    <div class="filter-buttons">
-                        <button class="filter-button active" onclick="filterQuestions('all')" data-i18n="filterAll">Tất cả</button>
-                        <button class="filter-button" onclick="filterQuestions('pinned')" data-i18n="filterPinned">Câu đã pin</button>
-                        <button class="filter-button" onclick="filterQuestions('incorrect')" data-i18n="filterIncorrect">Câu sai</button>
-                    </div>
-                </div>
+                <!-- Quiz Layout with Navigator -->
+                <div class="quiz-layout">
+                    <!-- Question Navigator Sidebar -->
+                    <div class="question-navigator" id="questionNavigator">
+                        <div class="navigator-header" data-i18n="questionNavigator">Danh Sách Câu Hỏi</div>
 
-                <div id="quizContainer"></div>
-                <div class="controls">
-                    <button class="btn-success" onclick="submitQuiz()" data-i18n="submitBtn">Chấm Điểm</button>
-                    <button class="btn-secondary" onclick="backToEdit()" data-i18n="backToEditBtn">✏️ Chỉnh Sửa Câu Hỏi</button>
-                    <button class="btn-secondary" onclick="resetQuiz()" data-i18n="resetBtn">Làm Lại</button>
-                    <button class="btn-warning hidden" id="retryIncorrectBtn" onclick="retryIncorrectQuestions()" data-i18n="retryIncorrectBtn">Làm Lại Câu Sai</button>
-                    <button class="btn-info hidden" id="retryPinnedBtn" onclick="retryPinnedQuestions()" data-i18n="retryPinnedBtn">Làm Lại Câu Đã Pin</button>
+                        <!-- Navigator Timer -->
+                        <div class="navigator-timer" id="navigatorTimer">
+                            <div class="navigator-timer-label" data-i18n="timeRemaining">Thời gian còn lại:</div>
+                            <div class="navigator-timer-text" id="navigatorTimerText">30:00</div>
+                        </div>
+
+                        <!-- Question Navigation List -->
+                        <div class="question-nav-list" id="questionNavList">
+                            <!-- Question nav items will be inserted here -->
+                        </div>
+                    </div>
+
+                    <!-- Main Quiz Content -->
+                    <div class="quiz-main-content">
+                        <!-- Filter Section -->
+                        <div class="filter-section" id="filterSection" style="display: none;">
+                            <label style="margin-bottom: 10px;" data-i18n="filterLabel">Lọc câu hỏi:</label>
+                            <div class="filter-buttons">
+                                <button class="filter-button active" onclick="filterQuestions('all')" data-i18n="filterAll">Tất cả</button>
+                                <button class="filter-button" onclick="filterQuestions('pinned')" data-i18n="filterPinned">Câu đã pin</button>
+                                <button class="filter-button" onclick="filterQuestions('incorrect')" data-i18n="filterIncorrect">Câu sai</button>
+                            </div>
+                        </div>
+
+                        <div id="quizContainer"></div>
+                        <div class="controls">
+                            <button class="btn-success" onclick="submitQuiz()" data-i18n="submitBtn">Chấm Điểm</button>
+                            <button class="btn-secondary" onclick="backToEdit()" data-i18n="backToEditBtn">⬅️ Quay Lại</button>
+                            <button class="btn-secondary" onclick="restartQuiz()" data-i18n="restartBtn">🔄 Làm Lại</button>
+                            <button class="btn-warning hidden" id="retryIncorrectBtn" onclick="retryIncorrectQuestions()" data-i18n="retryIncorrectBtn">Làm Lại Câu Sai</button>
+                            <button class="btn-info hidden" id="retryPinnedBtn" onclick="retryPinnedQuestions()" data-i18n="retryPinnedBtn">Làm Lại Câu Đã Pin</button>
+                        </div>
+                    </div>
                 </div>
             </div>
 
@@ -1385,15 +1542,22 @@ e. Lựa chọn E</div>
 
         function updateTimerDisplay() {
             const timerText = document.getElementById('timerText');
+            const navigatorTimerText = document.getElementById('navigatorTimerText');
             const formattedTime = formatTime(timeRemaining);
+
             timerText.textContent = formattedTime;
+            navigatorTimerText.textContent = formattedTime;
 
             // Add warning/danger classes
             timerText.classList.remove('warning', 'danger');
+            navigatorTimerText.classList.remove('warning', 'danger');
+
             if (timeRemaining <= 60) {
                 timerText.classList.add('danger');
+                navigatorTimerText.classList.add('danger');
             } else if (timeRemaining <= 300) {
                 timerText.classList.add('warning');
+                navigatorTimerText.classList.add('warning');
             }
         }
 
@@ -1641,10 +1805,14 @@ e. Lựa chọn E</div>
                 filterPinned: 'Câu đã pin',
                 filterIncorrect: 'Câu sai',
                 submitBtn: 'Chấm Điểm',
-                backToEditBtn: '✏️ Chỉnh Sửa Câu Hỏi',
-                resetBtn: 'Làm Lại',
+                backToEditBtn: '⬅️ Quay Lại',
+                restartBtn: '🔄 Làm Lại',
                 retryIncorrectBtn: 'Làm Lại Câu Sai',
                 retryPinnedBtn: 'Làm Lại Câu Đã Pin',
+                questionNavigator: 'Danh Sách Câu Hỏi',
+                timeRemaining: 'Thời gian còn lại:',
+                confirmBackToEdit: 'Bạn có chắc muốn quay lại? Tiến trình làm bài sẽ KHÔNG được lưu.',
+                confirmRestart: 'Bạn có chắc muốn làm lại? Bài làm hiện tại sẽ bị xóa.',
                 question: 'Câu',
                 pinQuestion: 'Pin câu hỏi',
                 unpinQuestion: 'Bỏ pin',
@@ -1661,7 +1829,6 @@ e. Lựa chọn E</div>
                 alertNoIncorrect: 'Không có câu sai nào để làm lại!',
                 alertNoPinned: 'Chưa có câu hỏi nào được pin!',
                 alertNoRetry: 'Không có câu hỏi nào để làm lại!',
-                confirmReset: 'Bạn có chắc muốn làm lại? Tất cả câu trả lời sẽ bị xóa.',
                 aiPromptsTitle: 'Hướng Dẫn Tạo Câu Hỏi Với AI Chatbot',
                 aiPromptsDesc: 'Copy các prompt sau và paste vào ChatGPT, Claude, hoặc AI chatbot khác để tự động tạo câu hỏi đúng format:',
                 quickTemplatesTitle: '📋 Hoặc Copy Template Mẫu Để Paste Trực Tiếp:',
@@ -1718,10 +1885,14 @@ e. Lựa chọn E</div>
                 filterPinned: 'Pinned',
                 filterIncorrect: 'Incorrect',
                 submitBtn: 'Submit & Grade',
-                backToEditBtn: '✏️ Edit Questions',
-                resetBtn: 'Reset',
+                backToEditBtn: '⬅️ Back',
+                restartBtn: '🔄 Restart',
                 retryIncorrectBtn: 'Retry Incorrect',
                 retryPinnedBtn: 'Retry Pinned',
+                questionNavigator: 'Question List',
+                timeRemaining: 'Time Remaining:',
+                confirmBackToEdit: 'Are you sure you want to go back? Your progress will NOT be saved.',
+                confirmRestart: 'Are you sure you want to restart? Your current answers will be cleared.',
                 question: 'Question',
                 pinQuestion: 'Pin question',
                 unpinQuestion: 'Unpin',
@@ -1738,7 +1909,6 @@ e. Lựa chọn E</div>
                 alertNoIncorrect: 'No incorrect questions to retry!',
                 alertNoPinned: 'No questions have been pinned yet!',
                 alertNoRetry: 'No questions to retry!',
-                confirmReset: 'Are you sure you want to reset? All answers will be lost.',
                 aiPromptsTitle: 'Generate Questions With AI Chatbot',
                 aiPromptsDesc: 'Copy these prompts and paste into ChatGPT, Claude, or other AI chatbots to automatically generate questions in the correct format:',
                 quickTemplatesTitle: '📋 Or Copy Sample Templates to Paste Directly:',
@@ -2480,6 +2650,12 @@ Requirements:
                 questionCard.innerHTML = html;
                 container.appendChild(questionCard);
             });
+
+            // Generate question navigator
+            generateQuestionNavigator();
+
+            // Setup answer change listeners
+            setupAnswerListeners();
         }
 
         function togglePin(index) {
@@ -2588,6 +2764,7 @@ Requirements:
             isGraded = true;
             displayResults(correctCount, incorrectCount, unanswered);
             updateRetryButtons();
+            updateQuestionNavigator(); // Update navigator with results
 
             // Show filter section after grading
             if (isGraded) {
@@ -2651,12 +2828,18 @@ Requirements:
         }
 
         function backToEdit() {
+            // Confirm before going back (will NOT save progress)
+            if (!confirm(translations[currentLanguage].confirmBackToEdit)) {
+                return;
+            }
+
             // Stop timer if running
             if (examModeEnabled) {
                 stopTimer();
                 examModeEnabled = false;
                 document.getElementById('examModeCheckbox').checked = false;
                 document.getElementById('timerDisplay').classList.remove('active');
+                document.getElementById('navigatorTimer').classList.remove('active');
                 document.getElementById('timerMinutes').disabled = false;
             }
 
@@ -2669,30 +2852,139 @@ Requirements:
             document.getElementById('inputSection').scrollIntoView({ behavior: 'smooth', block: 'start' });
         }
 
-        function resetQuiz() {
-            if (confirm(translations[currentLanguage].confirmReset)) {
-                // Stop timer if running
+        function restartQuiz() {
+            // Confirm before restarting
+            if (!confirm(translations[currentLanguage].confirmRestart)) {
+                return;
+            }
+
+            // Stop timer if running
+            if (examModeEnabled) {
                 stopTimer();
                 examModeEnabled = false;
                 document.getElementById('examModeCheckbox').checked = false;
                 document.getElementById('timerDisplay').classList.remove('active');
+                document.getElementById('navigatorTimer').classList.remove('active');
                 document.getElementById('timerMinutes').disabled = false;
-
-                document.getElementById('inputSection').classList.remove('hidden');
-                document.getElementById('quizSection').classList.add('hidden');
-                document.getElementById('resultSection').classList.add('hidden');
-                document.getElementById('questionsInput').value = '';
-                document.getElementById('answersInput').value = '';
-                document.getElementById('shuffleCheckbox').checked = false;
-                quizData = [];
-                correctAnswers = {};
-                questionMapping = {};
-                pinnedQuestions.clear();
-                incorrectQuestions.clear();
-                isGraded = false;
-                originalQuestionsText = '';
-                originalAnswersText = '';
             }
+
+            // Clear answers but keep questions
+            isGraded = false;
+            incorrectQuestions.clear();
+
+            // Clear all answer selections
+            document.querySelectorAll('input[type="radio"], input[type="checkbox"]').forEach(input => {
+                input.checked = false;
+            });
+
+            // Clear result displays
+            document.querySelectorAll('.question-result').forEach(result => {
+                result.classList.add('hidden');
+            });
+
+            // Hide result section and retry buttons
+            document.getElementById('resultSection').classList.add('hidden');
+            document.getElementById('retryIncorrectBtn').classList.add('hidden');
+            document.getElementById('filterSection').style.display = 'none';
+
+            // Update navigator
+            updateQuestionNavigator();
+
+            // Scroll to top of quiz
+            document.getElementById('quizSection').scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+
+        // Question Navigator functions
+        function generateQuestionNavigator() {
+            const navList = document.getElementById('questionNavList');
+            navList.innerHTML = '';
+
+            quizData.forEach((q, index) => {
+                const navItem = document.createElement('div');
+                navItem.className = 'question-nav-item';
+                navItem.id = `nav-q${index}`;
+                navItem.textContent = index + 1;
+                navItem.onclick = () => navigateToQuestion(index);
+                navList.appendChild(navItem);
+            });
+
+            // Show navigator timer if exam mode enabled
+            if (examModeEnabled) {
+                document.getElementById('navigatorTimer').classList.add('active');
+            }
+        }
+
+        function updateQuestionNavigator() {
+            quizData.forEach((q, index) => {
+                const navItem = document.getElementById(`nav-q${index}`);
+                if (!navItem) return;
+
+                // Reset classes
+                navItem.className = 'question-nav-item';
+
+                // Check if answered
+                const originalNumber = questionMapping[index];
+                const isMultiple = isMultipleAnswer(originalNumber);
+                let isAnswered = false;
+
+                if (isMultiple) {
+                    const selectedOptions = document.querySelectorAll(`input[name="question${index}"]:checked`);
+                    isAnswered = selectedOptions.length > 0;
+                } else {
+                    const selectedOption = document.querySelector(`input[name="question${index}"]:checked`);
+                    isAnswered = selectedOption !== null;
+                }
+
+                if (isAnswered) {
+                    navItem.classList.add('answered');
+                }
+
+                // If graded, show correct/incorrect
+                if (isGraded) {
+                    if (incorrectQuestions.has(originalNumber)) {
+                        navItem.classList.remove('answered');
+                        navItem.classList.add('incorrect');
+                    } else {
+                        navItem.classList.remove('answered');
+                        navItem.classList.add('correct');
+                    }
+                }
+            });
+        }
+
+        function navigateToQuestion(index) {
+            const questionCard = document.getElementById(`card${index}`);
+            if (questionCard) {
+                // Remove current highlight from all nav items
+                document.querySelectorAll('.question-nav-item').forEach(item => {
+                    item.classList.remove('current');
+                });
+
+                // Add current highlight
+                const navItem = document.getElementById(`nav-q${index}`);
+                if (navItem) {
+                    navItem.classList.add('current');
+                }
+
+                // Scroll to question
+                questionCard.scrollIntoView({ behavior: 'smooth', block: 'center' });
+
+                // Remove highlight after 2 seconds
+                setTimeout(() => {
+                    if (navItem) {
+                        navItem.classList.remove('current');
+                    }
+                }, 2000);
+            }
+        }
+
+        // Setup answer change listeners
+        function setupAnswerListeners() {
+            document.querySelectorAll('input[type="radio"], input[type="checkbox"]').forEach(input => {
+                input.addEventListener('change', () => {
+                    updateQuestionNavigator();
+                });
+            });
         }
 
         function retryIncorrectQuestions() {
