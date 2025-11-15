@@ -965,23 +965,36 @@
 
         /* Question Navigator Sidebar */
         .quiz-layout {
-            display: grid;
-            grid-template-columns: 280px 1fr;
-            gap: 20px;
             position: relative;
         }
 
         .question-navigator {
-            position: sticky;
+            position: fixed;
+            left: 20px;
             top: 20px;
-            height: fit-content;
-            max-height: calc(100vh - 40px);
+            width: 280px;
+            height: calc(100vh - 40px);
             background: var(--card-bg);
             border-radius: 15px;
             padding: 20px;
-            box-shadow: 0 2px 10px var(--shadow-color);
+            box-shadow: 0 5px 20px var(--shadow-color);
             transition: background 0.3s ease;
             overflow-y: auto;
+            z-index: 100;
+            display: none;
+        }
+
+        .question-navigator.active {
+            display: block;
+        }
+
+        .quiz-main-content {
+            margin-left: 0;
+            transition: margin-left 0.3s ease;
+        }
+
+        .quiz-main-content.with-navigator {
+            margin-left: 320px;
         }
 
         .navigator-header {
@@ -1079,8 +1092,15 @@
             box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.3);
         }
 
-        .quiz-main-content {
-            min-width: 0;
+        .question-nav-item.pinned {
+            background: linear-gradient(135deg, #ffd700 0%, #ffed4e 100%);
+            border-color: #ffd700;
+            color: #333;
+            font-weight: bold;
+        }
+
+        .question-nav-item.pinned.answered {
+            background: linear-gradient(135deg, #ffd700 0%, #a8e6cf 100%);
         }
 
         @media (max-width: 768px) {
@@ -1102,15 +1122,22 @@
                 text-align: center;
             }
 
-            .quiz-layout {
-                grid-template-columns: 1fr;
+            .question-navigator {
+                position: relative !important;
+                left: 0 !important;
+                top: 0 !important;
+                width: 100% !important;
+                height: auto !important;
+                margin-bottom: 20px;
+                display: block !important;
             }
 
-            .question-navigator {
-                position: relative;
-                top: 0;
-                max-height: none;
-                margin-bottom: 20px;
+            .quiz-main-content {
+                margin-left: 0 !important;
+            }
+
+            .quiz-main-content.with-navigator {
+                margin-left: 0 !important;
             }
 
             .question-nav-list {
@@ -2682,6 +2709,9 @@ Requirements:
             // Save pinned questions to localStorage
             savePinnedQuestions();
 
+            // Update navigator to show pinned status
+            updateQuestionNavigator();
+
             // Update button visibility
             updateRetryButtons();
         }
@@ -2843,6 +2873,10 @@ Requirements:
                 document.getElementById('timerMinutes').disabled = false;
             }
 
+            // Hide navigator
+            document.getElementById('questionNavigator').classList.remove('active');
+            document.querySelector('.quiz-main-content').classList.remove('with-navigator');
+
             // Show input section, hide quiz and result sections
             document.getElementById('inputSection').classList.remove('hidden');
             document.getElementById('quizSection').classList.add('hidden');
@@ -2908,10 +2942,17 @@ Requirements:
                 navList.appendChild(navItem);
             });
 
+            // Show navigator and adjust layout
+            document.getElementById('questionNavigator').classList.add('active');
+            document.querySelector('.quiz-main-content').classList.add('with-navigator');
+
             // Show navigator timer if exam mode enabled
             if (examModeEnabled) {
                 document.getElementById('navigatorTimer').classList.add('active');
             }
+
+            // Initial update to show pinned status
+            updateQuestionNavigator();
         }
 
         function updateQuestionNavigator() {
@@ -2924,6 +2965,7 @@ Requirements:
 
                 // Check if answered
                 const originalNumber = questionMapping[index];
+                const isPinned = pinnedQuestions.has(originalNumber);
                 const isMultiple = isMultipleAnswer(originalNumber);
                 let isAnswered = false;
 
@@ -2933,6 +2975,11 @@ Requirements:
                 } else {
                     const selectedOption = document.querySelector(`input[name="question${index}"]:checked`);
                     isAnswered = selectedOption !== null;
+                }
+
+                // Add pinned class if this question is pinned
+                if (isPinned) {
+                    navItem.classList.add('pinned');
                 }
 
                 if (isAnswered) {
