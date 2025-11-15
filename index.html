@@ -3,8 +3,56 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ứng dụng Quiz - Tạo và Chấm Điểm</title>
+    <title>BlueQuiz - Tạo và Chấm Điểm</title>
     <style>
+        :root {
+            --bg-gradient-start: #667eea;
+            --bg-gradient-end: #764ba2;
+            --container-bg: #ffffff;
+            --text-primary: #333333;
+            --text-secondary: #666666;
+            --card-bg: #f8f9fa;
+            --border-color: #ddd;
+            --input-bg: #ffffff;
+            --input-border: #ddd;
+            --correct-bg: #d4edda;
+            --correct-text: #155724;
+            --incorrect-bg: #f8d7da;
+            --incorrect-text: #721c24;
+            --filter-bg: #f0f4ff;
+            --ai-prompts-bg-start: #a8edea;
+            --ai-prompts-bg-end: #fed6e3;
+            --template-bg: rgba(255, 255, 255, 0.5);
+            --template-item-bg: #ffffff;
+            --prompt-card-bg: #ffffff;
+            --prompt-text-bg: #f8f9fa;
+            --shadow-color: rgba(0, 0, 0, 0.1);
+        }
+
+        body.dark-mode {
+            --bg-gradient-start: #1a1a2e;
+            --bg-gradient-end: #16213e;
+            --container-bg: #0f3460;
+            --text-primary: #eaeaea;
+            --text-secondary: #b8b8b8;
+            --card-bg: #1a1a2e;
+            --border-color: #2d4356;
+            --input-bg: #16213e;
+            --input-border: #2d4356;
+            --correct-bg: #1e4620;
+            --correct-text: #4caf50;
+            --incorrect-bg: #4a1c1c;
+            --incorrect-text: #ff6b6b;
+            --filter-bg: #1a1a2e;
+            --ai-prompts-bg-start: #16213e;
+            --ai-prompts-bg-end: #1a1a2e;
+            --template-bg: rgba(26, 26, 46, 0.5);
+            --template-item-bg: #16213e;
+            --prompt-card-bg: #1a1a2e;
+            --prompt-text-bg: #16213e;
+            --shadow-color: rgba(0, 0, 0, 0.5);
+        }
+
         * {
             margin: 0;
             padding: 0;
@@ -13,18 +61,20 @@
 
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, var(--bg-gradient-start) 0%, var(--bg-gradient-end) 100%);
             min-height: 100vh;
             padding: 20px;
+            transition: background 0.3s ease;
         }
 
         .container {
             max-width: 1200px;
             margin: 0 auto;
-            background: white;
+            background: var(--container-bg);
             border-radius: 20px;
             box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
             overflow: hidden;
+            transition: background 0.3s ease;
         }
 
         .header {
@@ -51,10 +101,34 @@
             right: 20px;
             display: flex;
             align-items: center;
-            gap: 10px;
+            gap: 15px;
         }
 
-        .language-selector select {
+        .theme-toggle {
+            background: rgba(255, 255, 255, 0.2);
+            border: 2px solid white;
+            color: white;
+            padding: 8px 15px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1.2em;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .theme-toggle:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: scale(1.05);
+        }
+
+        .language-buttons {
+            display: flex;
+            gap: 5px;
+        }
+
+        .language-button {
             padding: 8px 15px;
             border: 2px solid white;
             background: rgba(255, 255, 255, 0.2);
@@ -66,18 +140,14 @@
             transition: all 0.3s;
         }
 
-        .language-selector select:hover {
+        .language-button:hover {
             background: rgba(255, 255, 255, 0.3);
         }
 
-        .language-selector select option {
-            background: #667eea;
-            color: white;
-        }
-
-        .language-selector label {
-            font-size: 0.9em;
-            font-weight: 600;
+        .language-button.active {
+            background: rgba(76, 175, 80, 0.8);
+            border-color: #4caf50;
+            box-shadow: 0 0 10px rgba(76, 175, 80, 0.5);
         }
 
         .content {
@@ -104,18 +174,20 @@
             display: block;
             font-weight: 600;
             margin-bottom: 8px;
-            color: #333;
+            color: var(--text-primary);
         }
 
         textarea {
             width: 100%;
             padding: 15px;
-            border: 2px solid #ddd;
+            border: 2px solid var(--input-border);
             border-radius: 10px;
             font-size: 14px;
             font-family: 'Consolas', 'Monaco', monospace;
             resize: vertical;
-            transition: border-color 0.3s;
+            transition: border-color 0.3s, background 0.3s, color 0.3s;
+            background: var(--input-bg);
+            color: var(--text-primary);
         }
 
         textarea:focus {
@@ -125,7 +197,7 @@
 
         .hint {
             font-size: 0.9em;
-            color: #666;
+            color: var(--text-secondary);
             margin-top: 5px;
             font-style: italic;
         }
@@ -206,24 +278,26 @@
         }
 
         .question-card {
-            background: #f8f9fa;
+            background: var(--card-bg);
             border-radius: 15px;
             padding: 25px;
             margin-bottom: 25px;
             border-left: 5px solid #667eea;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 2px 10px var(--shadow-color);
+            transition: background 0.3s ease;
         }
 
         .question-header {
             font-size: 1.2em;
             font-weight: 600;
-            color: #333;
+            color: var(--text-primary);
             margin-bottom: 15px;
         }
 
         .question-text {
             margin-bottom: 15px;
             line-height: 1.6;
+            color: var(--text-primary);
         }
 
         .options {
@@ -242,6 +316,18 @@
             width: 20px;
             height: 20px;
             cursor: pointer;
+        }
+
+        .option input[type="radio"]:disabled,
+        .option input[type="checkbox"]:disabled {
+            cursor: not-allowed;
+            opacity: 0.6;
+        }
+
+        .option input[type="radio"]:disabled + label,
+        .option input[type="checkbox"]:disabled + label {
+            cursor: not-allowed;
+            opacity: 0.6;
         }
 
         .option label {
@@ -302,13 +388,13 @@
         }
 
         .question-result.correct {
-            background: #d4edda;
-            color: #155724;
+            background: var(--correct-bg);
+            color: var(--correct-text);
         }
 
         .question-result.incorrect {
-            background: #f8d7da;
-            color: #721c24;
+            background: var(--incorrect-bg);
+            color: var(--incorrect-text);
         }
 
         .hidden {
@@ -344,6 +430,11 @@
             background: #fffdf0;
         }
 
+        body.dark-mode .question-card.pinned {
+            border-left-color: #f59e0b;
+            background: #422006;
+        }
+
         .question-header-container {
             display: flex;
             align-items: center;
@@ -373,8 +464,9 @@
         .filter-section {
             margin-bottom: 20px;
             padding: 15px;
-            background: #f0f4ff;
+            background: var(--filter-bg);
             border-radius: 10px;
+            transition: background 0.3s ease;
         }
 
         .filter-buttons {
@@ -406,10 +498,11 @@
         }
 
         .ai-prompts-section {
-            background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);
+            background: linear-gradient(135deg, var(--ai-prompts-bg-start) 0%, var(--ai-prompts-bg-end) 100%);
             border-radius: 15px;
             padding: 20px;
             margin-bottom: 25px;
+            transition: background 0.3s ease;
         }
 
         .ai-prompts-header {
@@ -422,7 +515,7 @@
 
         .ai-prompts-header h3 {
             font-size: 1.2em;
-            color: #333;
+            color: var(--text-primary);
             display: flex;
             align-items: center;
             gap: 10px;
@@ -449,11 +542,12 @@
         }
 
         .prompt-card {
-            background: white;
+            background: var(--prompt-card-bg);
             border-radius: 10px;
             padding: 15px;
             margin-bottom: 15px;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 2px 8px var(--shadow-color);
+            transition: background 0.3s ease;
         }
 
         .prompt-card h4 {
@@ -463,26 +557,27 @@
         }
 
         .prompt-card p {
-            color: #666;
+            color: var(--text-secondary);
             font-size: 0.9em;
             margin-bottom: 10px;
             line-height: 1.5;
         }
 
         .prompt-text {
-            background: #f8f9fa;
-            border: 1px solid #ddd;
+            background: var(--prompt-text-bg);
+            border: 1px solid var(--border-color);
             border-radius: 8px;
             padding: 12px;
             font-family: 'Consolas', 'Monaco', monospace;
             font-size: 0.85em;
             line-height: 1.6;
-            color: #333;
+            color: var(--text-primary);
             white-space: pre-wrap;
             word-wrap: break-word;
             margin-bottom: 10px;
             max-height: 200px;
             overflow-y: auto;
+            transition: background 0.3s ease, color 0.3s ease;
         }
 
         .copy-btn {
@@ -510,10 +605,11 @@
         }
 
         .quick-templates {
-            background: rgba(255, 255, 255, 0.5);
+            background: var(--template-bg);
             border-radius: 10px;
             padding: 15px;
             margin-bottom: 20px;
+            transition: background 0.3s ease;
         }
 
         .template-grid {
@@ -524,10 +620,11 @@
         }
 
         .template-item {
-            background: white;
+            background: var(--template-item-bg);
             border-radius: 8px;
             padding: 12px;
-            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 2px 6px var(--shadow-color);
+            transition: background 0.3s ease;
         }
 
         .template-label {
@@ -538,23 +635,602 @@
         }
 
         .template-box {
-            background: #f8f9fa;
-            border: 1px solid #ddd;
+            background: var(--prompt-text-bg);
+            border: 1px solid var(--border-color);
             border-radius: 6px;
             padding: 10px;
             font-family: 'Consolas', 'Monaco', monospace;
             font-size: 0.8em;
             line-height: 1.5;
-            color: #333;
+            color: var(--text-primary);
             white-space: pre-wrap;
             margin-bottom: 10px;
             max-height: 150px;
             overflow-y: auto;
+            transition: background 0.3s ease, color 0.3s ease;
+        }
+
+        .exam-mode-controls {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+
+        .timer-input-group {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .timer-input-group input {
+            width: 80px;
+            padding: 8px;
+            border: 2px solid white;
+            border-radius: 8px;
+            font-size: 1em;
+            text-align: center;
+            background: rgba(255, 255, 255, 0.9);
+        }
+
+        .timer-input-group label {
+            color: white;
+            font-weight: 600;
+            margin: 0;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
+        }
+
+        /* Quiz Management Styles */
+        .quiz-management {
+            background: linear-gradient(135deg, #7f7fd5 0%, #86a8e7 50%, #91eae4 100%);
+            padding: 20px;
+            border-radius: 15px;
+            margin-bottom: 25px;
+        }
+
+        .quiz-management h3 {
+            color: white;
+            margin-bottom: 15px;
+            font-size: 1.2em;
+        }
+
+        .quiz-save-section {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
+        }
+
+        .quiz-save-section input {
+            flex: 1;
+            min-width: 200px;
+            padding: 10px;
+            border: 2px solid white;
+            border-radius: 8px;
+            font-size: 1em;
+        }
+
+        .quiz-save-section button {
+            background: rgba(255, 255, 255, 0.9);
+            color: #7f7fd5;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .quiz-save-section button:hover {
+            background: white;
+            transform: translateY(-2px);
+        }
+
+        .saved-quizzes-list {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            padding: 15px;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+
+        .saved-quiz-item {
+            background: rgba(255, 255, 255, 0.9);
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .saved-quiz-item:last-child {
+            margin-bottom: 0;
+        }
+
+        .saved-quiz-info {
+            flex: 1;
+            color: #333;
+        }
+
+        .saved-quiz-name {
+            font-weight: 600;
+            font-size: 1em;
+            margin-bottom: 5px;
+        }
+
+        .saved-quiz-meta {
+            font-size: 0.85em;
+            color: #666;
+        }
+
+        .saved-quiz-actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        .btn-load, .btn-delete {
+            padding: 6px 15px;
+            border: none;
+            border-radius: 6px;
+            font-size: 0.9em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn-load {
+            background: #4caf50;
+            color: white;
+        }
+
+        .btn-load:hover {
+            background: #45a049;
+        }
+
+        .btn-delete {
+            background: #f44336;
+            color: white;
+        }
+
+        .btn-delete:hover {
+            background: #da190b;
+        }
+
+        /* Statistics Styles */
+        .stats-button {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+            padding: 12px 30px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin: 20px 0;
+        }
+
+        .stats-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(245, 87, 108, 0.4);
+        }
+
+        .statistics-section {
+            background: var(--card-bg);
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 25px;
+            box-shadow: 0 2px 10px var(--shadow-color);
+            transition: background 0.3s ease;
+        }
+
+        .statistics-section h2 {
+            color: var(--text-primary);
+            margin-bottom: 20px;
+            font-size: 1.8em;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+            color: white;
+        }
+
+        .stat-value {
+            font-size: 2.5em;
+            font-weight: bold;
+            margin: 10px 0;
+        }
+
+        .stat-label {
+            font-size: 1em;
+            opacity: 0.9;
+        }
+
+        .history-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        .history-table th,
+        .history-table td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .history-table th {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            font-weight: 600;
+        }
+
+        .history-table td {
+            color: var(--text-primary);
+        }
+
+        .history-table tr:hover {
+            background: var(--filter-bg);
+        }
+
+        .score-badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 15px;
+            font-weight: 600;
+            font-size: 0.9em;
+        }
+
+        .score-excellent {
+            background: #4caf50;
+            color: white;
+        }
+
+        .score-good {
+            background: #8bc34a;
+            color: white;
+        }
+
+        .score-average {
+            background: #ffc107;
+            color: #333;
+        }
+
+        .score-poor {
+            background: #ff5722;
+            color: white;
+        }
+
+        .clear-history-btn {
+            background: #f44336;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            margin-top: 15px;
+            transition: all 0.3s;
+        }
+
+        .clear-history-btn:hover {
+            background: #da190b;
+        }
+
+        /* Question Navigator Sidebar */
+        .quiz-layout {
+            position: relative;
+        }
+
+        .question-navigator {
+            position: fixed;
+            left: 20px;
+            top: 20px;
+            width: 280px;
+            height: calc(100vh - 40px);
+            background: var(--card-bg);
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 5px 20px var(--shadow-color);
+            transition: background 0.3s ease;
+            overflow-y: auto;
+            z-index: 100;
+            display: none;
+        }
+
+        .question-navigator.active {
+            display: block;
+        }
+
+        .quiz-main-content {
+            margin-left: 0;
+        }
+
+        .navigator-header {
+            font-weight: 600;
+            font-size: 1.1em;
+            color: var(--text-primary);
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid var(--border-color);
+        }
+
+        /* Fixed Right Timer Panel */
+        .fixed-right-timer {
+            position: fixed;
+            right: 20px;
+            top: 20px;
+            width: 280px;
+            background: var(--card-bg);
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 5px 20px var(--shadow-color);
+            transition: background 0.3s ease;
+            z-index: 100;
+            display: none;
+        }
+
+        .fixed-right-timer.active {
+            display: block;
+        }
+
+        .timer-panel-header {
+            font-weight: 600;
+            font-size: 1.1em;
+            color: var(--text-primary);
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid var(--border-color);
+            text-align: center;
+        }
+
+        .timer-display-box {
+            background: linear-gradient(135deg, #ffd700 0%, #ffed4e 100%);
+            padding: 30px 20px;
+            border-radius: 10px;
+            text-align: center;
+            border: 3px solid #f0c000;
+        }
+
+        body.dark-mode .timer-display-box {
+            background: linear-gradient(135deg, #2d3436 0%, #1a1a2e 100%);
+            border-color: #4a5568;
+        }
+
+        .fixed-timer-text {
+            font-size: 2.5em;
+            font-weight: bold;
+            color: #1a1a2e;
+            margin: 0;
+            text-shadow: 0 1px 2px rgba(255, 255, 255, 0.5);
+        }
+
+        body.dark-mode .fixed-timer-text {
+            color: #4ade80;
+            text-shadow: 0 0 10px rgba(74, 222, 128, 0.3);
+        }
+
+        .fixed-timer-text.warning {
+            color: #d97706;
+        }
+
+        body.dark-mode .fixed-timer-text.warning {
+            color: #fbbf24;
+            text-shadow: 0 0 15px rgba(251, 191, 36, 0.4);
+        }
+
+        .fixed-timer-text.danger {
+            color: #dc2626;
+            animation: pulse 0.5s infinite;
+        }
+
+        body.dark-mode .fixed-timer-text.danger {
+            color: #f87171;
+            text-shadow: 0 0 20px rgba(248, 113, 113, 0.6);
+        }
+
+        .fixed-timer-label {
+            color: #374151;
+            font-size: 1em;
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+
+        body.dark-mode .fixed-timer-label {
+            color: #9ca3af;
+        }
+
+        .question-nav-list {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 8px;
+        }
+
+        .question-nav-item {
+            aspect-ratio: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: var(--input-bg);
+            border: 2px solid var(--border-color);
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 0.95em;
+            transition: all 0.3s;
+            color: var(--text-primary);
+        }
+
+        .question-nav-item:hover {
+            transform: scale(1.05);
+            border-color: #667eea;
+            background: #667eea;
+            color: white;
+        }
+
+        .question-nav-item.answered {
+            background: #2196f3;
+            border-color: #1976d2;
+            color: white;
+        }
+
+        body.dark-mode .question-nav-item.answered {
+            background: #1e40af;
+            border-color: #3b82f6;
+            color: #e0f2fe;
+        }
+
+        .question-nav-item.correct {
+            background: #4caf50;
+            border-color: #4caf50;
+            color: white;
+        }
+
+        body.dark-mode .question-nav-item.correct {
+            background: #15803d;
+            border-color: #22c55e;
+            color: #dcfce7;
+        }
+
+        .question-nav-item.incorrect {
+            background: #ff5722;
+            border-color: #ff5722;
+            color: white;
+        }
+
+        body.dark-mode .question-nav-item.incorrect {
+            background: #b91c1c;
+            border-color: #ef4444;
+            color: #fee2e2;
+        }
+
+        .question-nav-item.current {
+            border-color: #667eea;
+            border-width: 3px;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.3);
+        }
+
+        .question-nav-item.pinned {
+            background: linear-gradient(135deg, #ffd700 0%, #ffed4e 100%);
+            border-color: #ffd700;
+            color: #1a1a2e;
+            font-weight: bold;
+        }
+
+        body.dark-mode .question-nav-item.pinned {
+            background: linear-gradient(135deg, #b45309 0%, #d97706 100%);
+            border-color: #f59e0b;
+            color: #fef3c7;
+        }
+
+        .question-nav-item.pinned.answered {
+            background: linear-gradient(135deg, #ffd700 0%, #4ade80 100%);
+            color: #1a1a2e;
+        }
+
+        body.dark-mode .question-nav-item.pinned.answered {
+            background: linear-gradient(135deg, #b45309 0%, #15803d 100%);
+            border-color: #22c55e;
+            color: #dcfce7;
+        }
+
+        /* Fixed Control Panel - Bottom Right */
+        .fixed-control-panel {
+            position: fixed;
+            right: 20px;
+            bottom: 20px;
+            width: 280px;
+            background: var(--card-bg);
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 5px 20px var(--shadow-color);
+            transition: background 0.3s ease;
+            z-index: 100;
+            display: none;
+        }
+
+        .fixed-control-panel.active {
+            display: block;
+        }
+
+        .control-panel-header {
+            font-weight: 600;
+            font-size: 1.1em;
+            color: var(--text-primary);
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid var(--border-color);
+            text-align: center;
+        }
+
+        .navigator-controls {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .btn-nav {
+            width: 100%;
+            padding: 12px;
+            font-size: 0.95em;
+            border-radius: 8px;
+            font-weight: 600;
         }
 
         @media (max-width: 768px) {
             .template-grid {
                 grid-template-columns: 1fr;
+            }
+
+
+            .question-navigator {
+                position: relative !important;
+                left: 0 !important;
+                top: 0 !important;
+                width: 100% !important;
+                height: auto !important;
+                margin-bottom: 20px;
+                display: block !important;
+            }
+
+            .quiz-main-content {
+                margin-left: 0 !important;
+            }
+
+            .question-nav-list {
+                grid-template-columns: repeat(6, 1fr);
+            }
+
+            .fixed-right-timer {
+                position: relative !important;
+                right: auto !important;
+                top: auto !important;
+                width: 100% !important;
+                margin-bottom: 20px;
+            }
+
+            .fixed-control-panel {
+                position: relative !important;
+                right: auto !important;
+                bottom: auto !important;
+                width: 100% !important;
+                margin-top: 20px;
             }
         }
 
@@ -581,16 +1257,40 @@
     </style>
 </head>
 <body>
+    <!-- Fixed Right Timer Panel -->
+    <div class="fixed-right-timer" id="fixedRightTimer">
+        <div class="timer-panel-header" data-i18n="timerPanelHeader">⏱️ Thời Gian</div>
+        <div class="timer-display-box">
+            <div class="fixed-timer-label" data-i18n="timeRemaining">Thời gian còn lại:</div>
+            <div class="fixed-timer-text" id="fixedTimerText">00:30:00</div>
+        </div>
+    </div>
+
+    <!-- Fixed Control Panel - Bottom Right -->
+    <div class="fixed-control-panel" id="fixedControlPanel">
+        <div class="control-panel-header" data-i18n="controlPanelHeader">🎮 Điều Khiển</div>
+        <div class="navigator-controls">
+            <button class="btn-success btn-nav" onclick="submitQuiz()" data-i18n="submitBtn">Chấm Điểm</button>
+            <button class="btn-secondary btn-nav" onclick="backToEdit()" data-i18n="backToEditBtn">⬅️ Quay Lại</button>
+            <button class="btn-secondary btn-nav" onclick="restartQuiz()" data-i18n="restartBtn">🔄 Làm Lại</button>
+            <button class="btn-primary btn-nav hidden" id="retryAllBtn" onclick="retryAllQuestions()" data-i18n="retryAllBtn">🔄 Làm Lại Tất Cả</button>
+            <button class="btn-warning btn-nav hidden" id="retryIncorrectBtn" onclick="retryIncorrectQuestions()" data-i18n="retryIncorrectBtn">Làm Lại Câu Sai</button>
+            <button class="btn-info btn-nav hidden" id="retryPinnedBtn" onclick="retryPinnedQuestions()" data-i18n="retryPinnedBtn">Làm Lại Câu Đã Pin</button>
+        </div>
+    </div>
+
     <div class="container">
         <div class="header">
             <div class="language-selector">
-                <label for="languageSelect" data-i18n="language">🌐</label>
-                <select id="languageSelect" onchange="changeLanguage(this.value)">
-                    <option value="vi">Tiếng Việt</option>
-                    <option value="en">English</option>
-                </select>
+                <button class="theme-toggle" onclick="toggleTheme()" id="themeToggle" title="Toggle dark mode">
+                    🌙
+                </button>
+                <div class="language-buttons">
+                    <button class="language-button active" id="langVi" onclick="changeLanguage('vi')">🇻🇳 VI</button>
+                    <button class="language-button" id="langEn" onclick="changeLanguage('en')">🇬🇧 EN</button>
+                </div>
             </div>
-            <h1 data-i18n="title">📝 Ứng dụng Quiz</h1>
+            <h1 data-i18n="title">📝 BlueQuiz</h1>
             <p data-i18n="subtitle">Tạo bộ câu hỏi, xáo trộn và chấm điểm tự động</p>
         </div>
 
@@ -659,6 +1359,18 @@ e. Lựa chọn E</div>
             <div class="section" id="inputSection">
                 <h2 class="section-title" data-i18n="step1">Bước 1: Nhập Dữ Liệu</h2>
 
+                <!-- Quiz Management -->
+                <div class="quiz-management">
+                    <h3>💾 <span data-i18n="quizManagement">Quản Lý Bộ Quiz</span></h3>
+                    <div class="quiz-save-section">
+                        <input type="text" id="quizNameInput" data-i18n-placeholder="quizNamePlaceholder" placeholder="Nhập tên bộ quiz (VD: Lịch Sử Việt Nam, JavaScript Basics...)">
+                        <button onclick="saveQuizSet()" data-i18n="saveQuizBtn">💾 Lưu Bộ Quiz</button>
+                    </div>
+                    <div class="saved-quizzes-list" id="savedQuizzesList">
+                        <!-- Saved quizzes will appear here -->
+                    </div>
+                </div>
+
                 <div class="input-group">
                     <label for="questionsInput" data-i18n="questionsLabel">Câu hỏi và đáp án:</label>
                     <textarea id="questionsInput" rows="12" data-i18n-placeholder="questionsPlaceholder"></textarea>
@@ -676,35 +1388,80 @@ e. Lựa chọn E</div>
                         <input type="checkbox" id="shuffleCheckbox">
                         <label for="shuffleCheckbox" data-i18n="shuffleLabel">Xáo trộn câu hỏi</label>
                     </div>
+                    <div class="checkbox-group">
+                        <input type="checkbox" id="examModeCheckbox" onchange="toggleExamMode()">
+                        <label for="examModeCheckbox" data-i18n="enableExamMode">⏱️ Bật chế độ thi</label>
+                    </div>
+                    <div class="timer-input-group" id="timerInputGroup" style="display: none;">
+                        <label for="timerHours" data-i18n="hours">Giờ:</label>
+                        <input type="number" id="timerHours" min="0" max="23" value="0" />
+                        <label for="timerMinutes" data-i18n="minutes">Phút:</label>
+                        <input type="number" id="timerMinutes" min="0" max="59" value="30" />
+                    </div>
                     <button class="btn-primary" onclick="generateQuiz()" data-i18n="createQuizBtn">Tạo Quiz</button>
                 </div>
             </div>
 
             <!-- Quiz Section -->
             <div class="section hidden" id="quizSection">
-                <h2 class="section-title" data-i18n="step2">Bước 2: Làm Bài Quiz</h2>
+                <!-- Quiz Layout with Navigator -->
+                <div class="quiz-layout">
+                    <!-- Question Navigator Sidebar -->
+                    <div class="question-navigator" id="questionNavigator">
+                        <div class="navigator-header" data-i18n="questionNavigator">Danh Sách Câu Hỏi</div>
 
-                <!-- Filter Section -->
-                <div class="filter-section" id="filterSection" style="display: none;">
-                    <label style="margin-bottom: 10px;" data-i18n="filterLabel">Lọc câu hỏi:</label>
-                    <div class="filter-buttons">
-                        <button class="filter-button active" onclick="filterQuestions('all')" data-i18n="filterAll">Tất cả</button>
-                        <button class="filter-button" onclick="filterQuestions('pinned')" data-i18n="filterPinned">Câu đã pin</button>
-                        <button class="filter-button" onclick="filterQuestions('incorrect')" data-i18n="filterIncorrect">Câu sai</button>
+                        <!-- Question Navigation List -->
+                        <div class="question-nav-list" id="questionNavList">
+                            <!-- Question nav items will be inserted here -->
+                        </div>
                     </div>
-                </div>
 
-                <div id="quizContainer"></div>
-                <div class="controls">
-                    <button class="btn-success" onclick="submitQuiz()" data-i18n="submitBtn">Chấm Điểm</button>
-                    <button class="btn-secondary" onclick="resetQuiz()" data-i18n="resetBtn">Làm Lại</button>
-                    <button class="btn-warning hidden" id="retryIncorrectBtn" onclick="retryIncorrectQuestions()" data-i18n="retryIncorrectBtn">Làm Lại Câu Sai</button>
-                    <button class="btn-info hidden" id="retryPinnedBtn" onclick="retryPinnedQuestions()" data-i18n="retryPinnedBtn">Làm Lại Câu Đã Pin</button>
+                    <!-- Main Quiz Content -->
+                    <div class="quiz-main-content">
+                        <!-- Filter Section -->
+                        <div class="filter-section" id="filterSection" style="display: none;">
+                            <label style="margin-bottom: 10px;" data-i18n="filterLabel">Lọc câu hỏi:</label>
+                            <div class="filter-buttons">
+                                <button class="filter-button active" onclick="filterQuestions('all')" data-i18n="filterAll">Tất cả</button>
+                                <button class="filter-button" onclick="filterQuestions('pinned')" data-i18n="filterPinned">Câu đã pin</button>
+                                <button class="filter-button" onclick="filterQuestions('incorrect')" data-i18n="filterIncorrect">Câu sai</button>
+                            </div>
+                        </div>
+
+                        <div id="quizContainer"></div>
+                    </div>
                 </div>
             </div>
 
             <!-- Result Section -->
             <div id="resultSection" class="hidden"></div>
+
+            <!-- Statistics Button -->
+            <div style="text-align: center; margin: 20px 0;">
+                <button class="stats-button" onclick="toggleStatistics()" id="statsToggleBtn">
+                    📊 <span data-i18n="viewStatistics">Xem Thống Kê</span>
+                </button>
+            </div>
+
+            <!-- Statistics Section -->
+            <div class="statistics-section hidden" id="statisticsSection">
+                <h2>📊 <span data-i18n="statisticsTitle">Thống Kê & Lịch Sử</span></h2>
+
+                <div class="stats-grid" id="statsGrid">
+                    <!-- Stats cards will be inserted here -->
+                </div>
+
+                <h3 style="margin: 30px 0 15px 0; color: var(--text-primary);">
+                    <span data-i18n="recentHistory">Lịch Sử Gần Đây</span>
+                </h3>
+                <div id="historyTableContainer">
+                    <!-- History table will be inserted here -->
+                </div>
+
+                <button class="clear-history-btn" onclick="clearHistory()">
+                    🗑️ <span data-i18n="clearHistory">Xóa Lịch Sử</span>
+                </button>
+            </div>
         </div>
     </div>
 
@@ -719,11 +1476,427 @@ e. Lựa chọn E</div>
         let originalAnswersText = ''; // Lưu đáp án gốc
         let currentFilter = 'all'; // Bộ lọc hiện tại
         let currentLanguage = 'vi'; // Ngôn ngữ hiện tại
+        let quizHistory = []; // Lưu lịch sử làm bài
+
+        // Exam Mode variables
+        let examModeEnabled = false;
+        let timerInterval = null;
+        let timeRemaining = 0; // in seconds
+
+        // LocalStorage keys
+        const STORAGE_KEYS = {
+            QUESTIONS: 'quiz_questions',
+            ANSWERS: 'quiz_answers',
+            PINNED: 'quiz_pinned',
+            LANGUAGE: 'quiz_language',
+            HISTORY: 'quiz_history',
+            THEME: 'quiz_theme',
+            SAVED_QUIZZES: 'quiz_saved_sets'
+        };
+
+        // LocalStorage helper functions
+        function saveToStorage(key, value) {
+            try {
+                localStorage.setItem(key, JSON.stringify(value));
+            } catch (e) {
+                console.error('Failed to save to localStorage:', e);
+            }
+        }
+
+        function loadFromStorage(key, defaultValue = null) {
+            try {
+                const item = localStorage.getItem(key);
+                return item ? JSON.parse(item) : defaultValue;
+            } catch (e) {
+                console.error('Failed to load from localStorage:', e);
+                return defaultValue;
+            }
+        }
+
+        function clearStorage(key) {
+            try {
+                localStorage.removeItem(key);
+            } catch (e) {
+                console.error('Failed to clear from localStorage:', e);
+            }
+        }
+
+        // Auto-save functions
+        function autoSaveQuestions() {
+            const questionsText = document.getElementById('questionsInput').value;
+            if (questionsText.trim()) {
+                saveToStorage(STORAGE_KEYS.QUESTIONS, questionsText);
+            }
+        }
+
+        function autoSaveAnswers() {
+            const answersText = document.getElementById('answersInput').value;
+            if (answersText.trim()) {
+                saveToStorage(STORAGE_KEYS.ANSWERS, answersText);
+            }
+        }
+
+        function savePinnedQuestions() {
+            saveToStorage(STORAGE_KEYS.PINNED, Array.from(pinnedQuestions));
+        }
+
+        function saveLanguage(lang) {
+            saveToStorage(STORAGE_KEYS.LANGUAGE, lang);
+        }
+
+        function saveQuizHistory(score, total, correct, incorrect, unanswered) {
+            const historyEntry = {
+                date: new Date().toISOString(),
+                score: score,
+                total: total,
+                correct: correct,
+                incorrect: incorrect,
+                unanswered: unanswered,
+                questionsCount: total
+            };
+
+            quizHistory.unshift(historyEntry); // Add to beginning
+            if (quizHistory.length > 50) { // Keep last 50 attempts
+                quizHistory = quizHistory.slice(0, 50);
+            }
+
+            saveToStorage(STORAGE_KEYS.HISTORY, quizHistory);
+        }
+
+        // Load data from localStorage
+        function loadSavedData() {
+            // Load language preference
+            const savedLanguage = loadFromStorage(STORAGE_KEYS.LANGUAGE, 'vi');
+            currentLanguage = savedLanguage;
+
+            // Load questions and answers
+            const savedQuestions = loadFromStorage(STORAGE_KEYS.QUESTIONS, '');
+            const savedAnswers = loadFromStorage(STORAGE_KEYS.ANSWERS, '');
+
+            if (savedQuestions) {
+                document.getElementById('questionsInput').value = savedQuestions;
+            }
+
+            if (savedAnswers) {
+                document.getElementById('answersInput').value = savedAnswers;
+            }
+
+            // Load pinned questions
+            const savedPinned = loadFromStorage(STORAGE_KEYS.PINNED, []);
+            pinnedQuestions = new Set(savedPinned);
+
+            // Load quiz history
+            quizHistory = loadFromStorage(STORAGE_KEYS.HISTORY, []);
+
+            // Load theme
+            const savedTheme = loadFromStorage(STORAGE_KEYS.THEME, 'light');
+            if (savedTheme === 'dark') {
+                document.body.classList.add('dark-mode');
+                updateThemeToggleIcon();
+            }
+        }
+
+        // Dark Mode functions
+        function toggleTheme() {
+            document.body.classList.toggle('dark-mode');
+            const isDark = document.body.classList.contains('dark-mode');
+            saveToStorage(STORAGE_KEYS.THEME, isDark ? 'dark' : 'light');
+            updateThemeToggleIcon();
+        }
+
+        function updateThemeToggleIcon() {
+            const themeToggle = document.getElementById('themeToggle');
+            const isDark = document.body.classList.contains('dark-mode');
+            themeToggle.textContent = isDark ? '☀️' : '🌙';
+            themeToggle.title = isDark ? 'Switch to light mode' : 'Switch to dark mode';
+        }
+
+        // Exam Mode functions
+        function toggleExamMode() {
+            examModeEnabled = document.getElementById('examModeCheckbox').checked;
+            const timerInputGroup = document.getElementById('timerInputGroup');
+
+            if (examModeEnabled) {
+                // Show timer input fields
+                timerInputGroup.style.display = 'flex';
+            } else {
+                // Hide timer input fields and stop timer if running
+                timerInputGroup.style.display = 'none';
+                if (timerInterval) {
+                    stopTimer();
+                }
+            }
+        }
+
+        function startTimer() {
+            updateTimerDisplay();
+            timerInterval = setInterval(() => {
+                if (timeRemaining <= 0) {
+                    stopTimer();
+                    alert(translations[currentLanguage].timeUp);
+                    submitQuiz();
+                    return;
+                }
+
+                timeRemaining--;
+                updateTimerDisplay();
+            }, 1000);
+        }
+
+        function stopTimer() {
+            if (timerInterval) {
+                clearInterval(timerInterval);
+                timerInterval = null;
+            }
+        }
+
+        function updateTimerDisplay() {
+            const fixedTimerText = document.getElementById('fixedTimerText');
+            const formattedTime = formatTime(timeRemaining);
+
+            fixedTimerText.textContent = formattedTime;
+
+            // Add warning/danger classes
+            fixedTimerText.classList.remove('warning', 'danger');
+
+            if (timeRemaining <= 60) {
+                fixedTimerText.classList.add('danger');
+            } else if (timeRemaining <= 300) {
+                fixedTimerText.classList.add('warning');
+            }
+        }
+
+        function formatTime(seconds) {
+            // Ensure non-negative time display
+            const time = Math.max(0, seconds);
+            const hours = Math.floor(time / 3600);
+            const mins = Math.floor((time % 3600) / 60);
+            const secs = time % 60;
+            return `${hours.toString().padStart(2, '0')}:${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+        }
+
+        // Quiz Management functions
+        function saveQuizSet() {
+            const quizName = document.getElementById('quizNameInput').value.trim();
+            const questionsText = document.getElementById('questionsInput').value.trim();
+            const answersText = document.getElementById('answersInput').value.trim();
+
+            if (!quizName) {
+                alert(translations[currentLanguage].alertNoQuizName);
+                return;
+            }
+
+            if (!questionsText || !answersText) {
+                alert(translations[currentLanguage].alertNoData);
+                return;
+            }
+
+            // Get existing saved quizzes
+            const savedQuizzes = loadFromStorage(STORAGE_KEYS.SAVED_QUIZZES, []);
+
+            // Create new quiz object
+            const newQuiz = {
+                id: Date.now(),
+                name: quizName,
+                questions: questionsText,
+                answers: answersText,
+                questionCount: parseQuestions(questionsText).length,
+                savedDate: new Date().toISOString()
+            };
+
+            // Add to saved quizzes
+            savedQuizzes.unshift(newQuiz);
+
+            // Save to storage
+            saveToStorage(STORAGE_KEYS.SAVED_QUIZZES, savedQuizzes);
+
+            // Clear quiz name input
+            document.getElementById('quizNameInput').value = '';
+
+            // Refresh display
+            displaySavedQuizzes();
+
+            alert(translations[currentLanguage].alertQuizSaved);
+        }
+
+        function loadQuizSet(quizId) {
+            const savedQuizzes = loadFromStorage(STORAGE_KEYS.SAVED_QUIZZES, []);
+            const quiz = savedQuizzes.find(q => q.id === quizId);
+
+            if (quiz) {
+                document.getElementById('questionsInput').value = quiz.questions;
+                document.getElementById('answersInput').value = quiz.answers;
+
+                // Auto-save to current storage
+                autoSaveQuestions();
+                autoSaveAnswers();
+
+                // Scroll to input section
+                document.getElementById('inputSection').scrollIntoView({ behavior: 'smooth' });
+            }
+        }
+
+        function deleteQuizSet(quizId) {
+            if (confirm(translations[currentLanguage].confirmDelete)) {
+                let savedQuizzes = loadFromStorage(STORAGE_KEYS.SAVED_QUIZZES, []);
+                savedQuizzes = savedQuizzes.filter(q => q.id !== quizId);
+                saveToStorage(STORAGE_KEYS.SAVED_QUIZZES, savedQuizzes);
+                displaySavedQuizzes();
+            }
+        }
+
+        function displaySavedQuizzes() {
+            const container = document.getElementById('savedQuizzesList');
+            const savedQuizzes = loadFromStorage(STORAGE_KEYS.SAVED_QUIZZES, []);
+
+            if (savedQuizzes.length === 0) {
+                container.innerHTML = `<p style="color: white; text-align: center; padding: 20px;">${translations[currentLanguage].noSavedQuizzes}</p>`;
+                return;
+            }
+
+            container.innerHTML = savedQuizzes.map(quiz => {
+                const date = new Date(quiz.savedDate);
+                const dateStr = date.toLocaleString(currentLanguage === 'vi' ? 'vi-VN' : 'en-US', {
+                    year: 'numeric',
+                    month: '2-digit',
+                    day: '2-digit',
+                    hour: '2-digit',
+                    minute: '2-digit'
+                });
+
+                return `
+                    <div class="saved-quiz-item">
+                        <div class="saved-quiz-info">
+                            <div class="saved-quiz-name">${quiz.name}</div>
+                            <div class="saved-quiz-meta">${quiz.questionCount} ${translations[currentLanguage].questions} • ${translations[currentLanguage].savedOn} ${dateStr}</div>
+                        </div>
+                        <div class="saved-quiz-actions">
+                            <button class="btn-load" onclick="loadQuizSet(${quiz.id})">${translations[currentLanguage].loadBtn}</button>
+                            <button class="btn-delete" onclick="deleteQuizSet(${quiz.id})">${translations[currentLanguage].deleteBtn}</button>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // Statistics functions
+        function toggleStatistics() {
+            const statsSection = document.getElementById('statisticsSection');
+            const statsBtn = document.getElementById('statsToggleBtn');
+            const isHidden = statsSection.classList.contains('hidden');
+
+            if (isHidden) {
+                statsSection.classList.remove('hidden');
+                statsBtn.innerHTML = `📊 <span data-i18n="hideStatistics">${translations[currentLanguage].hideStatistics}</span>`;
+                displayStatistics();
+                statsSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            } else {
+                statsSection.classList.add('hidden');
+                statsBtn.innerHTML = `📊 <span data-i18n="viewStatistics">${translations[currentLanguage].viewStatistics}</span>`;
+            }
+        }
+
+        function displayStatistics() {
+            const history = quizHistory;
+
+            if (history.length === 0) {
+                document.getElementById('statsGrid').innerHTML = `
+                    <p style="grid-column: 1/-1; text-align: center; padding: 40px; color: var(--text-secondary);">
+                        ${translations[currentLanguage].noHistory}
+                    </p>
+                `;
+                document.getElementById('historyTableContainer').innerHTML = '';
+                return;
+            }
+
+            // Calculate statistics
+            const totalAttempts = history.length;
+            const scores = history.map(h => parseFloat(h.score));
+            const averageScore = (scores.reduce((a, b) => a + b, 0) / scores.length).toFixed(1);
+            const highestScore = Math.max(...scores).toFixed(1);
+            const lowestScore = Math.min(...scores).toFixed(1);
+
+            // Display stat cards
+            const statsGrid = document.getElementById('statsGrid');
+            statsGrid.innerHTML = `
+                <div class="stat-card">
+                    <div class="stat-label">${translations[currentLanguage].totalAttempts}</div>
+                    <div class="stat-value">${totalAttempts}</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">${translations[currentLanguage].averageScore}</div>
+                    <div class="stat-value">${averageScore}%</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">${translations[currentLanguage].highestScore}</div>
+                    <div class="stat-value">${highestScore}%</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">${translations[currentLanguage].lowestScore}</div>
+                    <div class="stat-value">${lowestScore}%</div>
+                </div>
+            `;
+
+            // Display history table
+            const historyTableContainer = document.getElementById('historyTableContainer');
+            historyTableContainer.innerHTML = `
+                <table class="history-table">
+                    <thead>
+                        <tr>
+                            <th>${translations[currentLanguage].date}</th>
+                            <th>${translations[currentLanguage].score}</th>
+                            <th>${translations[currentLanguage].totalQuestions}</th>
+                            <th>${translations[currentLanguage].correctAnswers}</th>
+                            <th>${translations[currentLanguage].incorrectAnswers}</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${history.map(entry => {
+                            const date = new Date(entry.date);
+                            const dateStr = date.toLocaleString(currentLanguage === 'vi' ? 'vi-VN' : 'en-US', {
+                                year: 'numeric',
+                                month: '2-digit',
+                                day: '2-digit',
+                                hour: '2-digit',
+                                minute: '2-digit'
+                            });
+                            const scoreBadgeClass = getScoreBadgeClass(entry.score);
+
+                            return `
+                                <tr>
+                                    <td>${dateStr}</td>
+                                    <td><span class="score-badge ${scoreBadgeClass}">${entry.score}%</span></td>
+                                    <td>${entry.total}</td>
+                                    <td style="color: #4caf50; font-weight: 600;">${entry.correct}</td>
+                                    <td style="color: #ff5722; font-weight: 600;">${entry.incorrect}</td>
+                                </tr>
+                            `;
+                        }).join('')}
+                    </tbody>
+                </table>
+            `;
+        }
+
+        function getScoreBadgeClass(score) {
+            const s = parseFloat(score);
+            if (s >= 90) return 'score-excellent';
+            if (s >= 70) return 'score-good';
+            if (s >= 50) return 'score-average';
+            return 'score-poor';
+        }
+
+        function clearHistory() {
+            if (confirm(translations[currentLanguage].confirmClearHistory)) {
+                quizHistory = [];
+                saveToStorage(STORAGE_KEYS.HISTORY, []);
+                displayStatistics();
+            }
+        }
 
         // Translations
         const translations = {
             vi: {
-                title: '📝 Ứng dụng Quiz',
+                title: '📝 BlueQuiz',
                 subtitle: 'Tạo bộ câu hỏi, xáo trộn và chấm điểm tự động',
                 step1: 'Bước 1: Nhập Dữ Liệu',
                 step2: 'Bước 2: Làm Bài Quiz',
@@ -740,9 +1913,15 @@ e. Lựa chọn E</div>
                 filterPinned: 'Câu đã pin',
                 filterIncorrect: 'Câu sai',
                 submitBtn: 'Chấm Điểm',
-                resetBtn: 'Làm Lại',
+                backToEditBtn: '⬅️ Quay Lại',
+                restartBtn: '🔄 Làm Lại',
+                retryAllBtn: '🔄 Làm Lại Tất Cả',
                 retryIncorrectBtn: 'Làm Lại Câu Sai',
                 retryPinnedBtn: 'Làm Lại Câu Đã Pin',
+                questionNavigator: 'Danh Sách Câu Hỏi',
+                timeRemaining: 'Thời gian còn lại:',
+                confirmBackToEdit: 'Bạn có chắc muốn quay lại? Tiến trình làm bài sẽ KHÔNG được lưu.',
+                confirmRestart: 'Bạn có chắc muốn làm lại? Bài làm hiện tại sẽ bị xóa.',
                 question: 'Câu',
                 pinQuestion: 'Pin câu hỏi',
                 unpinQuestion: 'Bỏ pin',
@@ -759,17 +1938,49 @@ e. Lựa chọn E</div>
                 alertNoIncorrect: 'Không có câu sai nào để làm lại!',
                 alertNoPinned: 'Chưa có câu hỏi nào được pin!',
                 alertNoRetry: 'Không có câu hỏi nào để làm lại!',
-                confirmReset: 'Bạn có chắc muốn làm lại? Tất cả câu trả lời sẽ bị xóa.',
                 aiPromptsTitle: 'Hướng Dẫn Tạo Câu Hỏi Với AI Chatbot',
                 aiPromptsDesc: 'Copy các prompt sau và paste vào ChatGPT, Claude, hoặc AI chatbot khác để tự động tạo câu hỏi đúng format:',
                 quickTemplatesTitle: '📋 Hoặc Copy Template Mẫu Để Paste Trực Tiếp:',
                 templateQuestionsLabel: 'Mẫu Câu Hỏi:',
                 templateAnswersLabel: 'Mẫu Đáp Án:',
                 copyBtn: 'Copy',
-                copiedBtn: '✓ Đã copy!'
+                copiedBtn: '✓ Đã copy!',
+                examMode: 'Chế độ thi',
+                enableExamMode: 'Bật chế độ thi',
+                hours: 'Giờ:',
+                minutes: 'Phút:',
+                timerPanelHeader: '⏱️ Thời Gian',
+                controlPanelHeader: '🎮 Điều Khiển',
+                timeUp: 'Hết giờ! Tự động nộp bài...',
+                examModeActive: 'Chế độ thi đang bật. Bạn không thể xem đáp án cho đến khi hết giờ hoặc nộp bài.',
+                quizManagement: 'Quản Lý Bộ Quiz',
+                quizNamePlaceholder: 'Nhập tên bộ quiz (VD: Lịch Sử Việt Nam, JavaScript Basics...)',
+                saveQuizBtn: '💾 Lưu Bộ Quiz',
+                loadBtn: 'Tải',
+                deleteBtn: 'Xóa',
+                questions: 'câu hỏi',
+                savedOn: 'Lưu lúc:',
+                confirmDelete: 'Bạn có chắc muốn xóa bộ quiz này?',
+                alertNoQuizName: 'Vui lòng nhập tên bộ quiz!',
+                alertNoData: 'Vui lòng nhập câu hỏi và đáp án trước khi lưu!',
+                alertQuizSaved: 'Đã lưu bộ quiz thành công!',
+                noSavedQuizzes: 'Chưa có bộ quiz nào được lưu',
+                viewStatistics: 'Xem Thống Kê',
+                hideStatistics: 'Ẩn Thống Kê',
+                statisticsTitle: 'Thống Kê & Lịch Sử',
+                recentHistory: 'Lịch Sử Gần Đây',
+                clearHistory: 'Xóa Lịch Sử',
+                confirmClearHistory: 'Bạn có chắc muốn xóa toàn bộ lịch sử?',
+                totalAttempts: 'Tổng lượt thi',
+                averageScore: 'Điểm TB',
+                highestScore: 'Điểm cao nhất',
+                lowestScore: 'Điểm thấp nhất',
+                date: 'Ngày giờ',
+                score: 'Điểm',
+                noHistory: 'Chưa có lịch sử làm bài nào'
             },
             en: {
-                title: '📝 Quiz Application',
+                title: '📝 BlueQuiz',
                 subtitle: 'Create quizzes, shuffle questions, and auto-grade',
                 step1: 'Step 1: Input Data',
                 step2: 'Step 2: Take the Quiz',
@@ -786,9 +1997,15 @@ e. Lựa chọn E</div>
                 filterPinned: 'Pinned',
                 filterIncorrect: 'Incorrect',
                 submitBtn: 'Submit & Grade',
-                resetBtn: 'Reset',
+                backToEditBtn: '⬅️ Back',
+                restartBtn: '🔄 Restart',
+                retryAllBtn: '🔄 Retry All Questions',
                 retryIncorrectBtn: 'Retry Incorrect',
                 retryPinnedBtn: 'Retry Pinned',
+                questionNavigator: 'Question List',
+                timeRemaining: 'Time Remaining:',
+                confirmBackToEdit: 'Are you sure you want to go back? Your progress will NOT be saved.',
+                confirmRestart: 'Are you sure you want to restart? Your current answers will be cleared.',
                 question: 'Question',
                 pinQuestion: 'Pin question',
                 unpinQuestion: 'Unpin',
@@ -805,14 +2022,46 @@ e. Lựa chọn E</div>
                 alertNoIncorrect: 'No incorrect questions to retry!',
                 alertNoPinned: 'No questions have been pinned yet!',
                 alertNoRetry: 'No questions to retry!',
-                confirmReset: 'Are you sure you want to reset? All answers will be lost.',
                 aiPromptsTitle: 'Generate Questions With AI Chatbot',
                 aiPromptsDesc: 'Copy these prompts and paste into ChatGPT, Claude, or other AI chatbots to automatically generate questions in the correct format:',
                 quickTemplatesTitle: '📋 Or Copy Sample Templates to Paste Directly:',
                 templateQuestionsLabel: 'Questions Template:',
                 templateAnswersLabel: 'Answers Template:',
                 copyBtn: 'Copy',
-                copiedBtn: '✓ Copied!'
+                copiedBtn: '✓ Copied!',
+                examMode: 'Exam Mode',
+                enableExamMode: 'Enable exam mode',
+                hours: 'Hours:',
+                minutes: 'Minutes:',
+                timerPanelHeader: '⏱️ Timer',
+                controlPanelHeader: '🎮 Controls',
+                timeUp: 'Time\'s up! Auto-submitting...',
+                examModeActive: 'Exam mode is active. You cannot see answers until time expires or you submit.',
+                quizManagement: 'Quiz Management',
+                quizNamePlaceholder: 'Enter quiz name (e.g., World History, JavaScript Basics...)',
+                saveQuizBtn: '💾 Save Quiz Set',
+                loadBtn: 'Load',
+                deleteBtn: 'Delete',
+                questions: 'questions',
+                savedOn: 'Saved on:',
+                confirmDelete: 'Are you sure you want to delete this quiz set?',
+                alertNoQuizName: 'Please enter a quiz name!',
+                alertNoData: 'Please enter questions and answers before saving!',
+                alertQuizSaved: 'Quiz set saved successfully!',
+                noSavedQuizzes: 'No saved quiz sets yet',
+                viewStatistics: 'View Statistics',
+                hideStatistics: 'Hide Statistics',
+                statisticsTitle: 'Statistics & History',
+                recentHistory: 'Recent History',
+                clearHistory: 'Clear History',
+                confirmClearHistory: 'Are you sure you want to clear all history?',
+                totalAttempts: 'Total Attempts',
+                averageScore: 'Avg Score',
+                highestScore: 'Highest Score',
+                lowestScore: 'Lowest Score',
+                date: 'Date & Time',
+                score: 'Score',
+                noHistory: 'No quiz history yet'
             }
         };
 
@@ -1146,6 +2395,16 @@ Requirements:
 
         function changeLanguage(lang) {
             currentLanguage = lang;
+            saveLanguage(lang); // Save language preference
+
+            // Update language button active state
+            document.querySelectorAll('.language-button').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            const activeButton = lang === 'vi' ? document.getElementById('langVi') : document.getElementById('langEn');
+            if (activeButton) {
+                activeButton.classList.add('active');
+            }
 
             // Update all elements with data-i18n
             document.querySelectorAll('[data-i18n]').forEach(element => {
@@ -1189,6 +2448,9 @@ Requirements:
 
             // Update templates
             updateTemplates();
+
+            // Update saved quizzes display
+            displaySavedQuizzes();
         }
 
         function updateTemplates() {
@@ -1203,8 +2465,32 @@ Requirements:
 
         // Initialize language on page load
         document.addEventListener('DOMContentLoaded', function() {
-            changeLanguage('vi');
+            loadSavedData(); // Load saved data from localStorage
+            changeLanguage(currentLanguage); // Use saved language or default
             renderAIPrompts();
+            displaySavedQuizzes(); // Display saved quiz sets
+
+            // Add auto-save event listeners
+            const questionsInput = document.getElementById('questionsInput');
+            const answersInput = document.getElementById('answersInput');
+
+            // Auto-save on input with debounce
+            let questionsSaveTimer;
+            let answersSaveTimer;
+
+            questionsInput.addEventListener('input', function() {
+                clearTimeout(questionsSaveTimer);
+                questionsSaveTimer = setTimeout(autoSaveQuestions, 1000);
+            });
+
+            answersInput.addEventListener('input', function() {
+                clearTimeout(answersSaveTimer);
+                answersSaveTimer = setTimeout(autoSaveAnswers, 1000);
+            });
+
+            // Also save on blur (when user clicks away)
+            questionsInput.addEventListener('blur', autoSaveQuestions);
+            answersInput.addEventListener('blur', autoSaveAnswers);
         });
 
         function toggleAIPrompts() {
@@ -1417,6 +2703,14 @@ Requirements:
             document.getElementById('retryPinnedBtn').classList.add('hidden');
             document.getElementById('filterSection').style.display = 'none';
 
+            // Start timer if exam mode is enabled
+            if (examModeEnabled) {
+                const hours = parseInt(document.getElementById('timerHours').value) || 0;
+                const minutes = parseInt(document.getElementById('timerMinutes').value) || 30;
+                timeRemaining = (hours * 3600) + (minutes * 60);
+                startTimer();
+            }
+
             // Hiển thị quiz
             displayQuiz();
             document.getElementById('inputSection').classList.add('hidden');
@@ -1481,6 +2775,15 @@ Requirements:
                 questionCard.innerHTML = html;
                 container.appendChild(questionCard);
             });
+
+            // Generate question navigator
+            generateQuestionNavigator();
+
+            // Setup answer change listeners
+            setupAnswerListeners();
+
+            // Enable inputs when displaying quiz (in case coming from retry)
+            enableQuizInputs();
         }
 
         function togglePin(index) {
@@ -1504,11 +2807,22 @@ Requirements:
                 card.classList.add('pinned');
             }
 
+            // Save pinned questions to localStorage
+            savePinnedQuestions();
+
+            // Update navigator to show pinned status
+            updateQuestionNavigator();
+
             // Update button visibility
             updateRetryButtons();
         }
 
         function submitQuiz() {
+            // Stop timer if exam mode is active but keep exam mode enabled for restart
+            if (examModeEnabled) {
+                stopTimer();
+            }
+
             let correctCount = 0;
             let incorrectCount = 0;
             let unanswered = 0;
@@ -1577,6 +2891,10 @@ Requirements:
             isGraded = true;
             displayResults(correctCount, incorrectCount, unanswered);
             updateRetryButtons();
+            updateQuestionNavigator(); // Update navigator with results
+
+            // Disable all inputs after grading
+            disableQuizInputs();
 
             // Show filter section after grading
             if (isGraded) {
@@ -1584,9 +2902,29 @@ Requirements:
             }
         }
 
+        function disableQuizInputs() {
+            document.querySelectorAll('input[type="radio"], input[type="checkbox"]').forEach(input => {
+                input.disabled = true;
+            });
+        }
+
+        function enableQuizInputs() {
+            document.querySelectorAll('input[type="radio"], input[type="checkbox"]').forEach(input => {
+                input.disabled = false;
+            });
+        }
+
         function updateRetryButtons() {
+            const retryAllBtn = document.getElementById('retryAllBtn');
             const retryIncorrectBtn = document.getElementById('retryIncorrectBtn');
             const retryPinnedBtn = document.getElementById('retryPinnedBtn');
+
+            // Only show retry buttons after quiz is graded
+            if (isGraded) {
+                retryAllBtn.classList.remove('hidden');
+            } else {
+                retryAllBtn.classList.add('hidden');
+            }
 
             if (isGraded && incorrectQuestions.size > 0) {
                 retryIncorrectBtn.classList.remove('hidden');
@@ -1594,7 +2932,7 @@ Requirements:
                 retryIncorrectBtn.classList.add('hidden');
             }
 
-            if (pinnedQuestions.size > 0) {
+            if (isGraded && pinnedQuestions.size > 0) {
                 retryPinnedBtn.classList.remove('hidden');
             } else {
                 retryPinnedBtn.classList.add('hidden');
@@ -1604,6 +2942,9 @@ Requirements:
         function displayResults(correct, incorrect, unanswered) {
             const total = quizData.length;
             const percentage = ((correct / total) * 100).toFixed(1);
+
+            // Save to quiz history
+            saveQuizHistory(percentage, total, correct, incorrect, unanswered);
 
             const resultSection = document.getElementById('resultSection');
             resultSection.innerHTML = `
@@ -1636,23 +2977,188 @@ Requirements:
             resultSection.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
         }
 
-        function resetQuiz() {
-            if (confirm(translations[currentLanguage].confirmReset)) {
-                document.getElementById('inputSection').classList.remove('hidden');
-                document.getElementById('quizSection').classList.add('hidden');
-                document.getElementById('resultSection').classList.add('hidden');
-                document.getElementById('questionsInput').value = '';
-                document.getElementById('answersInput').value = '';
-                document.getElementById('shuffleCheckbox').checked = false;
-                quizData = [];
-                correctAnswers = {};
-                questionMapping = {};
-                pinnedQuestions.clear();
-                incorrectQuestions.clear();
-                isGraded = false;
-                originalQuestionsText = '';
-                originalAnswersText = '';
+        function backToEdit() {
+            // Confirm before going back (will NOT save progress)
+            if (!confirm(translations[currentLanguage].confirmBackToEdit)) {
+                return;
             }
+
+            // Stop timer if running
+            if (examModeEnabled) {
+                stopTimer();
+                examModeEnabled = false;
+                document.getElementById('examModeCheckbox').checked = false;
+                document.getElementById('fixedRightTimer').classList.remove('active');
+                document.getElementById('fixedControlPanel').classList.remove('active');
+                document.getElementById('timerHours').disabled = false;
+                document.getElementById('timerMinutes').disabled = false;
+            }
+
+            // Hide navigator
+            document.getElementById('questionNavigator').classList.remove('active');
+
+            // Show input section, hide quiz and result sections
+            document.getElementById('inputSection').classList.remove('hidden');
+            document.getElementById('quizSection').classList.add('hidden');
+            document.getElementById('resultSection').classList.add('hidden');
+
+            // Scroll to input section
+            document.getElementById('inputSection').scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+
+        function restartQuiz() {
+            // Confirm before restarting
+            if (!confirm(translations[currentLanguage].confirmRestart)) {
+                return;
+            }
+
+            // Reset timer to original time if exam mode is enabled
+            if (examModeEnabled) {
+                stopTimer();
+                const hours = parseInt(document.getElementById('timerHours').value) || 0;
+                const minutes = parseInt(document.getElementById('timerMinutes').value) || 30;
+                timeRemaining = (hours * 3600) + (minutes * 60);
+                startTimer();
+            }
+
+            // Clear answers but keep questions
+            isGraded = false;
+            incorrectQuestions.clear();
+
+            // Clear all answer selections and enable inputs
+            document.querySelectorAll('input[type="radio"], input[type="checkbox"]').forEach(input => {
+                input.checked = false;
+            });
+            enableQuizInputs();
+
+            // Clear result displays
+            document.querySelectorAll('.question-result').forEach(result => {
+                result.classList.add('hidden');
+            });
+
+            // Hide result section and retry buttons
+            document.getElementById('resultSection').classList.add('hidden');
+            document.getElementById('retryIncorrectBtn').classList.add('hidden');
+            document.getElementById('filterSection').style.display = 'none';
+
+            // Update navigator
+            updateQuestionNavigator();
+
+            // Scroll to top of quiz
+            document.getElementById('quizSection').scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+
+        // Question Navigator functions
+        function generateQuestionNavigator() {
+            const navList = document.getElementById('questionNavList');
+            navList.innerHTML = '';
+
+            quizData.forEach((q, index) => {
+                const navItem = document.createElement('div');
+                navItem.className = 'question-nav-item';
+                navItem.id = `nav-q${index}`;
+                navItem.textContent = index + 1;
+                navItem.onclick = () => navigateToQuestion(index);
+                navList.appendChild(navItem);
+            });
+
+            // Show navigator
+            document.getElementById('questionNavigator').classList.add('active');
+
+            // Show fixed right timer and control panel if exam mode enabled
+            if (examModeEnabled) {
+                document.getElementById('fixedRightTimer').classList.add('active');
+            }
+
+            // Always show control panel when quiz is displayed
+            document.getElementById('fixedControlPanel').classList.add('active');
+
+            // Initial update to show pinned status
+            updateQuestionNavigator();
+        }
+
+        function updateQuestionNavigator() {
+            quizData.forEach((q, index) => {
+                const navItem = document.getElementById(`nav-q${index}`);
+                if (!navItem) return;
+
+                // Reset classes
+                navItem.className = 'question-nav-item';
+
+                // Check if answered
+                const originalNumber = questionMapping[index];
+                const isPinned = pinnedQuestions.has(originalNumber);
+                const isMultiple = isMultipleAnswer(originalNumber);
+                let isAnswered = false;
+
+                if (isMultiple) {
+                    const selectedOptions = document.querySelectorAll(`input[name="question${index}"]:checked`);
+                    isAnswered = selectedOptions.length > 0;
+                } else {
+                    const selectedOption = document.querySelector(`input[name="question${index}"]:checked`);
+                    isAnswered = selectedOption !== null;
+                }
+
+                // Add pinned class if this question is pinned
+                if (isPinned) {
+                    navItem.classList.add('pinned');
+                }
+
+                if (isAnswered) {
+                    navItem.classList.add('answered');
+                }
+
+                // If graded, show correct/incorrect
+                if (isGraded) {
+                    if (incorrectQuestions.has(originalNumber)) {
+                        navItem.classList.remove('answered');
+                        navItem.classList.add('incorrect');
+                    } else {
+                        navItem.classList.remove('answered');
+                        navItem.classList.add('correct');
+                    }
+                }
+            });
+        }
+
+        function navigateToQuestion(index) {
+            const questionCard = document.getElementById(`card${index}`);
+            if (questionCard) {
+                // Remove current highlight from all nav items
+                document.querySelectorAll('.question-nav-item').forEach(item => {
+                    item.classList.remove('current');
+                });
+
+                // Add current highlight
+                const navItem = document.getElementById(`nav-q${index}`);
+                if (navItem) {
+                    navItem.classList.add('current');
+                }
+
+                // Scroll to question
+                questionCard.scrollIntoView({ behavior: 'smooth', block: 'center' });
+
+                // Remove highlight after 2 seconds
+                setTimeout(() => {
+                    if (navItem) {
+                        navItem.classList.remove('current');
+                    }
+                }, 2000);
+            }
+        }
+
+        // Setup answer change listeners
+        function setupAnswerListeners() {
+            document.querySelectorAll('input[type="radio"], input[type="checkbox"]').forEach(input => {
+                input.addEventListener('change', () => {
+                    updateQuestionNavigator();
+                });
+            });
+        }
+
+        function retryAllQuestions() {
+            // Retry all original questions
+            generateQuiz();
         }
 
         function retryIncorrectQuestions() {

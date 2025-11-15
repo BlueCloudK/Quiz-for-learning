@@ -24,6 +24,11 @@ A powerful, interactive quiz application that helps you create, manage, and prac
 - **🔍 Filter Questions**: View all, pinned, or incorrect questions
 - **🌐 Bilingual**: Switch between Vietnamese and English
 - **🤖 AI Prompt Templates**: Ready-to-use prompts for ChatGPT, Claude, and other AI chatbots to generate questions automatically
+- **💾 LocalStorage Auto-Save**: Automatically saves your questions, answers, language preference, and pinned questions
+- **🌙 Dark Mode**: Toggle between light and dark themes with persistent preference
+- **⏱️ Exam Mode**: Timed quiz mode with countdown timer and auto-submit when time expires
+- **📚 Quiz Management**: Save and load multiple quiz sets with custom names
+- **📊 Statistics Dashboard**: Track your quiz history with detailed statistics and performance analytics
 
 ### User Interface
 - Beautiful gradient design
@@ -148,6 +153,36 @@ or
 - **Filter**: View specific question types
 - **Reset**: Start fresh with new questions
 
+### Step 6: Use Advanced Features
+
+#### Dark Mode 🌙
+- Click the moon/sun icon (🌙/☀️) in the top-right corner to toggle dark mode
+- Your preference is automatically saved
+
+#### Save & Load Quiz Sets 💾
+1. Enter a name for your quiz in "Quiz Management" section
+2. Click "💾 Save Quiz Set" to save the current questions and answers
+3. Click "Load" on any saved quiz to restore it
+4. Click "Delete" to remove a saved quiz set
+
+#### Exam Mode ⏱️
+1. Create your quiz as normal
+2. Check "Enable exam mode" checkbox
+3. Set the duration in minutes (default: 30 minutes)
+4. Timer starts automatically when you enable exam mode
+5. Quiz auto-submits when time expires
+- Timer shows warning (yellow) when ≤5 minutes remain
+- Timer shows danger (red) when ≤1 minute remains
+
+#### View Statistics 📊
+1. Click "📊 View Statistics" button
+2. See your performance metrics:
+   - Total quiz attempts
+   - Average score
+   - Highest and lowest scores
+   - Detailed history table
+3. Click "🗑️ Clear History" to delete all quiz history
+
 ## 🎯 Use Cases
 
 - **Students**: Practice for exams with custom question sets
@@ -236,6 +271,11 @@ Feel free to fork, modify, and use this project for your learning needs!
 - **🔍 Lọc Câu Hỏi**: Xem tất cả, câu đã pin, hoặc câu sai
 - **🌐 Song Ngữ**: Chuyển đổi giữa tiếng Việt và tiếng Anh
 - **🤖 AI Prompt Templates**: Các prompt có sẵn cho ChatGPT, Claude và các AI chatbot khác để tự động tạo câu hỏi
+- **💾 Tự Động Lưu**: Tự động lưu câu hỏi, đáp án, ngôn ngữ và các câu đã pin vào bộ nhớ trình duyệt
+- **🌙 Chế Độ Tối**: Chuyển đổi giữa giao diện sáng/tối với tùy chọn được lưu tự động
+- **⏱️ Chế Độ Thi**: Chế độ làm bài có hẹn giờ với đồng hồ đếm ngược và tự động nộp bài
+- **📚 Quản Lý Quiz**: Lưu và tải nhiều bộ quiz với tên tùy chỉnh
+- **📊 Bảng Thống Kê**: Theo dõi lịch sử làm bài với thống kê chi tiết và phân tích hiệu suất
 
 ### Giao Diện Người Dùng
 - Thiết kế gradient đẹp mắt
@@ -359,6 +399,36 @@ hoặc
 - **Làm Lại Câu Đã Pin**: Ôn lại các câu đã đánh dấu
 - **Lọc**: Xem các loại câu hỏi cụ thể
 - **Làm Lại**: Bắt đầu mới với câu hỏi khác
+
+### Bước 6: Sử Dụng Tính Năng Nâng Cao
+
+#### Chế Độ Tối 🌙
+- Click vào biểu tượng mặt trăng/mặt trời (🌙/☀️) ở góc trên bên phải để bật/tắt chế độ tối
+- Tùy chọn của bạn sẽ được lưu tự động
+
+#### Lưu & Tải Bộ Quiz 💾
+1. Nhập tên cho bộ quiz trong phần "Quản Lý Bộ Quiz"
+2. Click "💾 Lưu Bộ Quiz" để lưu câu hỏi và đáp án hiện tại
+3. Click "Tải" trên bất kỳ quiz đã lưu nào để khôi phục
+4. Click "Xóa" để xóa bộ quiz đã lưu
+
+#### Chế Độ Thi ⏱️
+1. Tạo quiz như bình thường
+2. Tick vào ô "Bật chế độ thi"
+3. Đặt thời gian tính bằng phút (mặc định: 30 phút)
+4. Đồng hồ đếm ngược tự động bắt đầu khi bạn bật chế độ thi
+5. Quiz tự động nộp khi hết giờ
+- Đồng hồ chuyển màu vàng cảnh báo khi còn ≤5 phút
+- Đồng hồ chuyển màu đỏ nguy hiểm khi còn ≤1 phút
+
+#### Xem Thống Kê 📊
+1. Click nút "📊 Xem Thống Kê"
+2. Xem các chỉ số hiệu suất:
+   - Tổng số lượt thi
+   - Điểm trung bình
+   - Điểm cao nhất và thấp nhất
+   - Bảng lịch sử chi tiết
+3. Click "🗑️ Xóa Lịch Sử" để xóa toàn bộ lịch sử làm bài
 
 ## 🎯 Trường Hợp Sử Dụng
 
