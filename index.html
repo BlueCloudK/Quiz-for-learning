@@ -317,6 +317,18 @@
             cursor: pointer;
         }
 
+        .option input[type="radio"]:disabled,
+        .option input[type="checkbox"]:disabled {
+            cursor: not-allowed;
+            opacity: 0.6;
+        }
+
+        .option input[type="radio"]:disabled + label,
+        .option input[type="checkbox"]:disabled + label {
+            cursor: not-allowed;
+            opacity: 0.6;
+        }
+
         .option label {
             cursor: pointer;
             margin: 0;
@@ -2692,6 +2704,9 @@ Requirements:
 
             // Setup answer change listeners
             setupAnswerListeners();
+
+            // Enable inputs when displaying quiz (in case coming from retry)
+            enableQuizInputs();
         }
 
         function togglePin(index) {
@@ -2805,10 +2820,25 @@ Requirements:
             updateRetryButtons();
             updateQuestionNavigator(); // Update navigator with results
 
+            // Disable all inputs after grading
+            disableQuizInputs();
+
             // Show filter section after grading
             if (isGraded) {
                 document.getElementById('filterSection').style.display = 'block';
             }
+        }
+
+        function disableQuizInputs() {
+            document.querySelectorAll('input[type="radio"], input[type="checkbox"]').forEach(input => {
+                input.disabled = true;
+            });
+        }
+
+        function enableQuizInputs() {
+            document.querySelectorAll('input[type="radio"], input[type="checkbox"]').forEach(input => {
+                input.disabled = false;
+            });
         }
 
         function updateRetryButtons() {
@@ -2914,10 +2944,11 @@ Requirements:
             isGraded = false;
             incorrectQuestions.clear();
 
-            // Clear all answer selections
+            // Clear all answer selections and enable inputs
             document.querySelectorAll('input[type="radio"], input[type="checkbox"]').forEach(input => {
                 input.checked = false;
             });
+            enableQuizInputs();
 
             // Clear result displays
             document.querySelectorAll('.question-result').forEach(result => {
