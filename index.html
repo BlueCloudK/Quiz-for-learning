@@ -1403,8 +1403,6 @@ e. Lựa chọn E</div>
 
             <!-- Quiz Section -->
             <div class="section hidden" id="quizSection">
-                <h2 class="section-title" data-i18n="step2">Bước 2: Làm Bài Quiz</h2>
-
                 <!-- Quiz Layout with Navigator -->
                 <div class="quiz-layout">
                     <!-- Question Navigator Sidebar -->
@@ -2906,13 +2904,14 @@ Requirements:
             const retryIncorrectBtn = document.getElementById('retryIncorrectBtn');
             const retryPinnedBtn = document.getElementById('retryPinnedBtn');
 
+            // Only show retry buttons after quiz is graded
             if (isGraded && incorrectQuestions.size > 0) {
                 retryIncorrectBtn.classList.remove('hidden');
             } else {
                 retryIncorrectBtn.classList.add('hidden');
             }
 
-            if (pinnedQuestions.size > 0) {
+            if (isGraded && pinnedQuestions.size > 0) {
                 retryPinnedBtn.classList.remove('hidden');
             } else {
                 retryPinnedBtn.classList.add('hidden');
