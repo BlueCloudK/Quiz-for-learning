@@ -1,0 +1,1710 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ứng dụng Quiz - Tạo và Chấm Điểm</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+            position: relative;
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            font-size: 1.1em;
+            opacity: 0.9;
+        }
+
+        .language-selector {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .language-selector select {
+            padding: 8px 15px;
+            border: 2px solid white;
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            border-radius: 8px;
+            font-size: 0.9em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .language-selector select:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        .language-selector select option {
+            background: #667eea;
+            color: white;
+        }
+
+        .language-selector label {
+            font-size: 0.9em;
+            font-weight: 600;
+        }
+
+        .content {
+            padding: 30px;
+        }
+
+        .section {
+            margin-bottom: 30px;
+        }
+
+        .section-title {
+            font-size: 1.5em;
+            color: #667eea;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #667eea;
+        }
+
+        .input-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: #333;
+        }
+
+        textarea {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid #ddd;
+            border-radius: 10px;
+            font-size: 14px;
+            font-family: 'Consolas', 'Monaco', monospace;
+            resize: vertical;
+            transition: border-color 0.3s;
+        }
+
+        textarea:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .hint {
+            font-size: 0.9em;
+            color: #666;
+            margin-top: 5px;
+            font-style: italic;
+        }
+
+        .controls {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+            align-items: center;
+            margin-top: 20px;
+        }
+
+        .checkbox-group {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .checkbox-group input[type="checkbox"] {
+            width: 20px;
+            height: 20px;
+            cursor: pointer;
+        }
+
+        .checkbox-group label {
+            margin: 0;
+            cursor: pointer;
+        }
+
+        button {
+            padding: 12px 30px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+            color: white;
+        }
+
+        .btn-success:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(56, 239, 125, 0.4);
+        }
+
+        .btn-secondary {
+            background: #6c757d;
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background: #5a6268;
+        }
+
+        button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        #quizContainer {
+            margin-top: 30px;
+        }
+
+        .question-card {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 25px;
+            border-left: 5px solid #667eea;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .question-header {
+            font-size: 1.2em;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 15px;
+        }
+
+        .question-text {
+            margin-bottom: 15px;
+            line-height: 1.6;
+        }
+
+        .options {
+            margin-left: 20px;
+        }
+
+        .option {
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .option input[type="radio"],
+        .option input[type="checkbox"] {
+            width: 20px;
+            height: 20px;
+            cursor: pointer;
+        }
+
+        .option label {
+            cursor: pointer;
+            margin: 0;
+            flex: 1;
+        }
+
+        .result-section {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+            padding: 30px;
+            border-radius: 15px;
+            margin-top: 30px;
+            text-align: center;
+        }
+
+        .result-section h2 {
+            font-size: 2em;
+            margin-bottom: 20px;
+        }
+
+        .score-display {
+            font-size: 3em;
+            font-weight: bold;
+            margin: 20px 0;
+        }
+
+        .result-details {
+            display: flex;
+            justify-content: center;
+            gap: 40px;
+            margin-top: 20px;
+            flex-wrap: wrap;
+        }
+
+        .result-item {
+            background: rgba(255, 255, 255, 0.2);
+            padding: 15px 30px;
+            border-radius: 10px;
+        }
+
+        .result-item h3 {
+            font-size: 1.2em;
+            margin-bottom: 5px;
+        }
+
+        .result-item p {
+            font-size: 2em;
+            font-weight: bold;
+        }
+
+        .question-result {
+            margin-top: 10px;
+            padding: 10px;
+            border-radius: 5px;
+            font-weight: 600;
+        }
+
+        .question-result.correct {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .question-result.incorrect {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .pin-button {
+            background: none;
+            border: none;
+            font-size: 1.5em;
+            cursor: pointer;
+            padding: 5px 10px;
+            margin-left: 10px;
+            transition: all 0.3s;
+            text-transform: none;
+            letter-spacing: normal;
+        }
+
+        .pin-button:hover {
+            transform: scale(1.2);
+        }
+
+        .pin-button.pinned {
+            color: #ffd700;
+        }
+
+        .pin-button.unpinned {
+            color: #ccc;
+        }
+
+        .question-card.pinned {
+            border-left-color: #ffd700;
+            background: #fffdf0;
+        }
+
+        .question-header-container {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .btn-warning {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+        }
+
+        .btn-warning:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(245, 87, 108, 0.4);
+        }
+
+        .btn-info {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            color: white;
+        }
+
+        .btn-info:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(79, 172, 254, 0.4);
+        }
+
+        .filter-section {
+            margin-bottom: 20px;
+            padding: 15px;
+            background: #f0f4ff;
+            border-radius: 10px;
+        }
+
+        .filter-buttons {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .filter-button {
+            padding: 8px 20px;
+            border: 2px solid #667eea;
+            background: white;
+            color: #667eea;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 0.9em;
+            font-weight: 600;
+        }
+
+        .filter-button:hover {
+            background: #667eea;
+            color: white;
+        }
+
+        .filter-button.active {
+            background: #667eea;
+            color: white;
+        }
+
+        .ai-prompts-section {
+            background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 25px;
+        }
+
+        .ai-prompts-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: pointer;
+            user-select: none;
+        }
+
+        .ai-prompts-header h3 {
+            font-size: 1.2em;
+            color: #333;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .toggle-icon {
+            font-size: 1.2em;
+            transition: transform 0.3s;
+        }
+
+        .toggle-icon.rotated {
+            transform: rotate(180deg);
+        }
+
+        .ai-prompts-content {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.5s ease-out;
+        }
+
+        .ai-prompts-content.expanded {
+            max-height: 99999px;
+            margin-top: 20px;
+        }
+
+        .prompt-card {
+            background: white;
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 15px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .prompt-card h4 {
+            color: #667eea;
+            margin-bottom: 10px;
+            font-size: 1.1em;
+        }
+
+        .prompt-card p {
+            color: #666;
+            font-size: 0.9em;
+            margin-bottom: 10px;
+            line-height: 1.5;
+        }
+
+        .prompt-text {
+            background: #f8f9fa;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 12px;
+            font-family: 'Consolas', 'Monaco', monospace;
+            font-size: 0.85em;
+            line-height: 1.6;
+            color: #333;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+            margin-bottom: 10px;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+
+        .copy-btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 8px 20px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.9em;
+            font-weight: 600;
+            transition: all 0.3s;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .copy-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+        }
+
+        .copy-btn.copied {
+            background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+        }
+
+        .quick-templates {
+            background: rgba(255, 255, 255, 0.5);
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 20px;
+        }
+
+        .template-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-top: 15px;
+        }
+
+        .template-item {
+            background: white;
+            border-radius: 8px;
+            padding: 12px;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .template-label {
+            font-weight: 600;
+            color: #667eea;
+            margin-bottom: 8px;
+            font-size: 0.95em;
+        }
+
+        .template-box {
+            background: #f8f9fa;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            padding: 10px;
+            font-family: 'Consolas', 'Monaco', monospace;
+            font-size: 0.8em;
+            line-height: 1.5;
+            color: #333;
+            white-space: pre-wrap;
+            margin-bottom: 10px;
+            max-height: 150px;
+            overflow-y: auto;
+        }
+
+        @media (max-width: 768px) {
+            .template-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 1.8em;
+            }
+
+            .controls {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            button:not(.pin-button):not(.filter-button) {
+                width: 100%;
+            }
+
+            .question-header-container {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="language-selector">
+                <label for="languageSelect" data-i18n="language">🌐</label>
+                <select id="languageSelect" onchange="changeLanguage(this.value)">
+                    <option value="vi">Tiếng Việt</option>
+                    <option value="en">English</option>
+                </select>
+            </div>
+            <h1 data-i18n="title">📝 Ứng dụng Quiz</h1>
+            <p data-i18n="subtitle">Tạo bộ câu hỏi, xáo trộn và chấm điểm tự động</p>
+        </div>
+
+        <div class="content">
+            <!-- AI Prompts Section -->
+            <div class="ai-prompts-section">
+                <div class="ai-prompts-header" onclick="toggleAIPrompts()">
+                    <h3>
+                        <span>🤖</span>
+                        <span data-i18n="aiPromptsTitle">Hướng Dẫn Tạo Câu Hỏi Với AI Chatbot</span>
+                    </h3>
+                    <span class="toggle-icon" id="toggleIcon">▼</span>
+                </div>
+                <div class="ai-prompts-content" id="aiPromptsContent">
+                    <p data-i18n="aiPromptsDesc">Copy các prompt sau và paste vào ChatGPT, Claude, hoặc AI chatbot khác để tự động tạo câu hỏi đúng format:</p>
+
+                    <!-- Quick Copy Templates -->
+                    <div class="quick-templates">
+                        <h4 style="color: #333; margin-bottom: 10px;" data-i18n="quickTemplatesTitle">📋 Hoặc Copy Template Mẫu Để Paste Trực Tiếp:</h4>
+
+                        <div class="template-grid">
+                            <div class="template-item">
+                                <div class="template-label" data-i18n="templateQuestionsLabel">Mẫu Câu Hỏi:</div>
+                                <div class="template-box" id="questionsTemplate">1. Câu hỏi thứ nhất?
+a. Đáp án A
+b. Đáp án B
+c. Đáp án C
+d. Đáp án D
+
+2. Câu hỏi thứ hai?
+a. Đáp án A
+b. Đáp án B
+c. Đáp án C
+d. Đáp án D
+
+3. Câu hỏi thứ ba (nhiều đáp án đúng)?
+a. Lựa chọn A
+b. Lựa chọn B
+c. Lựa chọn C
+d. Lựa chọn D
+e. Lựa chọn E</div>
+                                <button class="copy-btn" onclick="copyTemplate('questions')" id="copyQuestionsBtn">
+                                    <span data-i18n="copyBtn">Copy</span>
+                                </button>
+                            </div>
+
+                            <div class="template-item">
+                                <div class="template-label" data-i18n="templateAnswersLabel">Mẫu Đáp Án:</div>
+                                <div class="template-box" id="answersTemplate">1. a
+2. b
+3. a,c,e</div>
+                                <button class="copy-btn" onclick="copyTemplate('answers')" id="copyAnswersBtn">
+                                    <span data-i18n="copyBtn">Copy</span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <hr style="margin: 25px 0; border: none; border-top: 1px solid #ddd;">
+
+                    <div id="promptsContainer"></div>
+                </div>
+            </div>
+
+            <!-- Input Section -->
+            <div class="section" id="inputSection">
+                <h2 class="section-title" data-i18n="step1">Bước 1: Nhập Dữ Liệu</h2>
+
+                <div class="input-group">
+                    <label for="questionsInput" data-i18n="questionsLabel">Câu hỏi và đáp án:</label>
+                    <textarea id="questionsInput" rows="12" data-i18n-placeholder="questionsPlaceholder"></textarea>
+                    <p class="hint" data-i18n="questionsHint">Mỗi câu hỏi bắt đầu bằng số thứ tự, các đáp án bắt đầu bằng a, b, c, d...</p>
+                </div>
+
+                <div class="input-group">
+                    <label for="answersInput" data-i18n="answersLabel">Đáp án đúng:</label>
+                    <textarea id="answersInput" rows="6" data-i18n-placeholder="answersPlaceholder"></textarea>
+                    <p class="hint" data-i18n="answersHint">Nhập đáp án đúng cho mỗi câu theo số thứ tự</p>
+                </div>
+
+                <div class="controls">
+                    <div class="checkbox-group">
+                        <input type="checkbox" id="shuffleCheckbox">
+                        <label for="shuffleCheckbox" data-i18n="shuffleLabel">Xáo trộn câu hỏi</label>
+                    </div>
+                    <button class="btn-primary" onclick="generateQuiz()" data-i18n="createQuizBtn">Tạo Quiz</button>
+                </div>
+            </div>
+
+            <!-- Quiz Section -->
+            <div class="section hidden" id="quizSection">
+                <h2 class="section-title" data-i18n="step2">Bước 2: Làm Bài Quiz</h2>
+
+                <!-- Filter Section -->
+                <div class="filter-section" id="filterSection" style="display: none;">
+                    <label style="margin-bottom: 10px;" data-i18n="filterLabel">Lọc câu hỏi:</label>
+                    <div class="filter-buttons">
+                        <button class="filter-button active" onclick="filterQuestions('all')" data-i18n="filterAll">Tất cả</button>
+                        <button class="filter-button" onclick="filterQuestions('pinned')" data-i18n="filterPinned">Câu đã pin</button>
+                        <button class="filter-button" onclick="filterQuestions('incorrect')" data-i18n="filterIncorrect">Câu sai</button>
+                    </div>
+                </div>
+
+                <div id="quizContainer"></div>
+                <div class="controls">
+                    <button class="btn-success" onclick="submitQuiz()" data-i18n="submitBtn">Chấm Điểm</button>
+                    <button class="btn-secondary" onclick="resetQuiz()" data-i18n="resetBtn">Làm Lại</button>
+                    <button class="btn-warning hidden" id="retryIncorrectBtn" onclick="retryIncorrectQuestions()" data-i18n="retryIncorrectBtn">Làm Lại Câu Sai</button>
+                    <button class="btn-info hidden" id="retryPinnedBtn" onclick="retryPinnedQuestions()" data-i18n="retryPinnedBtn">Làm Lại Câu Đã Pin</button>
+                </div>
+            </div>
+
+            <!-- Result Section -->
+            <div id="resultSection" class="hidden"></div>
+        </div>
+    </div>
+
+    <script>
+        let quizData = [];
+        let correctAnswers = {};
+        let questionMapping = {}; // Lưu mapping giữa vị trí hiện tại và số thứ tự gốc
+        let pinnedQuestions = new Set(); // Lưu index các câu được pin
+        let incorrectQuestions = new Set(); // Lưu index các câu sai
+        let isGraded = false; // Track xem đã chấm điểm chưa
+        let originalQuestionsText = ''; // Lưu câu hỏi gốc
+        let originalAnswersText = ''; // Lưu đáp án gốc
+        let currentFilter = 'all'; // Bộ lọc hiện tại
+        let currentLanguage = 'vi'; // Ngôn ngữ hiện tại
+
+        // Translations
+        const translations = {
+            vi: {
+                title: '📝 Ứng dụng Quiz',
+                subtitle: 'Tạo bộ câu hỏi, xáo trộn và chấm điểm tự động',
+                step1: 'Bước 1: Nhập Dữ Liệu',
+                step2: 'Bước 2: Làm Bài Quiz',
+                questionsLabel: 'Câu hỏi và đáp án:',
+                questionsPlaceholder: 'Nhập câu hỏi theo định dạng:\n\n1. Câu hỏi thứ nhất?\na. Đáp án A\nb. Đáp án B\nc. Đáp án C\nd. Đáp án D\n\n2. Câu hỏi thứ hai?\na. Đáp án A\nb. Đáp án B\nc. Đáp án C\nd. Đáp án D',
+                questionsHint: 'Mỗi câu hỏi bắt đầu bằng số thứ tự, các đáp án bắt đầu bằng a, b, c, d...',
+                answersLabel: 'Đáp án đúng:',
+                answersPlaceholder: 'Nhập đáp án theo định dạng:\n\n1. a\n2. b\n3. c\n4. d\n\nNhiều đáp án đúng:\n5. a,b,c\n6. abc',
+                answersHint: 'Nhập đáp án đúng cho mỗi câu. Nhiều đáp án: dùng dấu phẩy (a,b,c) hoặc viết liền (abc)',
+                shuffleLabel: 'Xáo trộn câu hỏi',
+                createQuizBtn: 'Tạo Quiz',
+                filterLabel: 'Lọc câu hỏi:',
+                filterAll: 'Tất cả',
+                filterPinned: 'Câu đã pin',
+                filterIncorrect: 'Câu sai',
+                submitBtn: 'Chấm Điểm',
+                resetBtn: 'Làm Lại',
+                retryIncorrectBtn: 'Làm Lại Câu Sai',
+                retryPinnedBtn: 'Làm Lại Câu Đã Pin',
+                question: 'Câu',
+                pinQuestion: 'Pin câu hỏi',
+                unpinQuestion: 'Bỏ pin',
+                correct: '✓ Chính xác!',
+                incorrect: '✗ Sai - Đáp án đúng:',
+                unanswered: 'Chưa trả lời - Đáp án đúng:',
+                resultTitle: '🎉 Kết Quả Của Bạn',
+                totalQuestions: 'Tổng câu',
+                correctAnswers: 'Đúng',
+                incorrectAnswers: 'Sai',
+                unansweredQuestions: 'Chưa trả lời',
+                alertNoData: 'Vui lòng nhập đầy đủ câu hỏi và đáp án!',
+                alertNoQuestions: 'Không tìm thấy câu hỏi hợp lệ! Vui lòng kiểm tra định dạng.',
+                alertNoIncorrect: 'Không có câu sai nào để làm lại!',
+                alertNoPinned: 'Chưa có câu hỏi nào được pin!',
+                alertNoRetry: 'Không có câu hỏi nào để làm lại!',
+                confirmReset: 'Bạn có chắc muốn làm lại? Tất cả câu trả lời sẽ bị xóa.',
+                aiPromptsTitle: 'Hướng Dẫn Tạo Câu Hỏi Với AI Chatbot',
+                aiPromptsDesc: 'Copy các prompt sau và paste vào ChatGPT, Claude, hoặc AI chatbot khác để tự động tạo câu hỏi đúng format:',
+                quickTemplatesTitle: '📋 Hoặc Copy Template Mẫu Để Paste Trực Tiếp:',
+                templateQuestionsLabel: 'Mẫu Câu Hỏi:',
+                templateAnswersLabel: 'Mẫu Đáp Án:',
+                copyBtn: 'Copy',
+                copiedBtn: '✓ Đã copy!'
+            },
+            en: {
+                title: '📝 Quiz Application',
+                subtitle: 'Create quizzes, shuffle questions, and auto-grade',
+                step1: 'Step 1: Input Data',
+                step2: 'Step 2: Take the Quiz',
+                questionsLabel: 'Questions and Answers:',
+                questionsPlaceholder: 'Enter questions in this format:\n\n1. First question?\na. Answer A\nb. Answer B\nc. Answer C\nd. Answer D\n\n2. Second question?\na. Answer A\nb. Answer B\nc. Answer C\nd. Answer D',
+                questionsHint: 'Each question starts with a number, answers start with a, b, c, d...',
+                answersLabel: 'Correct Answers:',
+                answersPlaceholder: 'Enter answers in this format:\n\n1. a\n2. b\n3. c\n4. d\n\nMultiple correct answers:\n5. a,b,c\n6. abc',
+                answersHint: 'Enter correct answers for each question. Multiple answers: use comma (a,b,c) or write together (abc)',
+                shuffleLabel: 'Shuffle questions',
+                createQuizBtn: 'Create Quiz',
+                filterLabel: 'Filter questions:',
+                filterAll: 'All',
+                filterPinned: 'Pinned',
+                filterIncorrect: 'Incorrect',
+                submitBtn: 'Submit & Grade',
+                resetBtn: 'Reset',
+                retryIncorrectBtn: 'Retry Incorrect',
+                retryPinnedBtn: 'Retry Pinned',
+                question: 'Question',
+                pinQuestion: 'Pin question',
+                unpinQuestion: 'Unpin',
+                correct: '✓ Correct!',
+                incorrect: '✗ Incorrect - Correct answer:',
+                unanswered: 'Not answered - Correct answer:',
+                resultTitle: '🎉 Your Results',
+                totalQuestions: 'Total',
+                correctAnswers: 'Correct',
+                incorrectAnswers: 'Incorrect',
+                unansweredQuestions: 'Not Answered',
+                alertNoData: 'Please enter both questions and answers!',
+                alertNoQuestions: 'No valid questions found! Please check the format.',
+                alertNoIncorrect: 'No incorrect questions to retry!',
+                alertNoPinned: 'No questions have been pinned yet!',
+                alertNoRetry: 'No questions to retry!',
+                confirmReset: 'Are you sure you want to reset? All answers will be lost.',
+                aiPromptsTitle: 'Generate Questions With AI Chatbot',
+                aiPromptsDesc: 'Copy these prompts and paste into ChatGPT, Claude, or other AI chatbots to automatically generate questions in the correct format:',
+                quickTemplatesTitle: '📋 Or Copy Sample Templates to Paste Directly:',
+                templateQuestionsLabel: 'Questions Template:',
+                templateAnswersLabel: 'Answers Template:',
+                copyBtn: 'Copy',
+                copiedBtn: '✓ Copied!'
+            }
+        };
+
+        // Template data for quick copy
+        const templates = {
+            vi: {
+                questions: `1. Câu hỏi thứ nhất?
+a. Đáp án A
+b. Đáp án B
+c. Đáp án C
+d. Đáp án D
+
+2. Câu hỏi thứ hai?
+a. Đáp án A
+b. Đáp án B
+c. Đáp án C
+d. Đáp án D
+
+3. Câu hỏi thứ ba (nhiều đáp án đúng)?
+a. Lựa chọn A
+b. Lựa chọn B
+c. Lựa chọn C
+d. Lựa chọn D
+e. Lựa chọn E`,
+                answers: `1. a
+2. b
+3. a,c,e`
+            },
+            en: {
+                questions: `1. First question?
+a. Answer A
+b. Answer B
+c. Answer C
+d. Answer D
+
+2. Second question?
+a. Answer A
+b. Answer B
+c. Answer C
+d. Answer D
+
+3. Third question (multiple correct answers)?
+a. Option A
+b. Option B
+c. Option C
+d. Option D
+e. Option E`,
+                answers: `1. a
+2. b
+3. a,c,e`
+            }
+        };
+
+        // AI Prompts templates
+        const aiPrompts = {
+            vi: [
+                {
+                    title: '📚 Tạo Bộ Câu Hỏi Về Chủ Đề Bất Kỳ',
+                    description: 'Tạo 10 câu hỏi trắc nghiệm về chủ đề bạn muốn học',
+                    prompt: `Hãy tạo 10 câu hỏi trắc nghiệm về [TOPIC] theo định dạng sau:
+
+1. [Câu hỏi]
+a. [Đáp án A]
+b. [Đáp án B]
+c. [Đáp án C]
+d. [Đáp án D]
+
+Sau đó, cung cấp đáp án đúng theo format:
+1. [đáp án đúng]
+
+Ví dụ:
+1. Python là ngôn ngữ lập trình gì?
+a. Compiled
+b. Interpreted
+c. Assembly
+d. Machine code
+
+Đáp án:
+1. b
+
+[Thay TOPIC bằng chủ đề của bạn, ví dụ: Lịch sử Việt Nam, Toán học lớp 10, JavaScript, etc.]`
+                },
+                {
+                    title: '🎓 Ôn Tập Kỳ Thi',
+                    description: 'Tạo câu hỏi ôn tập dựa trên nội dung cụ thể',
+                    prompt: `Dựa trên nội dung sau đây, tạo 10 câu hỏi trắc nghiệm:
+
+[PASTE CONTENT Ở ĐÂY]
+
+Định dạng câu hỏi:
+1. [Câu hỏi]
+a. [Đáp án A]
+b. [Đáp án B]
+c. [Đáp án C]
+d. [Đáp án D]
+
+Định dạng đáp án:
+1. [a/b/c/d]
+
+Lưu ý:
+- Câu hỏi phải kiểm tra sự hiểu biết, không chỉ ghi nhớ
+- Các đáp án sai phải hợp lý và gây nhầm lẫn
+- Đảm bảo chỉ có 1 đáp án đúng`
+                },
+                {
+                    title: '💡 Câu Hỏi Nhiều Đáp Án Đúng',
+                    description: 'Tạo câu hỏi có nhiều đáp án đúng (checkbox)',
+                    prompt: `Tạo 5 câu hỏi về [TOPIC] mà mỗi câu có NHIỀU đáp án đúng:
+
+Định dạng câu hỏi:
+1. [Câu hỏi] (chọn tất cả đáp án đúng)
+a. [Đáp án A]
+b. [Đáp án B]
+c. [Đáp án C]
+d. [Đáp án D]
+e. [Đáp án E]
+
+Định dạng đáp án (nhiều đáp án đúng):
+1. a,c,e
+hoặc
+1. ace
+
+Ví dụ:
+1. Ngôn ngữ nào sau đây hỗ trợ lập trình hướng đối tượng?
+a. Python
+b. Java
+c. C
+d. JavaScript
+e. Assembly
+
+Đáp án:
+1. a,b,d`
+                },
+                {
+                    title: '🌍 Học Ngoại Ngữ',
+                    description: 'Tạo bài tập từ vựng và ngữ pháp',
+                    prompt: `Tạo 10 câu hỏi trắc nghiệm học [NGÔN NGỮ]:
+
+5 câu đầu: Từ vựng (nghĩa của từ)
+5 câu sau: Ngữ pháp (điền từ đúng vào chỗ trống)
+
+Định dạng:
+1. [Câu hỏi]
+a. [Đáp án A]
+b. [Đáp án B]
+c. [Đáp án C]
+d. [Đáp án D]
+
+Đáp án:
+1. [a/b/c/d]
+
+Ví dụ về từ vựng:
+1. "Beautiful" có nghĩa là gì?
+a. Xấu
+b. Đẹp
+c. Tốt
+d. Cao
+
+Ví dụ về ngữ pháp:
+2. She ___ to school every day.
+a. go
+b. goes
+c. going
+d. went
+
+Đáp án:
+1. b
+2. b`
+                },
+                {
+                    title: '🧪 Khoa Học & Công Nghệ',
+                    description: 'Câu hỏi khoa học với nhiều lựa chọn',
+                    prompt: `Tạo 10 câu hỏi khoa học về [TOPIC] với 5-6 lựa chọn cho mỗi câu:
+
+Định dạng:
+1. [Câu hỏi]
+a. [Đáp án A]
+b. [Đáp án B]
+c. [Đáp án C]
+d. [Đáp án D]
+e. [Đáp án E]
+f. [Đáp án F] (nếu cần)
+
+Đáp án:
+1. [a/b/c/d/e/f]
+
+Yêu cầu:
+- Độ khó: trung bình đến khó
+- Bao gồm cả câu hỏi lý thuyết và ứng dụng
+- Đáp án sai phải hợp lý về mặt khoa học`
+                }
+            ],
+            en: [
+                {
+                    title: '📚 Create Quiz on Any Topic',
+                    description: 'Generate 10 multiple choice questions about any subject',
+                    prompt: `Create 10 multiple choice questions about [TOPIC] in this format:
+
+1. [Question]
+a. [Answer A]
+b. [Answer B]
+c. [Answer C]
+d. [Answer D]
+
+Then provide correct answers in this format:
+1. [correct answer]
+
+Example:
+1. What type of programming language is Python?
+a. Compiled
+b. Interpreted
+c. Assembly
+d. Machine code
+
+Answers:
+1. b
+
+[Replace TOPIC with your subject, e.g.: World History, Calculus, JavaScript, etc.]`
+                },
+                {
+                    title: '🎓 Exam Review',
+                    description: 'Create review questions based on specific content',
+                    prompt: `Based on the following content, create 10 multiple choice questions:
+
+[PASTE CONTENT HERE]
+
+Question format:
+1. [Question]
+a. [Answer A]
+b. [Answer B]
+c. [Answer C]
+d. [Answer D]
+
+Answer format:
+1. [a/b/c/d]
+
+Note:
+- Questions should test understanding, not just memorization
+- Wrong answers should be plausible and challenging
+- Ensure only one correct answer`
+                },
+                {
+                    title: '💡 Multiple Correct Answers',
+                    description: 'Create questions with multiple correct answers (checkbox)',
+                    prompt: `Create 5 questions about [TOPIC] where each has MULTIPLE correct answers:
+
+Question format:
+1. [Question] (select all that apply)
+a. [Answer A]
+b. [Answer B]
+c. [Answer C]
+d. [Answer D]
+e. [Answer E]
+
+Answer format (multiple correct):
+1. a,c,e
+or
+1. ace
+
+Example:
+1. Which languages support object-oriented programming?
+a. Python
+b. Java
+c. C
+d. JavaScript
+e. Assembly
+
+Answers:
+1. a,b,d`
+                },
+                {
+                    title: '🌍 Language Learning',
+                    description: 'Create vocabulary and grammar exercises',
+                    prompt: `Create 10 multiple choice questions for learning [LANGUAGE]:
+
+First 5: Vocabulary (word meanings)
+Last 5: Grammar (fill in the blank)
+
+Format:
+1. [Question]
+a. [Answer A]
+b. [Answer B]
+c. [Answer C]
+d. [Answer D]
+
+Answers:
+1. [a/b/c/d]
+
+Vocabulary example:
+1. What does "Beautiful" mean?
+a. Ugly
+b. Pretty
+c. Good
+d. Tall
+
+Grammar example:
+2. She ___ to school every day.
+a. go
+b. goes
+c. going
+d. went
+
+Answers:
+1. b
+2. b`
+                },
+                {
+                    title: '🧪 Science & Technology',
+                    description: 'Science questions with more options',
+                    prompt: `Create 10 science questions about [TOPIC] with 5-6 options each:
+
+Format:
+1. [Question]
+a. [Answer A]
+b. [Answer B]
+c. [Answer C]
+d. [Answer D]
+e. [Answer E]
+f. [Answer F] (if needed)
+
+Answers:
+1. [a/b/c/d/e/f]
+
+Requirements:
+- Difficulty: medium to hard
+- Include both theoretical and applied questions
+- Wrong answers should be scientifically plausible`
+                }
+            ]
+        };
+
+        function changeLanguage(lang) {
+            currentLanguage = lang;
+
+            // Update all elements with data-i18n
+            document.querySelectorAll('[data-i18n]').forEach(element => {
+                const key = element.getAttribute('data-i18n');
+                if (translations[lang][key]) {
+                    element.textContent = translations[lang][key];
+                }
+            });
+
+            // Update placeholders
+            document.querySelectorAll('[data-i18n-placeholder]').forEach(element => {
+                const key = element.getAttribute('data-i18n-placeholder');
+                if (translations[lang][key]) {
+                    element.placeholder = translations[lang][key];
+                }
+            });
+
+            // Update pin button titles if quiz is displayed
+            if (!document.getElementById('quizSection').classList.contains('hidden')) {
+                quizData.forEach((q, index) => {
+                    const originalNumber = questionMapping[index];
+                    const isPinned = pinnedQuestions.has(originalNumber);
+                    const pinButton = document.getElementById(`pin${index}`);
+                    if (pinButton) {
+                        pinButton.title = isPinned ? translations[lang].unpinQuestion : translations[lang].pinQuestion;
+                    }
+                });
+            }
+
+            // Update result section if it exists
+            if (isGraded && !document.getElementById('resultSection').classList.contains('hidden')) {
+                // Re-display results with new language
+                const resultDiv = document.getElementById('resultSection');
+                if (resultDiv.innerHTML) {
+                    // Results will be updated on next submit
+                }
+            }
+
+            // Re-render AI prompts with new language
+            renderAIPrompts();
+
+            // Update templates
+            updateTemplates();
+        }
+
+        function updateTemplates() {
+            const questionsTemplate = document.getElementById('questionsTemplate');
+            const answersTemplate = document.getElementById('answersTemplate');
+
+            if (questionsTemplate && answersTemplate) {
+                questionsTemplate.textContent = templates[currentLanguage].questions;
+                answersTemplate.textContent = templates[currentLanguage].answers;
+            }
+        }
+
+        // Initialize language on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            changeLanguage('vi');
+            renderAIPrompts();
+        });
+
+        function toggleAIPrompts() {
+            const content = document.getElementById('aiPromptsContent');
+            const icon = document.getElementById('toggleIcon');
+
+            content.classList.toggle('expanded');
+            icon.classList.toggle('rotated');
+        }
+
+        function renderAIPrompts() {
+            const container = document.getElementById('promptsContainer');
+            const prompts = aiPrompts[currentLanguage];
+
+            container.innerHTML = prompts.map((prompt, index) => `
+                <div class="prompt-card">
+                    <h4>${prompt.title}</h4>
+                    <p>${prompt.description}</p>
+                    <div class="prompt-text" id="prompt${index}">${prompt.prompt}</div>
+                    <button class="copy-btn" onclick="copyPrompt(${index})" id="copyBtn${index}">
+                        <span>${translations[currentLanguage].copyBtn}</span>
+                    </button>
+                </div>
+            `).join('');
+        }
+
+        function copyPrompt(index) {
+            const promptText = aiPrompts[currentLanguage][index].prompt;
+            const button = document.getElementById(`copyBtn${index}`);
+
+            navigator.clipboard.writeText(promptText).then(() => {
+                button.classList.add('copied');
+                button.innerHTML = `<span>${translations[currentLanguage].copiedBtn}</span>`;
+
+                setTimeout(() => {
+                    button.classList.remove('copied');
+                    button.innerHTML = `<span>${translations[currentLanguage].copyBtn}</span>`;
+                }, 2000);
+            }).catch(err => {
+                console.error('Failed to copy:', err);
+                alert('Không thể copy. Vui lòng copy thủ công.');
+            });
+        }
+
+        function copyTemplate(type) {
+            const templateText = templates[currentLanguage][type];
+            const button = document.getElementById(`copy${type.charAt(0).toUpperCase() + type.slice(1)}Btn`);
+
+            navigator.clipboard.writeText(templateText).then(() => {
+                const originalHTML = button.innerHTML;
+                button.classList.add('copied');
+                button.innerHTML = `<span>${translations[currentLanguage].copiedBtn}</span>`;
+
+                setTimeout(() => {
+                    button.classList.remove('copied');
+                    button.innerHTML = originalHTML;
+                }, 2000);
+            }).catch(err => {
+                console.error('Failed to copy:', err);
+                alert('Không thể copy. Vui lòng copy thủ công.');
+            });
+        }
+
+        function parseQuestions(text) {
+            const questions = [];
+            const lines = text.trim().split('\n');
+            let currentQuestion = null;
+
+            for (let line of lines) {
+                line = line.trim();
+                if (!line) continue;
+
+                // Kiểm tra dòng câu hỏi (bắt đầu bằng số)
+                const questionMatch = line.match(/^(\d+)\.\s*(.+)/);
+                if (questionMatch) {
+                    if (currentQuestion) {
+                        questions.push(currentQuestion);
+                    }
+                    currentQuestion = {
+                        number: parseInt(questionMatch[1]),
+                        question: questionMatch[2],
+                        options: []
+                    };
+                    continue;
+                }
+
+                // Kiểm tra dòng đáp án (bắt đầu bằng chữ cái)
+                const optionMatch = line.match(/^([a-z])\.\s*(.+)/i);
+                if (optionMatch && currentQuestion) {
+                    currentQuestion.options.push({
+                        letter: optionMatch[1].toLowerCase(),
+                        text: optionMatch[2]
+                    });
+                }
+            }
+
+            if (currentQuestion) {
+                questions.push(currentQuestion);
+            }
+
+            return questions;
+        }
+
+        function parseAnswers(text) {
+            const answers = {};
+            const lines = text.trim().split(/[\n]+/);
+
+            for (let line of lines) {
+                line = line.trim();
+                if (!line) continue;
+
+                // Match pattern: 1. a hoặc 1. a,b,c hoặc 1. abc hoặc 1.a 1.b 1.c
+                const match = line.match(/^(\d+)\.\s*(.+)/);
+                if (match) {
+                    const questionNum = parseInt(match[1]);
+                    let answerPart = match[2].trim();
+
+                    // Xử lý các format: "a,b,c" hoặc "abc" hoặc "a b c"
+                    answerPart = answerPart.replace(/\s+/g, ''); // Remove spaces
+
+                    // Nếu có dấu phẩy, split by comma
+                    if (answerPart.includes(',')) {
+                        answers[questionNum] = answerPart.split(',').map(a => a.toLowerCase().trim());
+                    } else if (answerPart.length > 1 && /^[a-z]+$/i.test(answerPart)) {
+                        // Nếu là chuỗi nhiều chữ cái liên tiếp (abc)
+                        answers[questionNum] = answerPart.toLowerCase().split('');
+                    } else {
+                        // Đáp án đơn
+                        answers[questionNum] = answerPart.toLowerCase();
+                    }
+                }
+            }
+
+            return answers;
+        }
+
+        function isMultipleAnswer(questionNumber) {
+            const answer = correctAnswers[questionNumber];
+            return Array.isArray(answer);
+        }
+
+        function shuffleArray(array) {
+            const newArray = [...array];
+            for (let i = newArray.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [newArray[i], newArray[j]] = [newArray[j], newArray[i]];
+            }
+            return newArray;
+        }
+
+        function generateQuiz(specificQuestions = null) {
+            let questionsText, answersText;
+
+            if (specificQuestions) {
+                // Tạo quiz từ câu hỏi cụ thể (pin hoặc sai)
+                questionsText = originalQuestionsText;
+                answersText = originalAnswersText;
+            } else {
+                // Tạo quiz mới từ input
+                questionsText = document.getElementById('questionsInput').value;
+                answersText = document.getElementById('answersInput').value;
+                originalQuestionsText = questionsText;
+                originalAnswersText = answersText;
+                pinnedQuestions.clear();
+                incorrectQuestions.clear();
+                isGraded = false;
+            }
+
+            const shouldShuffle = document.getElementById('shuffleCheckbox').checked;
+
+            if (!questionsText.trim() || !answersText.trim()) {
+                alert(translations[currentLanguage].alertNoData);
+                return;
+            }
+
+            // Parse dữ liệu
+            let allQuestions = parseQuestions(questionsText);
+            correctAnswers = parseAnswers(answersText);
+
+            if (allQuestions.length === 0) {
+                alert(translations[currentLanguage].alertNoQuestions);
+                return;
+            }
+
+            // Lọc câu hỏi nếu có specificQuestions
+            if (specificQuestions) {
+                quizData = allQuestions.filter(q => specificQuestions.has(q.number));
+                if (quizData.length === 0) {
+                    alert(translations[currentLanguage].alertNoRetry);
+                    return;
+                }
+            } else {
+                quizData = allQuestions;
+            }
+
+            // Xáo trộn nếu cần
+            if (shouldShuffle && !specificQuestions) {
+                quizData = shuffleArray(quizData);
+            }
+
+            // Tạo mapping
+            questionMapping = {};
+            quizData.forEach((q, index) => {
+                questionMapping[index] = q.number;
+            });
+
+            // Reset trạng thái
+            isGraded = false;
+            document.getElementById('retryIncorrectBtn').classList.add('hidden');
+            document.getElementById('retryPinnedBtn').classList.add('hidden');
+            document.getElementById('filterSection').style.display = 'none';
+
+            // Hiển thị quiz
+            displayQuiz();
+            document.getElementById('inputSection').classList.add('hidden');
+            document.getElementById('quizSection').classList.remove('hidden');
+            document.getElementById('resultSection').classList.add('hidden');
+        }
+
+        function displayQuiz() {
+            const container = document.getElementById('quizContainer');
+            container.innerHTML = '';
+
+            quizData.forEach((q, index) => {
+                const questionCard = document.createElement('div');
+                questionCard.className = 'question-card';
+                questionCard.id = `card${index}`;
+
+                // Check nếu câu này đã được pin
+                const originalNumber = q.number;
+                const isPinned = pinnedQuestions.has(originalNumber);
+                const isIncorrect = incorrectQuestions.has(originalNumber);
+
+                if (isPinned) {
+                    questionCard.classList.add('pinned');
+                }
+
+                let html = `
+                    <div class="question-header-container">
+                        <div class="question-header">${translations[currentLanguage].question} ${index + 1}</div>
+                        <button class="pin-button ${isPinned ? 'pinned' : 'unpinned'}"
+                                onclick="togglePin(${index})"
+                                id="pin${index}"
+                                title="${isPinned ? translations[currentLanguage].unpinQuestion : translations[currentLanguage].pinQuestion}">
+                            ${isPinned ? '📌' : '📍'}
+                        </button>
+                    </div>
+                    <div class="question-text">${q.question}</div>
+                    <div class="options">
+                `;
+
+                const isMultiple = isMultipleAnswer(originalNumber);
+                const inputType = isMultiple ? 'checkbox' : 'radio';
+
+                q.options.forEach(option => {
+                    html += `
+                        <div class="option">
+                            <input type="${inputType}"
+                                   name="question${index}"
+                                   value="${option.letter}"
+                                   id="q${index}_${option.letter}">
+                            <label for="q${index}_${option.letter}">
+                                ${option.letter.toUpperCase()}. ${option.text}
+                            </label>
+                        </div>
+                    `;
+                });
+
+                html += `
+                    </div>
+                    <div class="question-result hidden" id="result${index}"></div>
+                `;
+
+                questionCard.innerHTML = html;
+                container.appendChild(questionCard);
+            });
+        }
+
+        function togglePin(index) {
+            const originalNumber = questionMapping[index];
+            const pinButton = document.getElementById(`pin${index}`);
+            const card = document.getElementById(`card${index}`);
+
+            if (pinnedQuestions.has(originalNumber)) {
+                pinnedQuestions.delete(originalNumber);
+                pinButton.classList.remove('pinned');
+                pinButton.classList.add('unpinned');
+                pinButton.textContent = '📍';
+                pinButton.title = translations[currentLanguage].pinQuestion;
+                card.classList.remove('pinned');
+            } else {
+                pinnedQuestions.add(originalNumber);
+                pinButton.classList.remove('unpinned');
+                pinButton.classList.add('pinned');
+                pinButton.textContent = '📌';
+                pinButton.title = translations[currentLanguage].unpinQuestion;
+                card.classList.add('pinned');
+            }
+
+            // Update button visibility
+            updateRetryButtons();
+        }
+
+        function submitQuiz() {
+            let correctCount = 0;
+            let incorrectCount = 0;
+            let unanswered = 0;
+
+            // Clear previous incorrect questions
+            incorrectQuestions.clear();
+
+            quizData.forEach((q, index) => {
+                const originalNumber = questionMapping[index];
+                const resultDiv = document.getElementById(`result${index}`);
+                resultDiv.classList.remove('hidden');
+
+                const isMultiple = isMultipleAnswer(originalNumber);
+                let userAnswer;
+                let isCorrect = false;
+
+                if (isMultiple) {
+                    // Checkbox - multiple answers
+                    const selectedOptions = document.querySelectorAll(`input[name="question${index}"]:checked`);
+                    if (selectedOptions.length === 0) {
+                        userAnswer = null;
+                    } else {
+                        userAnswer = Array.from(selectedOptions).map(opt => opt.value).sort();
+                        const correctAnswer = correctAnswers[originalNumber].slice().sort();
+
+                        // So sánh arrays
+                        isCorrect = userAnswer.length === correctAnswer.length &&
+                                   userAnswer.every((val, idx) => val === correctAnswer[idx]);
+                    }
+                } else {
+                    // Radio - single answer
+                    const selectedOption = document.querySelector(`input[name="question${index}"]:checked`);
+                    if (!selectedOption) {
+                        userAnswer = null;
+                    } else {
+                        userAnswer = selectedOption.value;
+                        isCorrect = userAnswer === correctAnswers[originalNumber];
+                    }
+                }
+
+                // Display result
+                if (userAnswer === null) {
+                    const correctAnswerDisplay = Array.isArray(correctAnswers[originalNumber])
+                        ? correctAnswers[originalNumber].map(a => a.toUpperCase()).join(', ')
+                        : correctAnswers[originalNumber].toUpperCase();
+                    resultDiv.className = 'question-result incorrect';
+                    resultDiv.textContent = `${translations[currentLanguage].unanswered} ${correctAnswerDisplay}`;
+                    unanswered++;
+                    incorrectCount++;
+                    incorrectQuestions.add(originalNumber);
+                } else if (isCorrect) {
+                    resultDiv.className = 'question-result correct';
+                    resultDiv.textContent = translations[currentLanguage].correct;
+                    correctCount++;
+                } else {
+                    const correctAnswerDisplay = Array.isArray(correctAnswers[originalNumber])
+                        ? correctAnswers[originalNumber].map(a => a.toUpperCase()).join(', ')
+                        : correctAnswers[originalNumber].toUpperCase();
+                    resultDiv.className = 'question-result incorrect';
+                    resultDiv.textContent = `${translations[currentLanguage].incorrect} ${correctAnswerDisplay}`;
+                    incorrectCount++;
+                    incorrectQuestions.add(originalNumber);
+                }
+            });
+
+            isGraded = true;
+            displayResults(correctCount, incorrectCount, unanswered);
+            updateRetryButtons();
+
+            // Show filter section after grading
+            if (isGraded) {
+                document.getElementById('filterSection').style.display = 'block';
+            }
+        }
+
+        function updateRetryButtons() {
+            const retryIncorrectBtn = document.getElementById('retryIncorrectBtn');
+            const retryPinnedBtn = document.getElementById('retryPinnedBtn');
+
+            if (isGraded && incorrectQuestions.size > 0) {
+                retryIncorrectBtn.classList.remove('hidden');
+            } else {
+                retryIncorrectBtn.classList.add('hidden');
+            }
+
+            if (pinnedQuestions.size > 0) {
+                retryPinnedBtn.classList.remove('hidden');
+            } else {
+                retryPinnedBtn.classList.add('hidden');
+            }
+        }
+
+        function displayResults(correct, incorrect, unanswered) {
+            const total = quizData.length;
+            const percentage = ((correct / total) * 100).toFixed(1);
+
+            const resultSection = document.getElementById('resultSection');
+            resultSection.innerHTML = `
+                <h2>${translations[currentLanguage].resultTitle}</h2>
+                <div class="score-display">${percentage}%</div>
+                <div class="result-details">
+                    <div class="result-item">
+                        <h3>${translations[currentLanguage].totalQuestions}</h3>
+                        <p>${total}</p>
+                    </div>
+                    <div class="result-item">
+                        <h3>${translations[currentLanguage].correctAnswers}</h3>
+                        <p style="color: #38ef7d;">${correct}</p>
+                    </div>
+                    <div class="result-item">
+                        <h3>${translations[currentLanguage].incorrectAnswers}</h3>
+                        <p style="color: #ff6b6b;">${incorrect}</p>
+                    </div>
+                    ${unanswered > 0 ? `
+                    <div class="result-item">
+                        <h3>${translations[currentLanguage].unansweredQuestions}</h3>
+                        <p style="color: #ffd93d;">${unanswered}</p>
+                    </div>
+                    ` : ''}
+                </div>
+            `;
+            resultSection.classList.remove('hidden');
+
+            // Scroll to results
+            resultSection.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        }
+
+        function resetQuiz() {
+            if (confirm(translations[currentLanguage].confirmReset)) {
+                document.getElementById('inputSection').classList.remove('hidden');
+                document.getElementById('quizSection').classList.add('hidden');
+                document.getElementById('resultSection').classList.add('hidden');
+                document.getElementById('questionsInput').value = '';
+                document.getElementById('answersInput').value = '';
+                document.getElementById('shuffleCheckbox').checked = false;
+                quizData = [];
+                correctAnswers = {};
+                questionMapping = {};
+                pinnedQuestions.clear();
+                incorrectQuestions.clear();
+                isGraded = false;
+                originalQuestionsText = '';
+                originalAnswersText = '';
+            }
+        }
+
+        function retryIncorrectQuestions() {
+            if (incorrectQuestions.size === 0) {
+                alert(translations[currentLanguage].alertNoIncorrect);
+                return;
+            }
+            generateQuiz(incorrectQuestions);
+        }
+
+        function retryPinnedQuestions() {
+            if (pinnedQuestions.size === 0) {
+                alert(translations[currentLanguage].alertNoPinned);
+                return;
+            }
+            generateQuiz(pinnedQuestions);
+        }
+
+        function filterQuestions(filterType) {
+            currentFilter = filterType;
+
+            // Update active filter button
+            document.querySelectorAll('.filter-button').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            event.target.classList.add('active');
+
+            // Filter question cards
+            quizData.forEach((q, index) => {
+                const card = document.getElementById(`card${index}`);
+                const originalNumber = questionMapping[index];
+                let shouldShow = false;
+
+                switch(filterType) {
+                    case 'all':
+                        shouldShow = true;
+                        break;
+                    case 'pinned':
+                        shouldShow = pinnedQuestions.has(originalNumber);
+                        break;
+                    case 'incorrect':
+                        shouldShow = incorrectQuestions.has(originalNumber);
+                        break;
+                }
+
+                if (shouldShow) {
+                    card.style.display = 'block';
+                } else {
+                    card.style.display = 'none';
+                }
+            });
+        }
+    </script>
+</body>
+</html>
