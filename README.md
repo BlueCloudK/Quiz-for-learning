@@ -29,6 +29,7 @@ A powerful, interactive quiz application that helps you create, manage, and prac
 - **⏱️ Exam Mode**: Timed quiz mode with countdown timer and auto-submit when time expires
 - **📚 Quiz Management**: Save and load multiple quiz sets with custom names
 - **📊 Statistics Dashboard**: Track your quiz history with detailed statistics and performance analytics
+- **📁 Import/Export**: Import questions and answers from Excel (.xlsx, .xls), Word (.docx), or Text (.txt) files, and export to Excel or Text format
 
 ### User Interface
 - Beautiful gradient design
@@ -153,7 +154,35 @@ or
 - **Filter**: View specific question types
 - **Reset**: Start fresh with new questions
 
-### Step 6: Use Advanced Features
+### Step 6: Import/Export Files 📁
+
+**NEW!** You can now import questions and answers from existing files or export them for backup/sharing.
+
+#### Import from Files
+1. Click "📁 Import from file" button next to Questions or Answers textarea
+2. Select a file from your computer:
+   - **Excel files** (.xlsx, .xls): First sheet will be imported
+   - **Word files** (.docx): Text content will be extracted
+   - **Text files** (.txt): Direct import
+3. The content will automatically appear in the textarea
+4. Review and edit if needed before creating quiz
+
+#### Export to Files
+1. After entering your questions or answers, click on export buttons:
+   - **💾 Export TXT**: Download as plain text file
+   - **💾 Export Excel**: Download as Excel spreadsheet
+2. Files are saved to your Downloads folder
+3. Use exported files to:
+   - Backup your quiz sets
+   - Share with others
+   - Edit in Excel/Word for easier formatting
+   - Reuse in other applications
+
+**Supported Formats:**
+- Import: Excel (.xlsx, .xls), Word (.docx), Text (.txt)
+- Export: Excel (.xlsx), Text (.txt)
+
+### Step 7: Use Other Advanced Features
 
 #### Dark Mode 🌙
 - Click the moon/sun icon (🌙/☀️) in the top-right corner to toggle dark mode
@@ -276,6 +305,7 @@ Feel free to fork, modify, and use this project for your learning needs!
 - **⏱️ Chế Độ Thi**: Chế độ làm bài có hẹn giờ với đồng hồ đếm ngược và tự động nộp bài
 - **📚 Quản Lý Quiz**: Lưu và tải nhiều bộ quiz với tên tùy chỉnh
 - **📊 Bảng Thống Kê**: Theo dõi lịch sử làm bài với thống kê chi tiết và phân tích hiệu suất
+- **📁 Import/Export**: Import câu hỏi và đáp án từ file Excel (.xlsx, .xls), Word (.docx), hoặc Text (.txt), và export ra định dạng Excel hoặc Text
 
 ### Giao Diện Người Dùng
 - Thiết kế gradient đẹp mắt
@@ -400,7 +430,35 @@ hoặc
 - **Lọc**: Xem các loại câu hỏi cụ thể
 - **Làm Lại**: Bắt đầu mới với câu hỏi khác
 
-### Bước 6: Sử Dụng Tính Năng Nâng Cao
+### Bước 6: Import/Export File 📁
+
+**MỚI!** Bạn có thể import câu hỏi và đáp án từ file có sẵn hoặc export để sao lưu/chia sẻ.
+
+#### Import từ File
+1. Click nút "📁 Import từ file" bên cạnh ô nhập Câu hỏi hoặc Đáp án
+2. Chọn file từ máy tính:
+   - **File Excel** (.xlsx, .xls): Sheet đầu tiên sẽ được import
+   - **File Word** (.docx): Nội dung văn bản sẽ được trích xuất
+   - **File Text** (.txt): Import trực tiếp
+3. Nội dung sẽ tự động hiển thị trong ô nhập
+4. Xem lại và chỉnh sửa nếu cần trước khi tạo quiz
+
+#### Export ra File
+1. Sau khi nhập câu hỏi hoặc đáp án, click vào nút export:
+   - **💾 Export TXT**: Tải xuống dưới dạng file text
+   - **💾 Export Excel**: Tải xuống dưới dạng file Excel
+2. File sẽ được lưu vào thư mục Downloads
+3. Sử dụng file đã export để:
+   - Sao lưu bộ quiz
+   - Chia sẻ với người khác
+   - Chỉnh sửa trong Excel/Word để format dễ hơn
+   - Tái sử dụng trong ứng dụng khác
+
+**Định Dạng Được Hỗ Trợ:**
+- Import: Excel (.xlsx, .xls), Word (.docx), Text (.txt)
+- Export: Excel (.xlsx), Text (.txt)
+
+### Bước 7: Sử Dụng Các Tính Năng Nâng Cao Khác
 
 #### Chế Độ Tối 🌙
 - Click vào biểu tượng mặt trăng/mặt trời (🌙/☀️) ở góc trên bên phải để bật/tắt chế độ tối

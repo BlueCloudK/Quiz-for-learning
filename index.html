@@ -4,6 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>BlueQuiz - Tạo và Chấm Điểm</title>
+    <!-- Libraries for file import -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.6.0/mammoth.browser.min.js"></script>
     <style>
         :root {
             --bg-gradient-start: #667eea;
@@ -27,6 +30,8 @@
             --prompt-card-bg: #ffffff;
             --prompt-text-bg: #f8f9fa;
             --shadow-color: rgba(0, 0, 0, 0.1);
+            --accent-color: #667eea;
+            --accent-color-light: #8b9efc;
         }
 
         body.dark-mode {
@@ -51,6 +56,8 @@
             --prompt-card-bg: #1a1a2e;
             --prompt-text-bg: #16213e;
             --shadow-color: rgba(0, 0, 0, 0.5);
+            --accent-color: #8b9efc;
+            --accent-color-light: #a8b5ff;
         }
 
         * {
@@ -225,6 +232,71 @@
         .checkbox-group label {
             margin: 0;
             cursor: pointer;
+        }
+
+        /* File upload styles */
+        .upload-container {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+            margin-top: 8px;
+            flex-wrap: wrap;
+        }
+
+        .file-upload-btn {
+            /* Reset all default styles */
+            margin: 0;
+            padding: 0;
+            border: none;
+            background: none;
+            font: inherit;
+
+            /* Common button styles */
+            position: relative;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 4px;
+            cursor: pointer;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 9px 16px;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 500;
+            line-height: 1.4;
+            transition: transform 0.2s, box-shadow 0.2s;
+            box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
+            white-space: nowrap;
+            text-decoration: none;
+            vertical-align: middle;
+        }
+
+        .file-upload-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+        }
+
+        .file-upload-btn input[type="file"] {
+            position: absolute;
+            opacity: 0;
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
+            cursor: pointer;
+        }
+
+        .file-info {
+            font-size: 13px;
+            color: var(--text-secondary);
+            font-style: italic;
+        }
+
+        .upload-hint {
+            font-size: 12px;
+            color: var(--text-secondary);
+            margin-top: 5px;
         }
 
         button {
@@ -541,6 +613,12 @@
             margin-top: 20px;
         }
 
+        .ai-prompts-content p {
+            color: var(--text-primary);
+            margin-bottom: 15px;
+            line-height: 1.6;
+        }
+
         .prompt-card {
             background: var(--prompt-card-bg);
             border-radius: 10px;
@@ -551,7 +629,7 @@
         }
 
         .prompt-card h4 {
-            color: #667eea;
+            color: var(--accent-color);
             margin-bottom: 10px;
             font-size: 1.1em;
         }
@@ -561,6 +639,11 @@
             font-size: 0.9em;
             margin-bottom: 10px;
             line-height: 1.5;
+        }
+
+        .quick-templates-title {
+            color: var(--text-primary);
+            margin-bottom: 10px;
         }
 
         .prompt-text {
@@ -629,7 +712,7 @@
 
         .template-label {
             font-weight: 600;
-            color: #667eea;
+            color: var(--accent-color);
             margin-bottom: 8px;
             font-size: 0.95em;
         }
@@ -1309,7 +1392,7 @@
 
                     <!-- Quick Copy Templates -->
                     <div class="quick-templates">
-                        <h4 style="color: #333; margin-bottom: 10px;" data-i18n="quickTemplatesTitle">📋 Hoặc Copy Template Mẫu Để Paste Trực Tiếp:</h4>
+                        <h4 class="quick-templates-title" data-i18n="quickTemplatesTitle">📋 Hoặc Copy Template Mẫu Để Paste Trực Tiếp:</h4>
 
                         <div class="template-grid">
                             <div class="template-item">
@@ -1374,13 +1457,41 @@ e. Lựa chọn E</div>
                 <div class="input-group">
                     <label for="questionsInput" data-i18n="questionsLabel">Câu hỏi và đáp án:</label>
                     <textarea id="questionsInput" rows="12" data-i18n-placeholder="questionsPlaceholder"></textarea>
+                    <div class="upload-container">
+                        <label class="file-upload-btn">
+                            📁 <span data-i18n="importFileBtn">Import từ file</span>
+                            <input type="file" id="questionsFileInput" accept=".xlsx,.xls,.docx,.txt" onchange="handleQuestionsFileUpload(event)">
+                        </label>
+                        <button class="file-upload-btn" onclick="exportQuestions('txt')" style="background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);">
+                            💾 <span data-i18n="exportTxtBtn">Export TXT</span>
+                        </button>
+                        <button class="file-upload-btn" onclick="exportQuestions('xlsx')" style="background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);">
+                            💾 <span data-i18n="exportExcelBtn">Export Excel</span>
+                        </button>
+                        <span class="file-info" id="questionsFileInfo"></span>
+                    </div>
                     <p class="hint" data-i18n="questionsHint">Mỗi câu hỏi bắt đầu bằng số thứ tự, các đáp án bắt đầu bằng a, b, c, d...</p>
+                    <p class="upload-hint" data-i18n="uploadHint">Hỗ trợ: Excel (.xlsx, .xls), Word (.docx), Text (.txt)</p>
                 </div>
 
                 <div class="input-group">
                     <label for="answersInput" data-i18n="answersLabel">Đáp án đúng:</label>
                     <textarea id="answersInput" rows="6" data-i18n-placeholder="answersPlaceholder"></textarea>
+                    <div class="upload-container">
+                        <label class="file-upload-btn">
+                            📁 <span data-i18n="importFileBtn">Import từ file</span>
+                            <input type="file" id="answersFileInput" accept=".xlsx,.xls,.docx,.txt" onchange="handleAnswersFileUpload(event)">
+                        </label>
+                        <button class="file-upload-btn" onclick="exportAnswers('txt')" style="background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);">
+                            💾 <span data-i18n="exportTxtBtn">Export TXT</span>
+                        </button>
+                        <button class="file-upload-btn" onclick="exportAnswers('xlsx')" style="background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);">
+                            💾 <span data-i18n="exportExcelBtn">Export Excel</span>
+                        </button>
+                        <span class="file-info" id="answersFileInfo"></span>
+                    </div>
                     <p class="hint" data-i18n="answersHint">Nhập đáp án đúng cho mỗi câu theo số thứ tự</p>
+                    <p class="upload-hint" data-i18n="uploadHint">Hỗ trợ: Excel (.xlsx, .xls), Word (.docx), Text (.txt)</p>
                 </div>
 
                 <div class="controls">
@@ -1903,6 +2014,10 @@ e. Lựa chọn E</div>
                 questionsLabel: 'Câu hỏi và đáp án:',
                 questionsPlaceholder: 'Nhập câu hỏi theo định dạng:\n\n1. Câu hỏi thứ nhất?\na. Đáp án A\nb. Đáp án B\nc. Đáp án C\nd. Đáp án D\n\n2. Câu hỏi thứ hai?\na. Đáp án A\nb. Đáp án B\nc. Đáp án C\nd. Đáp án D',
                 questionsHint: 'Mỗi câu hỏi bắt đầu bằng số thứ tự, các đáp án bắt đầu bằng a, b, c, d...',
+                importFileBtn: 'Import từ file',
+                exportTxtBtn: 'Export TXT',
+                exportExcelBtn: 'Export Excel',
+                uploadHint: 'Hỗ trợ: Excel (.xlsx, .xls), Word (.docx), Text (.txt)',
                 answersLabel: 'Đáp án đúng:',
                 answersPlaceholder: 'Nhập đáp án theo định dạng:\n\n1. a\n2. b\n3. c\n4. d\n\nNhiều đáp án đúng:\n5. a,b,c\n6. abc',
                 answersHint: 'Nhập đáp án đúng cho mỗi câu. Nhiều đáp án: dùng dấu phẩy (a,b,c) hoặc viết liền (abc)',
@@ -1987,6 +2102,10 @@ e. Lựa chọn E</div>
                 questionsLabel: 'Questions and Answers:',
                 questionsPlaceholder: 'Enter questions in this format:\n\n1. First question?\na. Answer A\nb. Answer B\nc. Answer C\nd. Answer D\n\n2. Second question?\na. Answer A\nb. Answer B\nc. Answer C\nd. Answer D',
                 questionsHint: 'Each question starts with a number, answers start with a, b, c, d...',
+                importFileBtn: 'Import from file',
+                exportTxtBtn: 'Export TXT',
+                exportExcelBtn: 'Export Excel',
+                uploadHint: 'Supported: Excel (.xlsx, .xls), Word (.docx), Text (.txt)',
                 answersLabel: 'Correct Answers:',
                 answersPlaceholder: 'Enter answers in this format:\n\n1. a\n2. b\n3. c\n4. d\n\nMultiple correct answers:\n5. a,b,c\n6. abc',
                 answersHint: 'Enter correct answers for each question. Multiple answers: use comma (a,b,c) or write together (abc)',
@@ -2705,6 +2824,8 @@ Requirements:
 
             // Start timer if exam mode is enabled
             if (examModeEnabled) {
+                // Stop any existing timer first to prevent multiple intervals
+                stopTimer();
                 const hours = parseInt(document.getElementById('timerHours').value) || 0;
                 const minutes = parseInt(document.getElementById('timerMinutes').value) || 30;
                 timeRemaining = (hours * 3600) + (minutes * 60);
@@ -3210,6 +3331,193 @@ Requirements:
                     card.style.display = 'none';
                 }
             });
+        }
+
+        // File import functions
+        async function handleQuestionsFileUpload(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            const fileInfo = document.getElementById('questionsFileInfo');
+            fileInfo.textContent = `Đang xử lý: ${file.name}...`;
+
+            try {
+                const text = await readFile(file);
+                document.getElementById('questionsInput').value = text;
+                fileInfo.textContent = `✓ Đã import: ${file.name}`;
+                fileInfo.style.color = '#28a745';
+
+                // Auto-save
+                autoSaveQuestions();
+            } catch (error) {
+                fileInfo.textContent = `✗ Lỗi: ${error.message}`;
+                fileInfo.style.color = '#dc3545';
+            }
+
+            // Reset file input
+            event.target.value = '';
+        }
+
+        async function handleAnswersFileUpload(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            const fileInfo = document.getElementById('answersFileInfo');
+            fileInfo.textContent = `Đang xử lý: ${file.name}...`;
+
+            try {
+                const text = await readFile(file);
+                document.getElementById('answersInput').value = text;
+                fileInfo.textContent = `✓ Đã import: ${file.name}`;
+                fileInfo.style.color = '#28a745';
+
+                // Auto-save
+                autoSaveAnswers();
+            } catch (error) {
+                fileInfo.textContent = `✗ Lỗi: ${error.message}`;
+                fileInfo.style.color = '#dc3545';
+            }
+
+            // Reset file input
+            event.target.value = '';
+        }
+
+        async function readFile(file) {
+            const extension = file.name.split('.').pop().toLowerCase();
+
+            if (extension === 'txt') {
+                return await readTextFile(file);
+            } else if (extension === 'xlsx' || extension === 'xls') {
+                return await readExcelFile(file);
+            } else if (extension === 'docx') {
+                return await readWordFile(file);
+            } else {
+                throw new Error('Định dạng file không được hỗ trợ');
+            }
+        }
+
+        function readTextFile(file) {
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.onload = (e) => resolve(e.target.result);
+                reader.onerror = () => reject(new Error('Không thể đọc file text'));
+                reader.readAsText(file);
+            });
+        }
+
+        function readExcelFile(file) {
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    try {
+                        const data = new Uint8Array(e.target.result);
+                        const workbook = XLSX.read(data, { type: 'array' });
+
+                        // Get first sheet
+                        const firstSheetName = workbook.SheetNames[0];
+                        const worksheet = workbook.Sheets[firstSheetName];
+
+                        // Convert to CSV then process (better encoding handling)
+                        const csv = XLSX.utils.sheet_to_csv(worksheet, { FS: '\t', RS: '\n' });
+
+                        // Remove BOM (Byte Order Mark) if present
+                        let text = csv.replace(/^\uFEFF/, ''); // UTF-8 BOM
+                        text = text.replace(/^ÿþ/, '');        // UTF-16 LE BOM
+                        text = text.replace(/^\xEF\xBB\xBF/, ''); // UTF-8 BOM (another form)
+
+                        // Clean up: remove extra tabs and spaces
+                        const cleaned = text.split('\n')
+                            .map(line => line.trim())
+                            .filter(line => line.length > 0)
+                            .join('\n');
+
+                        resolve(cleaned);
+                    } catch (error) {
+                        reject(new Error('Không thể đọc file Excel: ' + error.message));
+                    }
+                };
+                reader.onerror = () => reject(new Error('Không thể đọc file Excel'));
+                reader.readAsArrayBuffer(file);
+            });
+        }
+
+        function readWordFile(file) {
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    mammoth.extractRawText({ arrayBuffer: e.target.result })
+                        .then(result => {
+                            // Clean up the text
+                            const cleaned = result.value
+                                .split('\n')
+                                .map(line => line.trim())
+                                .filter(line => line.length > 0)
+                                .join('\n');
+                            resolve(cleaned);
+                        })
+                        .catch(error => reject(new Error('Không thể đọc file Word: ' + error.message)));
+                };
+                reader.onerror = () => reject(new Error('Không thể đọc file Word'));
+                reader.readAsArrayBuffer(file);
+            });
+        }
+
+        // Export functions
+        function exportQuestions(format) {
+            const text = document.getElementById('questionsInput').value;
+            if (!text.trim()) {
+                alert('Không có dữ liệu câu hỏi để export!');
+                return;
+            }
+
+            if (format === 'txt') {
+                downloadTextFile(text, 'cau-hoi.txt');
+            } else if (format === 'xlsx') {
+                downloadExcelFile(text, 'cau-hoi.xlsx');
+            }
+        }
+
+        function exportAnswers(format) {
+            const text = document.getElementById('answersInput').value;
+            if (!text.trim()) {
+                alert('Không có dữ liệu đáp án để export!');
+                return;
+            }
+
+            if (format === 'txt') {
+                downloadTextFile(text, 'dap-an.txt');
+            } else if (format === 'xlsx') {
+                downloadExcelFile(text, 'dap-an.xlsx');
+            }
+        }
+
+        function downloadTextFile(text, filename) {
+            const blob = new Blob([text], { type: 'text/plain;charset=utf-8' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = filename;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        }
+
+        function downloadExcelFile(text, filename) {
+            // Create workbook and worksheet
+            const wb = XLSX.utils.book_new();
+
+            // Split text into lines and convert to array of arrays
+            const lines = text.split('\n').map(line => [line]);
+
+            // Create worksheet from the data
+            const ws = XLSX.utils.aoa_to_sheet(lines);
+
+            // Add worksheet to workbook
+            XLSX.utils.book_append_sheet(wb, ws, 'Sheet1');
+
+            // Generate Excel file and trigger download
+            XLSX.writeFile(wb, filename);
         }
     </script>
 </body>
