@@ -1155,6 +1155,7 @@ e. Lựa chọn E</div>
                 <div id="quizContainer"></div>
                 <div class="controls">
                     <button class="btn-success" onclick="submitQuiz()" data-i18n="submitBtn">Chấm Điểm</button>
+                    <button class="btn-secondary" onclick="backToEdit()" data-i18n="backToEditBtn">✏️ Chỉnh Sửa Câu Hỏi</button>
                     <button class="btn-secondary" onclick="resetQuiz()" data-i18n="resetBtn">Làm Lại</button>
                     <button class="btn-warning hidden" id="retryIncorrectBtn" onclick="retryIncorrectQuestions()" data-i18n="retryIncorrectBtn">Làm Lại Câu Sai</button>
                     <button class="btn-info hidden" id="retryPinnedBtn" onclick="retryPinnedQuestions()" data-i18n="retryPinnedBtn">Làm Lại Câu Đã Pin</button>
@@ -1640,6 +1641,7 @@ e. Lựa chọn E</div>
                 filterPinned: 'Câu đã pin',
                 filterIncorrect: 'Câu sai',
                 submitBtn: 'Chấm Điểm',
+                backToEditBtn: '✏️ Chỉnh Sửa Câu Hỏi',
                 resetBtn: 'Làm Lại',
                 retryIncorrectBtn: 'Làm Lại Câu Sai',
                 retryPinnedBtn: 'Làm Lại Câu Đã Pin',
@@ -1716,6 +1718,7 @@ e. Lựa chọn E</div>
                 filterPinned: 'Pinned',
                 filterIncorrect: 'Incorrect',
                 submitBtn: 'Submit & Grade',
+                backToEditBtn: '✏️ Edit Questions',
                 resetBtn: 'Reset',
                 retryIncorrectBtn: 'Retry Incorrect',
                 retryPinnedBtn: 'Retry Pinned',
@@ -2645,6 +2648,25 @@ Requirements:
 
             // Scroll to results
             resultSection.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        }
+
+        function backToEdit() {
+            // Stop timer if running
+            if (examModeEnabled) {
+                stopTimer();
+                examModeEnabled = false;
+                document.getElementById('examModeCheckbox').checked = false;
+                document.getElementById('timerDisplay').classList.remove('active');
+                document.getElementById('timerMinutes').disabled = false;
+            }
+
+            // Show input section, hide quiz and result sections
+            document.getElementById('inputSection').classList.remove('hidden');
+            document.getElementById('quizSection').classList.add('hidden');
+            document.getElementById('resultSection').classList.add('hidden');
+
+            // Scroll to input section
+            document.getElementById('inputSection').scrollIntoView({ behavior: 'smooth', block: 'start' });
         }
 
         function resetQuiz() {
