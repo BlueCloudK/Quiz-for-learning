@@ -234,7 +234,7 @@
         .upload-container {
             display: flex;
             gap: 8px;
-            align-items: center;
+            align-items: stretch;
             margin-top: 8px;
             flex-wrap: wrap;
         }
@@ -247,15 +247,17 @@
             cursor: pointer;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
-            padding: 8px 16px;
+            padding: 10px 18px;
             border-radius: 8px;
             font-size: 14px;
             font-weight: 500;
+            line-height: 1.2;
             transition: transform 0.2s, box-shadow 0.2s;
             box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
             border: none;
             white-space: nowrap;
-            min-height: 36px;
+            height: 38px;
+            box-sizing: border-box;
         }
 
         .file-upload-btn:hover {
