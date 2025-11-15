@@ -644,38 +644,11 @@
             transition: background 0.3s ease, color 0.3s ease;
         }
 
-        /* Quiz Section Header */
-        .quiz-section-header {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            margin-bottom: 20px;
-            gap: 20px;
-            flex-wrap: wrap;
-        }
-
-        .quiz-section-header .section-title {
-            margin: 0;
-        }
-
-        /* Exam Mode Styles */
-        .exam-mode-section {
-            display: flex;
-            align-items: center;
-            gap: 15px;
-        }
-
         .exam-mode-controls {
             display: flex;
             align-items: center;
             gap: 15px;
             flex-wrap: wrap;
-        }
-
-        .exam-mode-label {
-            color: white;
-            font-weight: 600;
-            font-size: 1.1em;
         }
 
         .timer-input-group {
@@ -1162,21 +1135,6 @@
                 grid-template-columns: 1fr;
             }
 
-            .quiz-section-header {
-                flex-direction: column;
-                align-items: flex-start;
-            }
-
-            .exam-mode-section {
-                width: 100%;
-                flex-direction: column;
-                align-items: stretch;
-            }
-
-            .exam-mode-controls {
-                flex-direction: column;
-                align-items: stretch;
-            }
 
             .question-navigator {
                 position: relative !important;
@@ -1367,32 +1325,23 @@ e. Lựa chọn E</div>
                         <input type="checkbox" id="shuffleCheckbox">
                         <label for="shuffleCheckbox" data-i18n="shuffleLabel">Xáo trộn câu hỏi</label>
                     </div>
+                    <div class="checkbox-group">
+                        <input type="checkbox" id="examModeCheckbox" onchange="toggleExamMode()">
+                        <label for="examModeCheckbox" data-i18n="enableExamMode">⏱️ Bật chế độ thi</label>
+                    </div>
+                    <div class="timer-input-group" id="timerInputGroup" style="display: none;">
+                        <label for="timerHours" data-i18n="hours">Giờ:</label>
+                        <input type="number" id="timerHours" min="0" max="23" value="0" />
+                        <label for="timerMinutes" data-i18n="minutes">Phút:</label>
+                        <input type="number" id="timerMinutes" min="0" max="59" value="30" />
+                    </div>
                     <button class="btn-primary" onclick="generateQuiz()" data-i18n="createQuizBtn">Tạo Quiz</button>
                 </div>
             </div>
 
             <!-- Quiz Section -->
             <div class="section hidden" id="quizSection">
-                <div class="quiz-section-header">
-                    <h2 class="section-title" data-i18n="step2">Bước 2: Làm Bài Quiz</h2>
-
-                    <!-- Exam Mode Section -->
-                    <div class="exam-mode-section" id="examModeSection" style="display: none;">
-                        <div class="exam-mode-controls">
-                            <span class="exam-mode-label">⏱️ <span data-i18n="examMode">Chế độ thi</span></span>
-                            <div class="checkbox-group">
-                                <input type="checkbox" id="examModeCheckbox" onchange="toggleExamMode()">
-                                <label for="examModeCheckbox" data-i18n="enableExamMode">Bật chế độ thi</label>
-                            </div>
-                            <div class="timer-input-group">
-                                <label for="timerHours" data-i18n="hours">Giờ:</label>
-                                <input type="number" id="timerHours" min="0" max="23" value="0" />
-                                <label for="timerMinutes" data-i18n="minutes">Phút:</label>
-                                <input type="number" id="timerMinutes" min="0" max="59" value="30" />
-                            </div>
-                        </div>
-                    </div>
-                </div>
+                <h2 class="section-title" data-i18n="step2">Bước 2: Làm Bài Quiz</h2>
 
                 <!-- Quiz Layout with Navigator -->
                 <div class="quiz-layout">
@@ -1605,22 +1554,17 @@ e. Lựa chọn E</div>
         // Exam Mode functions
         function toggleExamMode() {
             examModeEnabled = document.getElementById('examModeCheckbox').checked;
-            const timerHoursInput = document.getElementById('timerHours');
-            const timerMinutesInput = document.getElementById('timerMinutes');
+            const timerInputGroup = document.getElementById('timerInputGroup');
 
             if (examModeEnabled) {
-                // Start timer
-                const hours = parseInt(timerHoursInput.value) || 0;
-                const minutes = parseInt(timerMinutesInput.value) || 30;
-                timeRemaining = (hours * 3600) + (minutes * 60); // Convert to seconds
-                timerHoursInput.disabled = true;
-                timerMinutesInput.disabled = true;
-                startTimer();
+                // Show timer input fields
+                timerInputGroup.style.display = 'flex';
             } else {
-                // Stop timer
-                stopTimer();
-                timerHoursInput.disabled = false;
-                timerMinutesInput.disabled = false;
+                // Hide timer input fields and stop timer if running
+                timerInputGroup.style.display = 'none';
+                if (timerInterval) {
+                    stopTimer();
+                }
             }
         }
 
@@ -2685,13 +2629,13 @@ Requirements:
             document.getElementById('retryPinnedBtn').classList.add('hidden');
             document.getElementById('filterSection').style.display = 'none';
 
-            // Reset exam mode
-            stopTimer();
-            examModeEnabled = false;
-            document.getElementById('examModeCheckbox').checked = false;
-            document.getElementById('timerHours').disabled = false;
-            document.getElementById('timerMinutes').disabled = false;
-            document.getElementById('examModeSection').style.display = 'flex';
+            // Start timer if exam mode is enabled
+            if (examModeEnabled) {
+                const hours = parseInt(document.getElementById('timerHours').value) || 0;
+                const minutes = parseInt(document.getElementById('timerMinutes').value) || 30;
+                timeRemaining = (hours * 3600) + (minutes * 60);
+                startTimer();
+            }
 
             // Hiển thị quiz
             displayQuiz();
