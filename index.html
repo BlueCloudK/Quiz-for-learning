@@ -30,6 +30,8 @@
             --prompt-card-bg: #ffffff;
             --prompt-text-bg: #f8f9fa;
             --shadow-color: rgba(0, 0, 0, 0.1);
+            --accent-color: #667eea;
+            --accent-color-light: #8b9efc;
         }
 
         body.dark-mode {
@@ -54,6 +56,8 @@
             --prompt-card-bg: #1a1a2e;
             --prompt-text-bg: #16213e;
             --shadow-color: rgba(0, 0, 0, 0.5);
+            --accent-color: #8b9efc;
+            --accent-color-light: #a8b5ff;
         }
 
         * {
@@ -609,6 +613,12 @@
             margin-top: 20px;
         }
 
+        .ai-prompts-content p {
+            color: var(--text-primary);
+            margin-bottom: 15px;
+            line-height: 1.6;
+        }
+
         .prompt-card {
             background: var(--prompt-card-bg);
             border-radius: 10px;
@@ -619,7 +629,7 @@
         }
 
         .prompt-card h4 {
-            color: #667eea;
+            color: var(--accent-color);
             margin-bottom: 10px;
             font-size: 1.1em;
         }
@@ -629,6 +639,11 @@
             font-size: 0.9em;
             margin-bottom: 10px;
             line-height: 1.5;
+        }
+
+        .quick-templates-title {
+            color: var(--text-primary);
+            margin-bottom: 10px;
         }
 
         .prompt-text {
@@ -697,7 +712,7 @@
 
         .template-label {
             font-weight: 600;
-            color: #667eea;
+            color: var(--accent-color);
             margin-bottom: 8px;
             font-size: 0.95em;
         }
@@ -1377,7 +1392,7 @@
 
                     <!-- Quick Copy Templates -->
                     <div class="quick-templates">
-                        <h4 style="color: #333; margin-bottom: 10px;" data-i18n="quickTemplatesTitle">📋 Hoặc Copy Template Mẫu Để Paste Trực Tiếp:</h4>
+                        <h4 class="quick-templates-title" data-i18n="quickTemplatesTitle">📋 Hoặc Copy Template Mẫu Để Paste Trực Tiếp:</h4>
 
                         <div class="template-grid">
                             <div class="template-item">
