@@ -1079,8 +1079,15 @@
         }
 
         .question-nav-item.answered {
-            background: #e3f2fd;
-            border-color: #2196f3;
+            background: #2196f3;
+            border-color: #1976d2;
+            color: white;
+        }
+
+        body.dark-mode .question-nav-item.answered {
+            background: #1e40af;
+            border-color: #3b82f6;
+            color: #e0f2fe;
         }
 
         .question-nav-item.correct {
@@ -1089,10 +1096,22 @@
             color: white;
         }
 
+        body.dark-mode .question-nav-item.correct {
+            background: #15803d;
+            border-color: #22c55e;
+            color: #dcfce7;
+        }
+
         .question-nav-item.incorrect {
             background: #ff5722;
             border-color: #ff5722;
             color: white;
+        }
+
+        body.dark-mode .question-nav-item.incorrect {
+            background: #b91c1c;
+            border-color: #ef4444;
+            color: #fee2e2;
         }
 
         .question-nav-item.current {
@@ -1104,12 +1123,25 @@
         .question-nav-item.pinned {
             background: linear-gradient(135deg, #ffd700 0%, #ffed4e 100%);
             border-color: #ffd700;
-            color: #333;
+            color: #1a1a2e;
             font-weight: bold;
         }
 
+        body.dark-mode .question-nav-item.pinned {
+            background: linear-gradient(135deg, #b45309 0%, #d97706 100%);
+            border-color: #f59e0b;
+            color: #fef3c7;
+        }
+
         .question-nav-item.pinned.answered {
-            background: linear-gradient(135deg, #ffd700 0%, #a8e6cf 100%);
+            background: linear-gradient(135deg, #ffd700 0%, #4ade80 100%);
+            color: #1a1a2e;
+        }
+
+        body.dark-mode .question-nav-item.pinned.answered {
+            background: linear-gradient(135deg, #b45309 0%, #15803d 100%);
+            border-color: #22c55e;
+            color: #dcfce7;
         }
 
         /* Fixed Control Panel - Bottom Right */
@@ -2960,8 +2992,14 @@ Requirements:
                 return;
             }
 
-            // Keep timer running - don't stop exam mode
-            // Just reset the quiz state
+            // Reset timer to original time if exam mode is enabled
+            if (examModeEnabled) {
+                stopTimer();
+                const hours = parseInt(document.getElementById('timerHours').value) || 0;
+                const minutes = parseInt(document.getElementById('timerMinutes').value) || 30;
+                timeRemaining = (hours * 3600) + (minutes * 60);
+                startTimer();
+            }
 
             // Clear answers but keep questions
             isGraded = false;
