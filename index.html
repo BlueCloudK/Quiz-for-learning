@@ -429,6 +429,11 @@
             background: #fffdf0;
         }
 
+        body.dark-mode .question-card.pinned {
+            border-left-color: #f59e0b;
+            background: #422006;
+        }
+
         .question-header-container {
             display: flex;
             align-items: center;
@@ -2801,14 +2806,9 @@ Requirements:
         }
 
         function submitQuiz() {
-            // Stop timer if exam mode is active
+            // Stop timer if exam mode is active but keep exam mode enabled for restart
             if (examModeEnabled) {
                 stopTimer();
-                examModeEnabled = false;
-                document.getElementById('examModeCheckbox').checked = false;
-                document.getElementById('fixedRightTimer').classList.remove('active');
-                document.getElementById('timerHours').disabled = false;
-                document.getElementById('timerMinutes').disabled = false;
             }
 
             let correctCount = 0;
