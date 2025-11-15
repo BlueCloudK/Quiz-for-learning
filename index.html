@@ -692,35 +692,6 @@
             margin: 0;
         }
 
-        .timer-display {
-            background: rgba(255, 255, 255, 0.2);
-            padding: 15px 30px;
-            border-radius: 10px;
-            border: 2px solid white;
-            display: none;
-        }
-
-        .timer-display.active {
-            display: block;
-        }
-
-        .timer-text {
-            font-size: 2em;
-            font-weight: bold;
-            color: white;
-            text-align: center;
-        }
-
-        .timer-text.warning {
-            color: #ffeb3b;
-            animation: pulse 1s infinite;
-        }
-
-        .timer-text.danger {
-            color: #ff5252;
-            animation: pulse 0.5s infinite;
-        }
-
         @keyframes pulse {
             0%, 100% { opacity: 1; }
             50% { opacity: 0.7; }
@@ -1193,10 +1164,6 @@
                 align-items: stretch;
             }
 
-            .timer-display {
-                text-align: center;
-            }
-
             .question-navigator {
                 position: relative !important;
                 left: 0 !important;
@@ -1408,9 +1375,6 @@ e. Lựa chọn E</div>
                             <label for="timerMinutes" data-i18n="minutes">Phút:</label>
                             <input type="number" id="timerMinutes" min="0" max="59" value="30" />
                         </div>
-                    </div>
-                    <div class="timer-display" id="timerDisplay">
-                        <div class="timer-text" id="timerText">00:30:00</div>
                     </div>
                 </div>
 
@@ -1625,7 +1589,6 @@ e. Lựa chọn E</div>
         // Exam Mode functions
         function toggleExamMode() {
             examModeEnabled = document.getElementById('examModeCheckbox').checked;
-            const timerDisplay = document.getElementById('timerDisplay');
             const timerHoursInput = document.getElementById('timerHours');
             const timerMinutesInput = document.getElementById('timerMinutes');
 
@@ -1634,14 +1597,12 @@ e. Lựa chọn E</div>
                 const hours = parseInt(timerHoursInput.value) || 0;
                 const minutes = parseInt(timerMinutesInput.value) || 30;
                 timeRemaining = (hours * 3600) + (minutes * 60); // Convert to seconds
-                timerDisplay.classList.add('active');
                 timerHoursInput.disabled = true;
                 timerMinutesInput.disabled = true;
                 startTimer();
             } else {
                 // Stop timer
                 stopTimer();
-                timerDisplay.classList.remove('active');
                 timerHoursInput.disabled = false;
                 timerMinutesInput.disabled = false;
             }
@@ -1669,22 +1630,17 @@ e. Lựa chọn E</div>
         }
 
         function updateTimerDisplay() {
-            const timerText = document.getElementById('timerText');
             const fixedTimerText = document.getElementById('fixedTimerText');
             const formattedTime = formatTime(timeRemaining);
 
-            timerText.textContent = formattedTime;
             fixedTimerText.textContent = formattedTime;
 
             // Add warning/danger classes
-            timerText.classList.remove('warning', 'danger');
             fixedTimerText.classList.remove('warning', 'danger');
 
             if (timeRemaining <= 60) {
-                timerText.classList.add('danger');
                 fixedTimerText.classList.add('danger');
             } else if (timeRemaining <= 300) {
-                timerText.classList.add('warning');
                 fixedTimerText.classList.add('warning');
             }
         }
@@ -2717,7 +2673,7 @@ Requirements:
             stopTimer();
             examModeEnabled = false;
             document.getElementById('examModeCheckbox').checked = false;
-            document.getElementById('timerDisplay').classList.remove('active');
+            document.getElementById('timerHours').disabled = false;
             document.getElementById('timerMinutes').disabled = false;
             document.getElementById('examModeSection').style.display = 'flex';
 
@@ -2833,7 +2789,6 @@ Requirements:
                 stopTimer();
                 examModeEnabled = false;
                 document.getElementById('examModeCheckbox').checked = false;
-                document.getElementById('timerDisplay').classList.remove('active');
                 document.getElementById('fixedRightTimer').classList.remove('active');
                 document.getElementById('timerHours').disabled = false;
                 document.getElementById('timerMinutes').disabled = false;
@@ -2996,7 +2951,6 @@ Requirements:
                 stopTimer();
                 examModeEnabled = false;
                 document.getElementById('examModeCheckbox').checked = false;
-                document.getElementById('timerDisplay').classList.remove('active');
                 document.getElementById('fixedRightTimer').classList.remove('active');
                 document.getElementById('fixedControlPanel').classList.remove('active');
                 document.getElementById('timerHours').disabled = false;
@@ -3026,7 +2980,6 @@ Requirements:
                 stopTimer();
                 examModeEnabled = false;
                 document.getElementById('examModeCheckbox').checked = false;
-                document.getElementById('timerDisplay').classList.remove('active');
                 document.getElementById('fixedRightTimer').classList.remove('active');
                 document.getElementById('fixedControlPanel').classList.remove('active');
                 document.getElementById('timerHours').disabled = false;
