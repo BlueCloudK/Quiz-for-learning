@@ -1013,27 +1013,44 @@
             border-bottom: 2px solid var(--border-color);
         }
 
-        /* Fixed Top Timer */
-        .fixed-top-timer {
+        /* Fixed Right Timer Panel */
+        .fixed-right-timer {
             position: fixed;
-            top: 0;
-            left: 50%;
-            transform: translateX(-50%);
-            background: linear-gradient(135deg, #ff9a56 0%, #ff6a88 100%);
-            padding: 15px 40px;
-            border-radius: 0 0 15px 15px;
-            text-align: center;
-            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.3);
-            z-index: 1000;
+            right: 20px;
+            top: 20px;
+            width: 280px;
+            background: var(--card-bg);
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 5px 20px var(--shadow-color);
+            transition: background 0.3s ease;
+            z-index: 100;
             display: none;
         }
 
-        .fixed-top-timer.active {
+        .fixed-right-timer.active {
             display: block;
         }
 
+        .timer-panel-header {
+            font-weight: 600;
+            font-size: 1.1em;
+            color: var(--text-primary);
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid var(--border-color);
+            text-align: center;
+        }
+
+        .timer-display-box {
+            background: linear-gradient(135deg, #ff9a56 0%, #ff6a88 100%);
+            padding: 30px 20px;
+            border-radius: 10px;
+            text-align: center;
+        }
+
         .fixed-timer-text {
-            font-size: 2em;
+            font-size: 2.5em;
             font-weight: bold;
             color: white;
             margin: 0;
@@ -1050,9 +1067,9 @@
 
         .fixed-timer-label {
             color: white;
-            font-size: 0.95em;
+            font-size: 1em;
             opacity: 0.95;
-            margin-bottom: 5px;
+            margin-bottom: 10px;
             font-weight: 500;
         }
 
@@ -1118,10 +1135,36 @@
             background: linear-gradient(135deg, #ffd700 0%, #a8e6cf 100%);
         }
 
+        /* Fixed Control Panel - Bottom Right */
+        .fixed-control-panel {
+            position: fixed;
+            right: 20px;
+            bottom: 20px;
+            width: 280px;
+            background: var(--card-bg);
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 5px 20px var(--shadow-color);
+            transition: background 0.3s ease;
+            z-index: 100;
+            display: none;
+        }
+
+        .fixed-control-panel.active {
+            display: block;
+        }
+
+        .control-panel-header {
+            font-weight: 600;
+            font-size: 1.1em;
+            color: var(--text-primary);
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid var(--border-color);
+            text-align: center;
+        }
+
         .navigator-controls {
-            margin-top: 20px;
-            padding-top: 15px;
-            border-top: 2px solid var(--border-color);
             display: flex;
             flex-direction: column;
             gap: 10px;
@@ -1129,9 +1172,10 @@
 
         .btn-nav {
             width: 100%;
-            padding: 10px;
-            font-size: 0.9em;
+            padding: 12px;
+            font-size: 0.95em;
             border-radius: 8px;
+            font-weight: 600;
         }
 
         @media (max-width: 768px) {
@@ -1170,6 +1214,22 @@
             .question-nav-list {
                 grid-template-columns: repeat(6, 1fr);
             }
+
+            .fixed-right-timer {
+                position: relative !important;
+                right: auto !important;
+                top: auto !important;
+                width: 100% !important;
+                margin-bottom: 20px;
+            }
+
+            .fixed-control-panel {
+                position: relative !important;
+                right: auto !important;
+                bottom: auto !important;
+                width: 100% !important;
+                margin-top: 20px;
+            }
         }
 
         @media (max-width: 768px) {
@@ -1195,10 +1255,25 @@
     </style>
 </head>
 <body>
-    <!-- Fixed Top Timer -->
-    <div class="fixed-top-timer" id="fixedTopTimer">
-        <div class="fixed-timer-label" data-i18n="timeRemaining">Thời gian còn lại:</div>
-        <div class="fixed-timer-text" id="fixedTimerText">30:00</div>
+    <!-- Fixed Right Timer Panel -->
+    <div class="fixed-right-timer" id="fixedRightTimer">
+        <div class="timer-panel-header" data-i18n="timerPanelHeader">⏱️ Thời Gian</div>
+        <div class="timer-display-box">
+            <div class="fixed-timer-label" data-i18n="timeRemaining">Thời gian còn lại:</div>
+            <div class="fixed-timer-text" id="fixedTimerText">00:30:00</div>
+        </div>
+    </div>
+
+    <!-- Fixed Control Panel - Bottom Right -->
+    <div class="fixed-control-panel" id="fixedControlPanel">
+        <div class="control-panel-header" data-i18n="controlPanelHeader">🎮 Điều Khiển</div>
+        <div class="navigator-controls">
+            <button class="btn-success btn-nav" onclick="submitQuiz()" data-i18n="submitBtn">Chấm Điểm</button>
+            <button class="btn-secondary btn-nav" onclick="backToEdit()" data-i18n="backToEditBtn">⬅️ Quay Lại</button>
+            <button class="btn-secondary btn-nav" onclick="restartQuiz()" data-i18n="restartBtn">🔄 Làm Lại</button>
+            <button class="btn-warning btn-nav hidden" id="retryIncorrectBtn" onclick="retryIncorrectQuestions()" data-i18n="retryIncorrectBtn">Làm Lại Câu Sai</button>
+            <button class="btn-info btn-nav hidden" id="retryPinnedBtn" onclick="retryPinnedQuestions()" data-i18n="retryPinnedBtn">Làm Lại Câu Đã Pin</button>
+        </div>
     </div>
 
     <div class="container">
@@ -1328,12 +1403,14 @@ e. Lựa chọn E</div>
                             <label for="examModeCheckbox" data-i18n="enableExamMode">Bật chế độ thi</label>
                         </div>
                         <div class="timer-input-group">
+                            <label for="timerHours" data-i18n="hours">Giờ:</label>
+                            <input type="number" id="timerHours" min="0" max="23" value="0" />
                             <label for="timerMinutes" data-i18n="minutes">Phút:</label>
-                            <input type="number" id="timerMinutes" min="1" max="180" value="30" />
+                            <input type="number" id="timerMinutes" min="0" max="59" value="30" />
                         </div>
                     </div>
                     <div class="timer-display" id="timerDisplay">
-                        <div class="timer-text" id="timerText">30:00</div>
+                        <div class="timer-text" id="timerText">00:30:00</div>
                     </div>
                 </div>
 
@@ -1346,15 +1423,6 @@ e. Lựa chọn E</div>
                         <!-- Question Navigation List -->
                         <div class="question-nav-list" id="questionNavList">
                             <!-- Question nav items will be inserted here -->
-                        </div>
-
-                        <!-- Navigator Controls -->
-                        <div class="navigator-controls">
-                            <button class="btn-success btn-nav" onclick="submitQuiz()" data-i18n="submitBtn">Chấm Điểm</button>
-                            <button class="btn-secondary btn-nav" onclick="backToEdit()" data-i18n="backToEditBtn">⬅️ Quay Lại</button>
-                            <button class="btn-secondary btn-nav" onclick="restartQuiz()" data-i18n="restartBtn">🔄 Làm Lại</button>
-                            <button class="btn-warning btn-nav hidden" id="retryIncorrectBtn" onclick="retryIncorrectQuestions()" data-i18n="retryIncorrectBtn">Làm Lại Câu Sai</button>
-                            <button class="btn-info btn-nav hidden" id="retryPinnedBtn" onclick="retryPinnedQuestions()" data-i18n="retryPinnedBtn">Làm Lại Câu Đã Pin</button>
                         </div>
                     </div>
 
@@ -1558,19 +1626,23 @@ e. Lựa chọn E</div>
         function toggleExamMode() {
             examModeEnabled = document.getElementById('examModeCheckbox').checked;
             const timerDisplay = document.getElementById('timerDisplay');
+            const timerHoursInput = document.getElementById('timerHours');
             const timerMinutesInput = document.getElementById('timerMinutes');
 
             if (examModeEnabled) {
                 // Start timer
+                const hours = parseInt(timerHoursInput.value) || 0;
                 const minutes = parseInt(timerMinutesInput.value) || 30;
-                timeRemaining = minutes * 60; // Convert to seconds
+                timeRemaining = (hours * 3600) + (minutes * 60); // Convert to seconds
                 timerDisplay.classList.add('active');
+                timerHoursInput.disabled = true;
                 timerMinutesInput.disabled = true;
                 startTimer();
             } else {
                 // Stop timer
                 stopTimer();
                 timerDisplay.classList.remove('active');
+                timerHoursInput.disabled = false;
                 timerMinutesInput.disabled = false;
             }
         }
@@ -1618,9 +1690,10 @@ e. Lựa chọn E</div>
         }
 
         function formatTime(seconds) {
-            const mins = Math.floor(seconds / 60);
+            const hours = Math.floor(seconds / 3600);
+            const mins = Math.floor((seconds % 3600) / 60);
             const secs = seconds % 60;
-            return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+            return `${hours.toString().padStart(2, '0')}:${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
         }
 
         // Quiz Management functions
@@ -1894,7 +1967,10 @@ e. Lựa chọn E</div>
                 copiedBtn: '✓ Đã copy!',
                 examMode: 'Chế độ thi',
                 enableExamMode: 'Bật chế độ thi',
+                hours: 'Giờ:',
                 minutes: 'Phút:',
+                timerPanelHeader: '⏱️ Thời Gian',
+                controlPanelHeader: '🎮 Điều Khiển',
                 timeUp: 'Hết giờ! Tự động nộp bài...',
                 examModeActive: 'Chế độ thi đang bật. Bạn không thể xem đáp án cho đến khi hết giờ hoặc nộp bài.',
                 quizManagement: 'Quản Lý Bộ Quiz',
@@ -1974,7 +2050,10 @@ e. Lựa chọn E</div>
                 copiedBtn: '✓ Copied!',
                 examMode: 'Exam Mode',
                 enableExamMode: 'Enable exam mode',
+                hours: 'Hours:',
                 minutes: 'Minutes:',
+                timerPanelHeader: '⏱️ Timer',
+                controlPanelHeader: '🎮 Controls',
                 timeUp: 'Time\'s up! Auto-submitting...',
                 examModeActive: 'Exam mode is active. You cannot see answers until time expires or you submit.',
                 quizManagement: 'Quiz Management',
@@ -2755,6 +2834,8 @@ Requirements:
                 examModeEnabled = false;
                 document.getElementById('examModeCheckbox').checked = false;
                 document.getElementById('timerDisplay').classList.remove('active');
+                document.getElementById('fixedRightTimer').classList.remove('active');
+                document.getElementById('timerHours').disabled = false;
                 document.getElementById('timerMinutes').disabled = false;
             }
 
@@ -2916,7 +2997,9 @@ Requirements:
                 examModeEnabled = false;
                 document.getElementById('examModeCheckbox').checked = false;
                 document.getElementById('timerDisplay').classList.remove('active');
-                document.getElementById('fixedTopTimer').classList.remove('active');
+                document.getElementById('fixedRightTimer').classList.remove('active');
+                document.getElementById('fixedControlPanel').classList.remove('active');
+                document.getElementById('timerHours').disabled = false;
                 document.getElementById('timerMinutes').disabled = false;
             }
 
@@ -2944,7 +3027,9 @@ Requirements:
                 examModeEnabled = false;
                 document.getElementById('examModeCheckbox').checked = false;
                 document.getElementById('timerDisplay').classList.remove('active');
-                document.getElementById('fixedTopTimer').classList.remove('active');
+                document.getElementById('fixedRightTimer').classList.remove('active');
+                document.getElementById('fixedControlPanel').classList.remove('active');
+                document.getElementById('timerHours').disabled = false;
                 document.getElementById('timerMinutes').disabled = false;
             }
 
@@ -2992,10 +3077,13 @@ Requirements:
             // Show navigator
             document.getElementById('questionNavigator').classList.add('active');
 
-            // Show fixed top timer if exam mode enabled
+            // Show fixed right timer and control panel if exam mode enabled
             if (examModeEnabled) {
-                document.getElementById('fixedTopTimer').classList.add('active');
+                document.getElementById('fixedRightTimer').classList.add('active');
             }
+
+            // Always show control panel when quiz is displayed
+            document.getElementById('fixedControlPanel').classList.add('active');
 
             // Initial update to show pinned status
             updateQuestionNavigator();
