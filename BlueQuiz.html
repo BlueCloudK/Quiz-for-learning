@@ -218,6 +218,61 @@
             margin-top: 20px;
         }
 
+        .quiz-settings-group {
+            width: 100%;
+            background: var(--template-bg);
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 10px;
+        }
+
+        .setting-row {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 12px;
+        }
+
+        .setting-row:last-child {
+            margin-bottom: 0;
+        }
+
+        .setting-row label:first-child {
+            font-weight: 600;
+            min-width: 110px;
+            color: var(--text-primary);
+        }
+
+        .hint-text {
+            font-size: 0.85em;
+            color: var(--text-secondary);
+            font-style: italic;
+        }
+
+        .radio-group {
+            display: flex;
+            gap: 20px;
+        }
+
+        .radio-label {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            cursor: pointer;
+            font-weight: 500;
+            color: var(--text-primary);
+        }
+
+        .radio-label input[type="radio"] {
+            cursor: pointer;
+            width: 18px;
+            height: 18px;
+        }
+
+        .radio-label:hover {
+            color: var(--accent-color);
+        }
+
         .checkbox-group {
             display: flex;
             align-items: center;
@@ -1559,6 +1614,26 @@ D. Tất cả các mục</div>
                 </div>
 
                 <div class="controls">
+                    <div class="quiz-settings-group">
+                        <div class="setting-row">
+                            <label for="questionCount" data-i18n="questionCountLabel">Số câu hỏi:</label>
+                            <input type="number" id="questionCount" min="1" placeholder="Tất cả" style="width: 100px; padding: 8px; border-radius: 6px; border: 1px solid #ddd;">
+                            <span class="hint-text" data-i18n="questionCountHint">(Để trống = tất cả)</span>
+                        </div>
+                        <div class="setting-row">
+                            <label data-i18n="questionOrderLabel">Thứ tự câu hỏi:</label>
+                            <div class="radio-group">
+                                <label class="radio-label">
+                                    <input type="radio" name="questionOrder" value="sequential" checked>
+                                    <span data-i18n="orderSequential">Trình tự</span>
+                                </label>
+                                <label class="radio-label">
+                                    <input type="radio" name="questionOrder" value="random">
+                                    <span data-i18n="orderRandom">Ngẫu nhiên</span>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
                     <div class="checkbox-group">
                         <input type="checkbox" id="shuffleCheckbox">
                         <label for="shuffleCheckbox" data-i18n="shuffleLabel">Xáo trộn câu hỏi</label>
@@ -2090,6 +2165,11 @@ D. Tất cả các mục</div>
                 answersLabel: 'Đáp án đúng:',
                 answersPlaceholder: 'Nhập đáp án theo định dạng:\n\n1. a\n2. b\n3. c\n4. d\n\nNhiều đáp án đúng:\n5. a,b,c\n6. abc',
                 answersHint: 'Nhập đáp án đúng cho mỗi câu. Nhiều đáp án: dùng dấu phẩy (a,b,c) hoặc viết liền (abc)',
+                questionCountLabel: 'Số câu hỏi:',
+                questionCountHint: '(Để trống = tất cả)',
+                questionOrderLabel: 'Thứ tự câu hỏi:',
+                orderSequential: 'Trình tự',
+                orderRandom: 'Ngẫu nhiên',
                 shuffleLabel: 'Xáo trộn câu hỏi',
                 createQuizBtn: 'Tạo Quiz',
                 filterLabel: 'Lọc câu hỏi:',
@@ -2179,6 +2259,11 @@ D. Tất cả các mục</div>
                 answersLabel: 'Correct Answers:',
                 answersPlaceholder: 'Enter answers in this format:\n\n1. a\n2. b\n3. c\n4. d\n\nMultiple correct answers:\n5. a,b,c\n6. abc',
                 answersHint: 'Enter correct answers for each question. Multiple answers: use comma (a,b,c) or write together (abc)',
+                questionCountLabel: 'Number of questions:',
+                questionCountHint: '(Leave empty = all)',
+                questionOrderLabel: 'Question order:',
+                orderSequential: 'Sequential',
+                orderRandom: 'Random',
                 shuffleLabel: 'Shuffle questions',
                 createQuizBtn: 'Create Quiz',
                 filterLabel: 'Filter questions:',
@@ -3008,11 +3093,19 @@ Answers:
                 }
             } else {
                 quizData = allQuestions;
-            }
 
-            // Xáo trộn nếu cần
-            if (shouldShuffle && !specificQuestions) {
-                quizData = shuffleArray(quizData);
+                // Áp dụng thứ tự câu hỏi (random/sequential)
+                const questionOrder = document.querySelector('input[name="questionOrder"]:checked')?.value || 'sequential';
+                if (questionOrder === 'random' || shouldShuffle) {
+                    quizData = shuffleArray([...quizData]);
+                }
+
+                // Áp dụng số lượng câu hỏi
+                const questionCountInput = document.getElementById('questionCount');
+                const questionCount = parseInt(questionCountInput?.value);
+                if (questionCount && questionCount > 0 && questionCount < quizData.length) {
+                    quizData = quizData.slice(0, questionCount);
+                }
             }
 
             // Tạo mapping

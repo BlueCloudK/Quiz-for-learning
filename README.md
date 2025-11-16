@@ -15,7 +15,7 @@ A powerful, interactive quiz application that helps you create, manage, and prac
 - **Flexible Question Format**: Support for unlimited multiple choice options (a, b, c, d, e, f, ...)
 - **Multiple Correct Answers**: Create questions with one or more correct answers
 - **Auto-Grading**: Instant feedback with detailed results
-- **Question Shuffling**: Randomize question order for practice
+- **Customizable Quiz**: Choose number of questions and order (sequential or random)
 
 ### Advanced Features
 - **📌 Pin Questions**: Bookmark important questions for quick access
@@ -149,7 +149,9 @@ or
 ```
 
 ### Step 2: Create Quiz
-- Check "Shuffle questions" if you want random order
+- **Number of questions**: Enter a number to limit quiz length (leave empty for all questions)
+- **Question order**: Choose "Sequential" (original order) or "Random" (shuffled order)
+- Check "Shuffle questions" if you want random order (legacy option, same as Random order)
 - Click "Create Quiz" button
 
 ### Step 3: Take the Quiz
@@ -306,7 +308,7 @@ Feel free to fork, modify, and use this project for your learning needs!
 - **Format Câu Hỏi Linh Hoạt**: Hỗ trợ không giới hạn số lựa chọn (a, b, c, d, e, f, ...)
 - **Nhiều Đáp Án Đúng**: Tạo câu hỏi với một hoặc nhiều đáp án đúng
 - **Chấm Điểm Tự Động**: Phản hồi ngay lập tức với kết quả chi tiết
-- **Xáo Trộn Câu Hỏi**: Ngẫu nhiên hóa thứ tự câu hỏi để luyện tập
+- **Tùy Chỉnh Quiz**: Chọn số lượng câu hỏi và thứ tự (trình tự hoặc ngẫu nhiên)
 
 ### Tính Năng Nâng Cao
 - **📌 Pin Câu Hỏi**: Đánh dấu câu hỏi quan trọng để truy cập nhanh
@@ -425,7 +427,9 @@ hoặc
 ```
 
 ### Bước 2: Tạo Quiz
-- Tick "Xáo trộn câu hỏi" nếu muốn thứ tự ngẫu nhiên
+- **Số câu hỏi**: Nhập số để giới hạn số lượng câu hỏi (để trống = tất cả câu hỏi)
+- **Thứ tự câu hỏi**: Chọn "Trình tự" (thứ tự gốc) hoặc "Ngẫu nhiên" (xáo trộn)
+- Tick "Xáo trộn câu hỏi" nếu muốn thứ tự ngẫu nhiên (tùy chọn cũ, giống với Ngẫu nhiên)
 - Click nút "Tạo Quiz"
 
 ### Bước 3: Làm Bài Quiz
