@@ -1513,15 +1513,39 @@
         }
 
         @media (max-width: 768px) {
+            /* Container & Layout */
+            body {
+                padding: 10px;
+            }
+
+            .container {
+                border-radius: 15px;
+                box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            }
+
+            .header {
+                padding: 20px 15px;
+            }
+
+            .header h1 {
+                font-size: 1.8em;
+            }
+
+            .content {
+                padding: 15px;
+            }
+
+            /* Template Grid */
             .template-grid {
                 grid-template-columns: 1fr;
             }
 
-
+            /* Sidebar Navigation */
             .question-navigator {
-                width: 90% !important;
-                max-width: 320px;
+                width: 85% !important;
+                max-width: 300px;
                 transform: translateX(-100%);
+                padding: 15px;
             }
 
             .question-navigator.open {
@@ -1530,6 +1554,7 @@
 
             .sidebar-toggle-btn {
                 left: 10px;
+                top: 10px;
                 width: 45px;
                 height: 45px;
                 font-size: 1.3em;
@@ -1540,44 +1565,175 @@
             }
 
             .question-nav-list {
-                grid-template-columns: repeat(6, 1fr);
+                grid-template-columns: repeat(5, 1fr);
+                gap: 8px;
             }
 
+            .question-nav-item {
+                min-width: 45px;
+                height: 45px;
+                font-size: 0.95em;
+            }
+
+            /* Fixed Panels - Make them static on mobile */
             .fixed-right-timer {
-                position: relative !important;
-                right: auto !important;
-                top: auto !important;
+                position: static !important;
                 width: 100% !important;
-                margin-bottom: 20px;
+                margin-bottom: 15px;
+                border-radius: 12px;
             }
 
             .fixed-control-panel {
-                position: relative !important;
-                right: auto !important;
-                bottom: auto !important;
+                position: static !important;
                 width: 100% !important;
-                margin-top: 20px;
-            }
-        }
-
-        @media (max-width: 768px) {
-            .header h1 {
-                font-size: 1.8em;
+                margin-top: 15px;
+                margin-bottom: 15px;
+                border-radius: 12px;
             }
 
+            /* Buttons - Larger touch targets */
             .controls {
                 flex-direction: column;
                 align-items: stretch;
+                gap: 12px;
             }
 
-            button:not(.pin-button):not(.filter-button) {
-                width: 100%;
+            button:not(.pin-button):not(.filter-button):not(.language-button):not(.theme-toggle) {
+                min-height: 44px;
+                padding: 12px 20px;
+                font-size: 1em;
+            }
+
+            .btn-nav {
+                min-height: 48px;
+                font-size: 0.95em;
+            }
+
+            /* Question Cards */
+            .question-card {
+                padding: 20px 15px;
+                margin-bottom: 20px;
+                border-radius: 12px;
             }
 
             .question-header-container {
                 flex-direction: column;
                 align-items: flex-start;
                 gap: 10px;
+            }
+
+            .question-text {
+                font-size: 1em;
+                line-height: 1.7;
+            }
+
+            /* Options */
+            .option {
+                padding: 15px;
+                margin-bottom: 12px;
+                font-size: 0.95em;
+                min-height: 48px;
+            }
+
+            /* Input fields */
+            textarea, select, input[type="number"], input[type="text"] {
+                font-size: 16px; /* Prevent zoom on iOS */
+                padding: 12px;
+            }
+
+            /* Timer display */
+            .timer-display-box {
+                padding: 20px 15px;
+            }
+
+            .fixed-timer-text {
+                font-size: 2em;
+            }
+
+            /* Filter buttons */
+            .filter-buttons {
+                flex-wrap: wrap;
+                gap: 8px;
+            }
+
+            .filter-button {
+                padding: 10px 15px;
+                font-size: 0.9em;
+                min-height: 42px;
+            }
+
+            /* Results */
+            .result-card {
+                padding: 20px 15px;
+            }
+
+            .score-display {
+                font-size: 2em;
+            }
+
+            /* Statistics */
+            .stats-grid {
+                grid-template-columns: 1fr;
+                gap: 15px;
+            }
+
+            /* AI Prompts */
+            .ai-prompts-section {
+                padding: 15px;
+            }
+
+            .prompt-card {
+                padding: 12px;
+            }
+
+            /* Footer */
+            .footer {
+                padding: 20px 15px;
+                margin-top: 40px;
+            }
+
+            .footer p {
+                font-size: 0.9em;
+            }
+
+            /* Modal images */
+            .modal-content {
+                max-width: 95%;
+                max-height: 85%;
+            }
+
+            .modal-close {
+                right: 20px;
+                top: 10px;
+                font-size: 40px;
+            }
+
+            /* Language selector */
+            .language-selector {
+                flex-direction: column;
+                gap: 10px;
+            }
+
+            /* Exam mode controls */
+            .exam-mode-controls {
+                padding: 12px;
+            }
+
+            .timer-input-group input {
+                width: 70px;
+                font-size: 0.95em;
+            }
+
+            /* Question order selection */
+            .question-order-selection {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            /* Pin button */
+            .pin-button {
+                font-size: 1.3em;
+                padding: 8px 12px;
             }
         }
 
