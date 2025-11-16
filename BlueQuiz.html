@@ -2006,6 +2006,10 @@ D. Tất cả các mục</div>
                         <label for="shuffleCheckbox" data-i18n="shuffleLabel">Xáo trộn câu hỏi</label>
                     </div>
                     <div class="checkbox-group">
+                        <input type="checkbox" id="shuffleChoicesCheckbox">
+                        <label for="shuffleChoicesCheckbox" data-i18n="shuffleChoicesLabel">Xáo trộn đáp án (a,b,c,d)</label>
+                    </div>
+                    <div class="checkbox-group">
                         <input type="checkbox" id="examModeCheckbox" onchange="toggleExamMode()">
                         <label for="examModeCheckbox" data-i18n="enableExamMode">⏱️ Bật chế độ thi</label>
                     </div>
@@ -2610,6 +2614,7 @@ D. Tất cả các mục</div>
                 orderSequential: 'Trình tự',
                 orderRandom: 'Ngẫu nhiên',
                 shuffleLabel: 'Xáo trộn câu hỏi',
+                shuffleChoicesLabel: 'Xáo trộn đáp án (a,b,c,d)',
                 createQuizBtn: 'Tạo Quiz',
                 filterLabel: 'Lọc câu hỏi:',
                 filterAll: 'Tất cả',
@@ -2710,6 +2715,7 @@ D. Tất cả các mục</div>
                 orderSequential: 'Sequential',
                 orderRandom: 'Random',
                 shuffleLabel: 'Shuffle questions',
+                shuffleChoicesLabel: 'Shuffle answer choices (a,b,c,d)',
                 createQuizBtn: 'Create Quiz',
                 filterLabel: 'Filter questions:',
                 filterAll: 'All',
@@ -3497,6 +3503,43 @@ Answers:
             return newArray;
         }
 
+        function shuffleQuestionChoices(questions, answers) {
+            // Shuffle choices for each question and update correct answers
+            const letters = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h'];
+
+            questions.forEach(q => {
+                if (q.options && q.options.length > 0) {
+                    // Create mapping of old letter to new letter
+                    const oldLetters = q.options.map(opt => opt.letter);
+
+                    // Shuffle options
+                    const shuffledOptions = shuffleArray([...q.options]);
+
+                    // Create letter mapping
+                    const letterMapping = {};
+                    shuffledOptions.forEach((opt, index) => {
+                        letterMapping[opt.letter] = letters[index];
+                        opt.letter = letters[index]; // Update letter in option
+                    });
+
+                    // Update question options
+                    q.options = shuffledOptions;
+
+                    // Update correct answer for this question
+                    const correctAnswer = answers[q.number];
+                    if (correctAnswer) {
+                        if (Array.isArray(correctAnswer)) {
+                            // Multiple answers
+                            answers[q.number] = correctAnswer.map(letter => letterMapping[letter] || letter);
+                        } else {
+                            // Single answer
+                            answers[q.number] = letterMapping[correctAnswer] || correctAnswer;
+                        }
+                    }
+                }
+            });
+        }
+
         function generateQuiz(specificQuestions = null) {
             let questionsText, answersText;
 
@@ -3575,6 +3618,12 @@ Answers:
                         quizData = shuffleArray([...quizData]);
                     }
                 }
+            }
+
+            // Shuffle choices if enabled
+            const shouldShuffleChoices = document.getElementById('shuffleChoicesCheckbox').checked;
+            if (shouldShuffleChoices) {
+                shuffleQuestionChoices(quizData, correctAnswers);
             }
 
             // Tạo mapping
