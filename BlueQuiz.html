@@ -4450,13 +4450,23 @@ Answers:
 
             if (!inputSection) {
                 console.error('inputSection not found!');
-            }
-            if (!quizSection) {
-                console.error('quizSection not found!');
+            } else {
+                inputSection.classList.add('hidden');
+                console.log('inputSection hidden');
             }
 
-            if (inputSection) inputSection.classList.add('hidden');
-            if (quizSection) quizSection.classList.remove('hidden');
+            if (!quizSection) {
+                console.error('quizSection not found!');
+            } else {
+                quizSection.classList.remove('hidden');
+                console.log('quizSection shown');
+            }
+
+            // Also hide result section
+            const resultSection = document.getElementById('resultSection');
+            if (resultSection) {
+                resultSection.classList.add('hidden');
+            }
 
             // Build quiz HTML
             const container = document.getElementById('quizContainer');
@@ -4543,20 +4553,31 @@ Answers:
                 controlPanel.style.display = ''; // Clear inline style
             }
 
+            // Show and reset progress bar
+            const progressContainer = document.getElementById('progressContainer');
+            if (progressContainer) {
+                progressContainer.style.display = 'block';
+            }
+
             // Generate question navigator
             generateQuestionNavigator();
 
             // Setup answer change listeners
             setupAnswerListeners();
 
-            // Restore saved progress
+            // Restore saved progress (this will update progress bar)
             restoreQuizProgress();
 
             // Enable inputs when displaying quiz
             enableQuizInputs();
 
-            // Scroll to top of quiz section
-            window.scrollTo({ top: 0, behavior: 'smooth' });
+            // Scroll to quiz section
+            const quizSectionElement = document.getElementById('quizSection');
+            if (quizSectionElement) {
+                quizSectionElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            } else {
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            }
         }
 
         function showInstantFeedback(event) {
