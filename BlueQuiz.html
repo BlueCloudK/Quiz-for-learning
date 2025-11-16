@@ -774,10 +774,7 @@
         .progress-container.fixed {
             position: fixed;
             top: 10px;
-            left: 50%;
-            transform: translateX(-50%);
-            width: calc(100% - 40px);
-            max-width: 1200px;
+            /* left and width will be set by JavaScript to match original size */
             margin: 0;
             z-index: 998;
             box-shadow: 0 4px 12px var(--shadow-color);
@@ -5055,17 +5052,41 @@ Answers:
             const quizMainContent = document.querySelector('.quiz-main-content');
 
             if (progressContainer && progressContainer.style.display !== 'none') {
-                // Get the original position of progress bar
-                const progressRect = progressContainer.getBoundingClientRect();
                 const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
 
                 if (scrollTop > 100) {
+                    // Save original dimensions before making it fixed (only once)
+                    if (!progressContainer.classList.contains('fixed')) {
+                        const rect = progressContainer.getBoundingClientRect();
+                        const offsetLeft = progressContainer.offsetLeft;
+
+                        // Store original width and position
+                        progressContainer.setAttribute('data-original-width', rect.width);
+                        progressContainer.setAttribute('data-original-left', offsetLeft);
+                    }
+
                     progressContainer.classList.add('fixed');
+
+                    // Apply original width and position
+                    const originalWidth = progressContainer.getAttribute('data-original-width');
+                    const originalLeft = progressContainer.getAttribute('data-original-left');
+
+                    if (originalWidth) {
+                        progressContainer.style.width = originalWidth + 'px';
+                    }
+                    if (originalLeft) {
+                        progressContainer.style.left = originalLeft + 'px';
+                    }
+
                     if (quizMainContent) {
                         quizMainContent.classList.add('has-fixed-progress');
                     }
                 } else {
                     progressContainer.classList.remove('fixed');
+                    // Clear inline styles
+                    progressContainer.style.width = '';
+                    progressContainer.style.left = '';
+
                     if (quizMainContent) {
                         quizMainContent.classList.remove('has-fixed-progress');
                     }
