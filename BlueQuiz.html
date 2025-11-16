@@ -1255,13 +1255,12 @@
         .sidebar-toggle-btn {
             position: fixed;
             left: 20px;
-            top: 50%;
-            transform: translateY(-50%);
+            top: 20px;
             width: 50px;
             height: 50px;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             border: none;
-            border-radius: 0 10px 10px 0;
+            border-radius: 10px;
             color: white;
             font-size: 1.5em;
             cursor: pointer;
@@ -1279,31 +1278,12 @@
 
         .sidebar-toggle-btn:hover {
             background: linear-gradient(135deg, #764ba2 0%, #667eea 100%);
-            transform: translateY(-50%) translateX(5px);
+            transform: scale(1.05);
         }
 
         body.dark-mode .sidebar-toggle-btn {
             background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
             border: 2px solid var(--accent-color-light);
-        }
-
-        /* Sidebar Overlay */
-        .sidebar-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.5);
-            z-index: 999;
-            opacity: 0;
-            visibility: hidden;
-            transition: opacity 0.3s ease, visibility 0.3s ease;
-        }
-
-        .sidebar-overlay.active {
-            opacity: 1;
-            visibility: visible;
         }
 
         .navigator-content {
@@ -1878,9 +1858,6 @@ D. Tất cả các mục</div>
 
             <!-- Quiz Section -->
             <div class="section hidden" id="quizSection">
-                <!-- Sidebar Overlay -->
-                <div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
-
                 <!-- Sidebar Toggle Button -->
                 <button class="sidebar-toggle-btn" id="sidebarToggleBtn" onclick="toggleSidebar()">
                     ☰
@@ -3742,12 +3719,10 @@ Answers:
             // Hide navigator and toggle button
             const navigator = document.getElementById('questionNavigator');
             const sidebarToggleBtn = document.getElementById('sidebarToggleBtn');
-            const sidebarOverlay = document.getElementById('sidebarOverlay');
 
             navigator.classList.remove('active');
             navigator.classList.remove('open');
             sidebarToggleBtn.classList.remove('active');
-            sidebarOverlay.classList.remove('active');
 
             // Show input section, hide quiz and result sections
             document.getElementById('inputSection').classList.remove('hidden');
@@ -3832,18 +3807,7 @@ Answers:
 
         function toggleSidebar() {
             const sidebar = document.getElementById('questionNavigator');
-            const overlay = document.getElementById('sidebarOverlay');
-            const toggleBtn = document.getElementById('sidebarToggleBtn');
-
             sidebar.classList.toggle('open');
-            overlay.classList.toggle('active');
-
-            // Hide toggle button when sidebar is open
-            if (sidebar.classList.contains('open')) {
-                toggleBtn.style.display = 'none';
-            } else {
-                toggleBtn.style.display = 'flex';
-            }
         }
 
         function updateQuestionNavigator() {
