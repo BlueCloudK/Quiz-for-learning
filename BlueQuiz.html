@@ -1329,52 +1329,6 @@
             border: 2px solid var(--accent-color-light);
         }
 
-        /* Focus Mode Button */
-        .focus-mode-btn {
-            position: fixed;
-            left: 80px;
-            top: 20px;
-            width: 50px;
-            height: 50px;
-            background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
-            border: none;
-            border-radius: 10px;
-            color: white;
-            font-size: 1.5em;
-            cursor: pointer;
-            z-index: 999;
-            box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.2);
-            transition: all 0.3s ease;
-            display: none;
-        }
-
-        .focus-mode-btn.active {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .focus-mode-btn:hover {
-            background: linear-gradient(135deg, #38ef7d 0%, #11998e 100%);
-            transform: scale(1.05);
-        }
-
-        .focus-mode-btn.focused {
-            background: linear-gradient(135deg, #ff5722 0%, #ff9800 100%);
-        }
-
-        body.dark-mode .focus-mode-btn {
-            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
-            border: 2px solid #38ef7d;
-        }
-
-        /* Focus Mode - Hide elements */
-        body.focus-mode .question-navigator,
-        body.focus-mode .fixed-right-timer,
-        body.focus-mode .fixed-control-panel,
-        body.focus-mode .progress-container {
-            display: none !important;
-        }
 
         .navigator-content {
             overflow: hidden;
@@ -2124,10 +2078,6 @@ D. Tất cả các mục</div>
                     ☰
                 </button>
 
-                <!-- Focus Mode Toggle Button -->
-                <button class="focus-mode-btn" id="focusModeBtn" onclick="toggleFocusMode()" title="Focus Mode">
-                    🎯
-                </button>
 
                 <!-- Quiz Layout with Navigator -->
                 <div class="quiz-layout">
@@ -3427,6 +3377,21 @@ Answers:
             renderAIPrompts();
             displaySavedQuizzes(); // Display saved quiz sets
 
+            // Auto-restore quiz if there's saved progress
+            const savedProgress = loadFromStorage(STORAGE_KEYS.QUIZ_PROGRESS);
+            if (savedProgress && Object.keys(savedProgress).length > 0) {
+                // Check if we have questions and answers saved
+                const savedQuestions = loadFromStorage(STORAGE_KEYS.QUESTIONS, '');
+                const savedAnswers = loadFromStorage(STORAGE_KEYS.ANSWERS, '');
+
+                if (savedQuestions && savedAnswers) {
+                    // Auto-generate quiz to restore progress
+                    setTimeout(() => {
+                        generateQuiz();
+                    }, 100);
+                }
+            }
+
             // Add auto-save event listeners
             const questionsInput = document.getElementById('questionsInput');
             const answersInput = document.getElementById('answersInput');
@@ -4249,7 +4214,6 @@ Answers:
             // Show navigator and toggle button
             document.getElementById('questionNavigator').classList.add('active');
             document.getElementById('sidebarToggleBtn').classList.add('active');
-            document.getElementById('focusModeBtn').classList.add('active');
 
             // Show fixed right timer and control panel if exam mode enabled
             if (examModeEnabled) {
@@ -4270,18 +4234,6 @@ Answers:
             sidebar.classList.toggle('open');
         }
 
-        function toggleFocusMode() {
-            document.body.classList.toggle('focus-mode');
-            const focusBtn = document.getElementById('focusModeBtn');
-            focusBtn.classList.toggle('focused');
-
-            // Update button title
-            if (document.body.classList.contains('focus-mode')) {
-                focusBtn.title = 'Exit Focus Mode';
-            } else {
-                focusBtn.title = 'Focus Mode';
-            }
-        }
 
         function updateQuestionNavigator() {
             quizData.forEach((q, index) => {
