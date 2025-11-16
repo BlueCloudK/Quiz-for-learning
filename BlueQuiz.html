@@ -3781,6 +3781,11 @@ Answers:
                 // Scroll to top of page
                 window.scrollTo(0, 0);
                 console.log('Quiz displayed successfully');
+
+                // Save quiz state for restoration (only if not specificQuestions - i.e., not retry/filter)
+                if (!specificQuestions) {
+                    saveQuizState();
+                }
             } catch (error) {
                 console.error('Error displaying quiz:', error);
                 alert('Lỗi khi hiển thị quiz: ' + error.message + '\nVui lòng mở Console (F12) để xem chi tiết.');
@@ -3904,11 +3909,6 @@ Answers:
 
             // Restore saved progress
             restoreQuizProgress();
-
-            // Save quiz state for restoration (only if not specificQuestions - i.e., not retry/filter)
-            if (!specificQuestions) {
-                saveQuizState();
-            }
 
             // Enable inputs when displaying quiz (in case coming from retry)
             enableQuizInputs();
