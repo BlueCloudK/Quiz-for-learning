@@ -1053,6 +1053,33 @@
             margin-bottom: 15px;
             padding-bottom: 10px;
             border-bottom: 2px solid var(--border-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: pointer;
+            user-select: none;
+        }
+
+        .navigator-toggle {
+            font-size: 1.2em;
+            transition: transform 0.3s;
+            cursor: pointer;
+        }
+
+        .navigator-toggle.collapsed {
+            transform: rotate(-90deg);
+        }
+
+        .navigator-content {
+            max-height: 9999px;
+            overflow: hidden;
+            transition: max-height 0.3s ease-out, opacity 0.3s ease-out;
+            opacity: 1;
+        }
+
+        .navigator-content.collapsed {
+            max-height: 0;
+            opacity: 0;
         }
 
         /* Fixed Right Timer Panel */
@@ -1520,11 +1547,16 @@ e. Lựa chọn E</div>
                 <div class="quiz-layout">
                     <!-- Question Navigator Sidebar -->
                     <div class="question-navigator" id="questionNavigator">
-                        <div class="navigator-header" data-i18n="questionNavigator">Danh Sách Câu Hỏi</div>
+                        <div class="navigator-header" onclick="toggleNavigator()">
+                            <span data-i18n="questionNavigator">Danh Sách Câu Hỏi</span>
+                            <span class="navigator-toggle" id="navigatorToggle">▼</span>
+                        </div>
 
                         <!-- Question Navigation List -->
-                        <div class="question-nav-list" id="questionNavList">
-                            <!-- Question nav items will be inserted here -->
+                        <div class="navigator-content" id="navigatorContent">
+                            <div class="question-nav-list" id="questionNavList">
+                                <!-- Question nav items will be inserted here -->
+                            </div>
                         </div>
                     </div>
 
@@ -3200,6 +3232,14 @@ Requirements:
 
             // Initial update to show pinned status
             updateQuestionNavigator();
+        }
+
+        function toggleNavigator() {
+            const content = document.getElementById('navigatorContent');
+            const toggle = document.getElementById('navigatorToggle');
+
+            content.classList.toggle('collapsed');
+            toggle.classList.toggle('collapsed');
         }
 
         function updateQuestionNavigator() {
