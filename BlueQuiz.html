@@ -1547,16 +1547,18 @@
                 position: relative !important;
                 right: auto !important;
                 top: auto !important;
-                width: 100% !important;
-                margin-bottom: 20px;
+                width: auto !important;
+                max-width: 100%;
+                margin: 0 auto 20px auto;
             }
 
             .fixed-control-panel {
                 position: relative !important;
                 right: auto !important;
                 bottom: auto !important;
-                width: 100% !important;
-                margin-top: 20px;
+                width: auto !important;
+                max-width: 100%;
+                margin: 20px auto 0 auto;
             }
         }
 
@@ -1625,6 +1627,15 @@
             .file-upload-btn {
                 width: 100%;
                 justify-content: center;
+            }
+
+            .setting-row {
+                flex-wrap: wrap;
+            }
+
+            .radio-group {
+                flex-wrap: wrap;
+                gap: 12px;
             }
         }
 
