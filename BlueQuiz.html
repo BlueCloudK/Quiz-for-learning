@@ -1986,14 +1986,19 @@ D. Tất cả các mục</div>
                             <label data-i18n="questionOrderLabel">Thứ tự câu hỏi:</label>
                             <div class="radio-group">
                                 <label class="radio-label">
-                                    <input type="radio" name="questionOrder" value="sequential" checked>
+                                    <input type="radio" name="questionOrder" value="sequential" checked onchange="toggleStartQuestionInput()">
                                     <span data-i18n="orderSequential">Trình tự</span>
                                 </label>
                                 <label class="radio-label">
-                                    <input type="radio" name="questionOrder" value="random">
+                                    <input type="radio" name="questionOrder" value="random" onchange="toggleStartQuestionInput()">
                                     <span data-i18n="orderRandom">Ngẫu nhiên</span>
                                 </label>
                             </div>
+                        </div>
+                        <div class="setting-row" id="startQuestionRow" style="display: flex;">
+                            <label for="startQuestion" data-i18n="startQuestionLabel">Bắt đầu từ câu:</label>
+                            <input type="number" id="startQuestion" min="1" value="1" placeholder="1" style="width: 100px; padding: 8px; border-radius: 6px; border: 1px solid #ddd;">
+                            <span class="hint-text" data-i18n="startQuestionHint">(Chỉ với Trình tự)</span>
                         </div>
                     </div>
                     <div class="checkbox-group">
@@ -2268,6 +2273,19 @@ D. Tất cả các mục</div>
                 if (timerInterval) {
                     stopTimer();
                 }
+            }
+        }
+
+        function toggleStartQuestionInput() {
+            const questionOrder = document.querySelector('input[name="questionOrder"]:checked')?.value;
+            const startQuestionRow = document.getElementById('startQuestionRow');
+
+            if (questionOrder === 'sequential') {
+                // Show start question input for sequential mode
+                startQuestionRow.style.display = 'flex';
+            } else {
+                // Hide for random mode
+                startQuestionRow.style.display = 'none';
             }
         }
 
@@ -2586,6 +2604,8 @@ D. Tất cả các mục</div>
                 answersHint: 'Nhập đáp án đúng cho mỗi câu. Nhiều đáp án: dùng dấu phẩy (a,b,c) hoặc viết liền (abc)',
                 questionCountLabel: 'Số câu hỏi:',
                 questionCountHint: '(Để trống = tất cả)',
+                startQuestionLabel: 'Bắt đầu từ câu:',
+                startQuestionHint: '(Chỉ với Trình tự)',
                 questionOrderLabel: 'Thứ tự câu hỏi:',
                 orderSequential: 'Trình tự',
                 orderRandom: 'Ngẫu nhiên',
@@ -2684,6 +2704,8 @@ D. Tất cả các mục</div>
                 answersHint: 'Enter correct answers for each question. Multiple answers: use comma (a,b,c) or write together (abc)',
                 questionCountLabel: 'Number of questions:',
                 questionCountHint: '(Leave empty = all)',
+                startQuestionLabel: 'Start from question:',
+                startQuestionHint: '(Sequential only)',
                 questionOrderLabel: 'Question order:',
                 orderSequential: 'Sequential',
                 orderRandom: 'Random',
@@ -3532,11 +3554,20 @@ Answers:
                         quizData = quizData.slice(0, questionCount);
                     }
                 } else {
-                    // Chọn TRÌNH TỰ: lấy N câu đầu trước
+                    // Chọn TRÌNH TỰ: lấy từ câu bắt đầu
+                    const startQuestionInput = document.getElementById('startQuestion');
+                    const startQuestion = parseInt(startQuestionInput?.value) || 1;
+                    const startIndex = Math.max(0, startQuestion - 1); // Convert to 0-based index
+
                     const questionCountInput = document.getElementById('questionCount');
                     const questionCount = parseInt(questionCountInput?.value);
-                    if (questionCount && questionCount > 0 && questionCount < quizData.length) {
-                        quizData = quizData.slice(0, questionCount);
+
+                    // Bắt đầu từ câu startQuestion
+                    if (startIndex > 0 || questionCount) {
+                        const endIndex = questionCount && questionCount > 0
+                            ? Math.min(startIndex + questionCount, quizData.length)
+                            : quizData.length;
+                        quizData = quizData.slice(startIndex, endIndex);
                     }
 
                     // Sau đó nếu có checkbox "Xáo trộn đề" thì mới xáo
