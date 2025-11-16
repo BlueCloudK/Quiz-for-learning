@@ -4383,7 +4383,7 @@ Answers:
         }
 
         function restoreQuizProgress() {
-            const progress = getFromStorage(STORAGE_KEYS.QUIZ_PROGRESS);
+            const progress = loadFromStorage(STORAGE_KEYS.QUIZ_PROGRESS);
             if (!progress) return;
 
             Object.keys(progress).forEach(questionIndex => {
