@@ -762,9 +762,6 @@
 
         /* Progress Bar */
         .progress-container {
-            position: sticky;
-            top: 0;
-            z-index: 998;
             margin-bottom: 20px;
             padding: 15px;
             background: var(--card-bg);
@@ -773,9 +770,21 @@
             transition: all 0.3s ease;
         }
 
-        .progress-container.scrolled {
+        /* Fixed progress bar when scrolling */
+        .progress-container.fixed {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            margin: 0;
+            border-radius: 0;
+            z-index: 998;
             box-shadow: 0 4px 12px var(--shadow-color);
-            border-radius: 0 0 10px 10px;
+        }
+
+        /* Add padding to prevent content jump when progress bar becomes fixed */
+        .quiz-main-content.has-fixed-progress {
+            padding-top: 80px;
         }
 
         .progress-info {
@@ -5038,6 +5047,28 @@ Answers:
                 scrollToTopBtn.classList.add('show');
             } else {
                 scrollToTopBtn.classList.remove('show');
+            }
+
+            // Fixed progress bar on scroll
+            const progressContainer = document.getElementById('progressContainer');
+            const quizMainContent = document.querySelector('.quiz-main-content');
+
+            if (progressContainer && progressContainer.style.display !== 'none') {
+                // Get the original position of progress bar
+                const progressRect = progressContainer.getBoundingClientRect();
+                const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+
+                if (scrollTop > 100) {
+                    progressContainer.classList.add('fixed');
+                    if (quizMainContent) {
+                        quizMainContent.classList.add('has-fixed-progress');
+                    }
+                } else {
+                    progressContainer.classList.remove('fixed');
+                    if (quizMainContent) {
+                        quizMainContent.classList.remove('has-fixed-progress');
+                    }
+                }
             }
         });
     </script>
