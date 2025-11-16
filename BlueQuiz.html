@@ -403,6 +403,23 @@
             opacity: 0.6;
         }
 
+        /* Highlight checked options after grading */
+        .option input[type="radio"]:checked:disabled + label,
+        .option input[type="checkbox"]:checked:disabled + label {
+            background: rgba(102, 126, 234, 0.2);
+            padding: 8px 12px;
+            border-radius: 6px;
+            opacity: 1;
+            font-weight: 600;
+        }
+
+        body.dark-mode .option input[type="radio"]:checked:disabled + label,
+        body.dark-mode .option input[type="checkbox"]:checked:disabled + label {
+            background: rgba(139, 158, 252, 0.3);
+            color: var(--accent-color-light);
+            opacity: 1;
+        }
+
         .option label {
             cursor: pointer;
             margin: 0;
