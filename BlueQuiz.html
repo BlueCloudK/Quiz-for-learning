@@ -4445,11 +4445,27 @@ Answers:
             timeRemaining = savedState.timeRemaining;
 
             // Show quiz section, hide input section
-            document.getElementById('inputSection').classList.add('hidden');
-            document.getElementById('quizSection').classList.remove('hidden');
+            const inputSection = document.getElementById('inputSection');
+            const quizSection = document.getElementById('quizSection');
+
+            if (!inputSection) {
+                console.error('inputSection not found!');
+            }
+            if (!quizSection) {
+                console.error('quizSection not found!');
+            }
+
+            if (inputSection) inputSection.classList.add('hidden');
+            if (quizSection) quizSection.classList.remove('hidden');
 
             // Build quiz HTML
             const container = document.getElementById('quizContainer');
+            if (!container) {
+                console.error('quizContainer not found!');
+                alert('Lỗi: Không tìm thấy container để hiển thị quiz');
+                return;
+            }
+
             container.innerHTML = '';
 
             quizData.forEach((q, index) => {
@@ -4509,18 +4525,23 @@ Answers:
             }
 
             // Show navigator and toggle button
-            document.getElementById('questionNavigator').classList.add('active');
-            document.getElementById('sidebarToggleBtn').classList.add('active');
+            const questionNavigator = document.getElementById('questionNavigator');
+            const sidebarToggleBtn = document.getElementById('sidebarToggleBtn');
+            if (questionNavigator) questionNavigator.classList.add('active');
+            if (sidebarToggleBtn) sidebarToggleBtn.classList.add('active');
 
             // Show fixed right timer and control panel if exam mode enabled
             if (examModeEnabled) {
-                document.getElementById('fixedRightTimer').classList.add('active');
+                const fixedRightTimer = document.getElementById('fixedRightTimer');
+                if (fixedRightTimer) fixedRightTimer.classList.add('active');
             }
 
             // Always show control panel when quiz is displayed
             const controlPanel = document.getElementById('fixedControlPanel');
-            controlPanel.classList.add('active');
-            controlPanel.style.display = ''; // Clear inline style
+            if (controlPanel) {
+                controlPanel.classList.add('active');
+                controlPanel.style.display = ''; // Clear inline style
+            }
 
             // Generate question navigator
             generateQuestionNavigator();
