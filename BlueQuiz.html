@@ -613,10 +613,15 @@
             margin-bottom: 20px;
         }
 
+        #resultSection {
+            margin-bottom: 30px;
+        }
+
         .score-display {
             font-size: 3em;
             font-weight: bold;
             margin: 20px 0;
+            color: var(--text-primary);
         }
 
         .result-details {
@@ -636,11 +641,21 @@
         .result-item h3 {
             font-size: 1.2em;
             margin-bottom: 5px;
+            color: var(--text-primary);
         }
 
         .result-item p {
             font-size: 2em;
             font-weight: bold;
+        }
+
+        /* Dark mode for result section */
+        body.dark-mode #resultSection h2 {
+            color: var(--text-primary);
+        }
+
+        body.dark-mode .result-item {
+            background: rgba(255, 255, 255, 0.1);
         }
 
         .question-result {
@@ -767,7 +782,7 @@
             background: var(--card-bg);
             border-radius: 10px;
             box-shadow: 0 2px 8px var(--shadow-color);
-            transition: all 0.3s ease;
+            transition: box-shadow 0.3s ease, background 0.3s ease;
         }
 
         /* Fixed progress bar when scrolling */
