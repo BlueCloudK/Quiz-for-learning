@@ -3724,18 +3724,19 @@ Answers:
                 examModeEnabled = false;
                 document.getElementById('examModeCheckbox').checked = false;
                 document.getElementById('fixedRightTimer').classList.remove('active');
-                document.getElementById('fixedControlPanel').classList.remove('active');
                 document.getElementById('timerHours').disabled = false;
                 document.getElementById('timerMinutes').disabled = false;
             }
 
-            // Hide navigator and toggle button
+            // Hide all quiz panels
             const navigator = document.getElementById('questionNavigator');
             const sidebarToggleBtn = document.getElementById('sidebarToggleBtn');
+            const fixedControlPanel = document.getElementById('fixedControlPanel');
 
             navigator.classList.remove('active');
             navigator.classList.remove('open');
             sidebarToggleBtn.classList.remove('active');
+            fixedControlPanel.classList.remove('active');
 
             // Show input section, hide quiz and result sections
             document.getElementById('inputSection').classList.remove('hidden');
