@@ -3774,26 +3774,33 @@ Answers:
             }
 
             // Hiển thị quiz
-            displayQuiz();
-            document.getElementById('inputSection').classList.add('hidden');
-            document.getElementById('quizSection').classList.remove('hidden');
-            document.getElementById('resultSection').classList.add('hidden');
+            try {
+                console.log('Starting displayQuiz with quizData:', quizData);
+                displayQuiz();
+                document.getElementById('inputSection').classList.add('hidden');
+                document.getElementById('quizSection').classList.remove('hidden');
+                document.getElementById('resultSection').classList.add('hidden');
 
-            // Show and reset progress bar
-            document.getElementById('progressContainer').style.display = 'block';
-            resetProgressBar();
+                // Show and reset progress bar
+                document.getElementById('progressContainer').style.display = 'block';
+                resetProgressBar();
 
-            // Check if practice mode is enabled
-            practiceModeEnabled = document.getElementById('practiceModeCheckbox').checked;
+                // Check if practice mode is enabled
+                practiceModeEnabled = document.getElementById('practiceModeCheckbox').checked;
 
-            // Ẩn AI prompts section khi vào quiz mode
-            const aiPromptsSection = document.querySelector('.ai-prompts-section');
-            if (aiPromptsSection) {
-                aiPromptsSection.style.display = 'none';
+                // Ẩn AI prompts section khi vào quiz mode
+                const aiPromptsSection = document.querySelector('.ai-prompts-section');
+                if (aiPromptsSection) {
+                    aiPromptsSection.style.display = 'none';
+                }
+
+                // Scroll to top of page
+                window.scrollTo(0, 0);
+                console.log('Quiz displayed successfully');
+            } catch (error) {
+                console.error('Error displaying quiz:', error);
+                alert('Lỗi khi hiển thị quiz: ' + error.message + '\nVui lòng mở Console (F12) để xem chi tiết.');
             }
-
-            // Scroll to top of page
-            window.scrollTo(0, 0);
         }
 
         // Parse [IMG:...] tags and convert to HTML <img> tags
@@ -3833,7 +3840,20 @@ Answers:
 
         function displayQuiz() {
             const container = document.getElementById('quizContainer');
+            if (!container) {
+                console.error('quizContainer element not found');
+                alert('Lỗi: Không tìm thấy container để hiển thị quiz');
+                return;
+            }
+
+            if (!quizData || quizData.length === 0) {
+                console.error('quizData is empty or undefined');
+                alert('Lỗi: Không có dữ liệu câu hỏi');
+                return;
+            }
+
             container.innerHTML = '';
+            console.log('Displaying quiz with', quizData.length, 'questions');
 
             quizData.forEach((q, index) => {
                 const questionCard = document.createElement('div');
