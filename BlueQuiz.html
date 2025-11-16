@@ -429,6 +429,32 @@
             white-space: pre-wrap;
         }
 
+        .question-image {
+            max-width: 100%;
+            height: auto;
+            display: block;
+            margin: 15px 0;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            border: 2px solid var(--accent-color);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .question-image:hover {
+            transform: scale(1.02);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.3);
+            cursor: pointer;
+        }
+
+        body.dark-mode .question-image {
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+            border-color: var(--accent-color-light);
+        }
+
+        body.dark-mode .question-image:hover {
+            box-shadow: 0 6px 20px rgba(139, 158, 252, 0.4);
+        }
+
         .options {
             margin-left: 20px;
         }
@@ -1593,6 +1619,10 @@ D. Tất cả các mục</div>
                             📁 <span data-i18n="importFileBtn">Import từ file</span>
                             <input type="file" id="questionsFileInput" accept=".xlsx,.xls,.docx,.txt" onchange="handleQuestionsFileUpload(event)">
                         </label>
+                        <label class="file-upload-btn" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);">
+                            🖼️ <span data-i18n="addImageBtn">Thêm ảnh</span>
+                            <input type="file" id="imageFileInput" accept="image/*" onchange="handleImageUpload(event)" multiple style="display: none;">
+                        </label>
                         <button class="file-upload-btn" onclick="exportQuestions('txt')" style="background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);">
                             💾 <span data-i18n="exportTxtBtn">Export TXT</span>
                         </button>
@@ -1603,6 +1633,7 @@ D. Tất cả các mục</div>
                     </div>
                     <p class="hint" data-i18n="questionsHint">Mỗi câu hỏi bắt đầu bằng số thứ tự, các đáp án bắt đầu bằng a, b, c, d...</p>
                     <p class="upload-hint" data-i18n="uploadHint">Hỗ trợ: Excel (.xlsx, .xls), Word (.docx), Text (.txt)</p>
+                    <p class="upload-hint" data-i18n="imageHint">Thêm ảnh: Chọn ảnh từ máy tính, tag [IMG:...] sẽ được thêm vào vị trí con trỏ</p>
                 </div>
 
                 <div class="input-group">
@@ -2171,9 +2202,11 @@ D. Tất cả các mục</div>
                 questionsPlaceholder: 'Nhập câu hỏi theo định dạng:\n\n1. Câu hỏi thứ nhất?\na. Đáp án A\nb. Đáp án B\nc. Đáp án C\nd. Đáp án D\n\n2. Câu hỏi thứ hai?\na. Đáp án A\nb. Đáp án B\nc. Đáp án C\nd. Đáp án D',
                 questionsHint: 'Mỗi câu hỏi bắt đầu bằng số thứ tự, các đáp án bắt đầu bằng a, b, c, d...',
                 importFileBtn: 'Import từ file',
+                addImageBtn: 'Thêm ảnh',
                 exportTxtBtn: 'Export TXT',
                 exportExcelBtn: 'Export Excel',
                 uploadHint: 'Hỗ trợ: Excel (.xlsx, .xls), Word (.docx), Text (.txt)',
+                imageHint: 'Thêm ảnh: Chọn ảnh từ máy tính, tag [IMG:...] sẽ được thêm vào vị trí con trỏ',
                 answersLabel: 'Đáp án đúng:',
                 answersPlaceholder: 'Nhập đáp án theo định dạng:\n\n1. a\n2. b\n3. c\n4. d\n\nNhiều đáp án đúng:\n5. a,b,c\n6. abc',
                 answersHint: 'Nhập đáp án đúng cho mỗi câu. Nhiều đáp án: dùng dấu phẩy (a,b,c) hoặc viết liền (abc)',
@@ -2265,9 +2298,11 @@ D. Tất cả các mục</div>
                 questionsPlaceholder: 'Enter questions in this format:\n\n1. First question?\na. Answer A\nb. Answer B\nc. Answer C\nd. Answer D\n\n2. Second question?\na. Answer A\nb. Answer B\nc. Answer C\nd. Answer D',
                 questionsHint: 'Each question starts with a number, answers start with a, b, c, d...',
                 importFileBtn: 'Import from file',
+                addImageBtn: 'Add image',
                 exportTxtBtn: 'Export TXT',
                 exportExcelBtn: 'Export Excel',
                 uploadHint: 'Supported: Excel (.xlsx, .xls), Word (.docx), Text (.txt)',
+                imageHint: 'Add image: Select image from computer, [IMG:...] tag will be inserted at cursor position',
                 answersLabel: 'Correct Answers:',
                 answersPlaceholder: 'Enter answers in this format:\n\n1. a\n2. b\n3. c\n4. d\n\nMultiple correct answers:\n5. a,b,c\n6. abc',
                 answersHint: 'Enter correct answers for each question. Multiple answers: use comma (a,b,c) or write together (abc)',
@@ -3149,6 +3184,14 @@ Answers:
             document.getElementById('resultSection').classList.add('hidden');
         }
 
+        // Parse [IMG:...] tags and convert to HTML <img> tags
+        function parseQuestionImages(questionText) {
+            // Replace [IMG:data:image...] with actual <img> tags
+            return questionText.replace(/\[IMG:([^\]]+)\]/g, (match, src) => {
+                return `<img src="${src}" class="question-image" alt="Question image" />`;
+            });
+        }
+
         function displayQuiz() {
             const container = document.getElementById('quizContainer');
             container.innerHTML = '';
@@ -3167,6 +3210,9 @@ Answers:
                     questionCard.classList.add('pinned');
                 }
 
+                // Parse images in question text
+                const questionWithImages = parseQuestionImages(q.question);
+
                 let html = `
                     <div class="question-header-container">
                         <div class="question-header">${translations[currentLanguage].question} ${index + 1}</div>
@@ -3177,7 +3223,7 @@ Answers:
                             ${isPinned ? '📌' : '📍'}
                         </button>
                     </div>
-                    <div class="question-text">${q.question}</div>
+                    <div class="question-text">${questionWithImages}</div>
                     <div class="options">
                 `;
 
@@ -3701,6 +3747,76 @@ Answers:
 
             // Reset file input
             event.target.value = '';
+        }
+
+        // Handle image upload and convert to base64
+        async function handleImageUpload(event) {
+            const files = event.target.files;
+            if (!files || files.length === 0) return;
+
+            const textarea = document.getElementById('questionsInput');
+            const fileInfo = document.getElementById('questionsFileInfo');
+
+            try {
+                fileInfo.textContent = `Đang xử lý ${files.length} ảnh...`;
+                fileInfo.style.color = '#667eea';
+
+                for (let i = 0; i < files.length; i++) {
+                    const file = files[i];
+
+                    // Check if file is an image
+                    if (!file.type.startsWith('image/')) {
+                        throw new Error(`${file.name} không phải là file ảnh hợp lệ`);
+                    }
+
+                    // Convert image to base64
+                    const base64 = await imageToBase64(file);
+
+                    // Insert [IMG:...] tag at cursor position
+                    const cursorPos = textarea.selectionStart;
+                    const textBefore = textarea.value.substring(0, cursorPos);
+                    const textAfter = textarea.value.substring(cursorPos);
+                    const imageTag = `[IMG:${base64}]\n`;
+
+                    textarea.value = textBefore + imageTag + textAfter;
+
+                    // Move cursor after inserted tag
+                    const newPos = cursorPos + imageTag.length;
+                    textarea.selectionStart = newPos;
+                    textarea.selectionEnd = newPos;
+                    textarea.focus();
+                }
+
+                fileInfo.textContent = `✓ Đã thêm ${files.length} ảnh`;
+                fileInfo.style.color = '#28a745';
+
+                // Auto-save
+                autoSaveQuestions();
+
+                setTimeout(() => {
+                    fileInfo.textContent = '';
+                }, 3000);
+            } catch (error) {
+                fileInfo.textContent = `✗ Lỗi: ${error.message}`;
+                fileInfo.style.color = '#dc3545';
+            }
+
+            // Reset file input
+            event.target.value = '';
+        }
+
+        // Convert image file to base64
+        function imageToBase64(file) {
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    resolve(e.target.result);
+                };
+                reader.onerror = () => {
+                    reject(new Error(`Không thể đọc file: ${file.name}`));
+                };
+                reader.readAsDataURL(file);
+            });
         }
 
         async function readFile(file) {
