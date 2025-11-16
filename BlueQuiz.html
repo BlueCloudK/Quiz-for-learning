@@ -1553,10 +1553,14 @@
             }
 
             .sidebar-toggle-btn {
-                left: 10px;
-                top: 10px;
-                width: 45px;
-                height: 45px;
+                left: 10px !important;
+                top: 10px !important;
+                width: 45px !important;
+                height: 45px !important;
+                min-width: 45px !important;
+                max-width: 45px !important;
+                min-height: 45px !important;
+                max-height: 45px !important;
                 font-size: 1.3em;
             }
 
@@ -1577,18 +1581,64 @@
 
             /* Fixed Panels - Make them static on mobile */
             .fixed-right-timer {
-                position: static !important;
-                width: 100% !important;
-                margin-bottom: 15px;
-                border-radius: 12px;
+                position: relative !important;
+                right: auto !important;
+                top: auto !important;
+                width: auto !important;
+                max-width: 100%;
+                margin: 0 auto 20px auto;
             }
 
             .fixed-control-panel {
-                position: static !important;
-                width: 100% !important;
-                margin-top: 15px;
+                position: relative !important;
+                right: auto !important;
+                bottom: auto !important;
+                width: auto !important;
+                max-width: 100%;
+                margin: 20px auto 0 auto;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .header {
+                padding: 20px 15px;
+            }
+
+            .header h1 {
+                font-size: 1.5em;
+                margin-top: 60px;
+            }
+
+            .header p {
+                font-size: 0.9em;
+            }
+
+            .language-selector {
+                position: relative;
+                top: auto;
+                right: auto;
+                flex-direction: column;
+                gap: 8px;
+                width: 100%;
                 margin-bottom: 15px;
-                border-radius: 12px;
+            }
+
+            .language-buttons {
+                width: 100%;
+                justify-content: center;
+            }
+
+            .language-button {
+                flex: 1;
+                font-size: 0.85em;
+                padding: 6px 12px;
+            }
+
+            .theme-toggle {
+                width: 100%;
+                justify-content: center;
+                font-size: 1em;
+                padding: 6px 12px;
             }
 
             /* Buttons - Larger touch targets */
@@ -1604,16 +1654,8 @@
                 font-size: 1em;
             }
 
-            .btn-nav {
-                min-height: 48px;
-                font-size: 0.95em;
-            }
-
-            /* Question Cards */
-            .question-card {
-                padding: 20px 15px;
-                margin-bottom: 20px;
-                border-radius: 12px;
+            button:not(.pin-button):not(.filter-button):not(.sidebar-toggle-btn):not(.scroll-to-top) {
+                width: 100%;
             }
 
             .question-header-container {
@@ -1622,118 +1664,23 @@
                 gap: 10px;
             }
 
-            .question-text {
-                font-size: 1em;
-                line-height: 1.7;
+            .upload-container {
+                flex-direction: column;
+                align-items: stretch;
             }
 
-            /* Options */
-            .option {
-                padding: 15px;
-                margin-bottom: 12px;
-                font-size: 0.95em;
-                min-height: 48px;
+            .file-upload-btn {
+                width: 100%;
+                justify-content: center;
             }
 
-            /* Input fields */
-            textarea, select, input[type="number"], input[type="text"] {
-                font-size: 16px; /* Prevent zoom on iOS */
-                padding: 12px;
-            }
-
-            /* Timer display */
-            .timer-display-box {
-                padding: 20px 15px;
-            }
-
-            .fixed-timer-text {
-                font-size: 2em;
-            }
-
-            /* Filter buttons */
-            .filter-buttons {
+            .setting-row {
                 flex-wrap: wrap;
-                gap: 8px;
             }
 
-            .filter-button {
-                padding: 10px 15px;
-                font-size: 0.9em;
-                min-height: 42px;
-            }
-
-            /* Results */
-            .result-card {
-                padding: 20px 15px;
-            }
-
-            .score-display {
-                font-size: 2em;
-            }
-
-            /* Statistics */
-            .stats-grid {
-                grid-template-columns: 1fr;
-                gap: 15px;
-            }
-
-            /* AI Prompts */
-            .ai-prompts-section {
-                padding: 15px;
-            }
-
-            .prompt-card {
-                padding: 12px;
-            }
-
-            /* Footer */
-            .footer {
-                padding: 20px 15px;
-                margin-top: 40px;
-            }
-
-            .footer p {
-                font-size: 0.9em;
-            }
-
-            /* Modal images */
-            .modal-content {
-                max-width: 95%;
-                max-height: 85%;
-            }
-
-            .modal-close {
-                right: 20px;
-                top: 10px;
-                font-size: 40px;
-            }
-
-            /* Language selector */
-            .language-selector {
-                flex-direction: column;
-                gap: 10px;
-            }
-
-            /* Exam mode controls */
-            .exam-mode-controls {
-                padding: 12px;
-            }
-
-            .timer-input-group input {
-                width: 70px;
-                font-size: 0.95em;
-            }
-
-            /* Question order selection */
-            .question-order-selection {
-                flex-direction: column;
-                align-items: flex-start;
-            }
-
-            /* Pin button */
-            .pin-button {
-                font-size: 1.3em;
-                padding: 8px 12px;
+            .radio-group {
+                flex-wrap: wrap;
+                gap: 12px;
             }
         }
 
@@ -1782,6 +1729,61 @@
 
         body.dark-mode .footer a {
             color: var(--accent-color-light);
+        }
+
+        /* Scroll to Top Button - Mobile Only */
+        .scroll-to-top {
+            display: none !important; /* Hidden on desktop */
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            z-index: 999;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            border: none;
+            cursor: pointer;
+            font-size: 1.5em;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+            transition: all 0.3s ease;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .scroll-to-top:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.6);
+        }
+
+        body.dark-mode .scroll-to-top {
+            background: linear-gradient(135deg, #8b9efc 0%, #a8b5ff 100%);
+            box-shadow: 0 4px 15px rgba(139, 158, 252, 0.4);
+        }
+
+        body.dark-mode .scroll-to-top:hover {
+            box-shadow: 0 6px 20px rgba(139, 158, 252, 0.6);
+        }
+
+        /* Mobile-specific scroll to top button */
+        @media (max-width: 768px) {
+            .scroll-to-top {
+                display: none; /* Can be shown with .show class */
+                bottom: 20px !important;
+                right: 20px !important;
+                width: 45px !important;
+                height: 45px !important;
+                min-width: 45px !important;
+                max-width: 45px !important;
+                min-height: 45px !important;
+                max-height: 45px !important;
+                font-size: 1.3em;
+            }
+
+            .scroll-to-top.show {
+                display: flex !important; /* Show on mobile when scrolled */
+            }
         }
     </style>
 </head>
@@ -2100,6 +2102,11 @@ D. Tất cả các mục</div>
             </p>
         </div>
     </footer>
+
+    <!-- Scroll to Top Button -->
+    <button class="scroll-to-top" id="scrollToTopBtn" onclick="scrollToTop()" title="Scroll to top">
+        ⬆️
+    </button>
 
     <script>
         let quizData = [];
@@ -3566,6 +3573,12 @@ Answers:
             document.getElementById('inputSection').classList.add('hidden');
             document.getElementById('quizSection').classList.remove('hidden');
             document.getElementById('resultSection').classList.add('hidden');
+
+            // Ẩn AI prompts section khi vào quiz mode
+            const aiPromptsSection = document.querySelector('.ai-prompts-section');
+            if (aiPromptsSection) {
+                aiPromptsSection.style.display = 'none';
+            }
         }
 
         // Parse [IMG:...] tags and convert to HTML <img> tags
@@ -3903,6 +3916,12 @@ Answers:
             document.getElementById('inputSection').classList.remove('hidden');
             document.getElementById('quizSection').classList.add('hidden');
             document.getElementById('resultSection').classList.add('hidden');
+
+            // Hiện lại AI prompts section khi quay về edit mode
+            const aiPromptsSection = document.querySelector('.ai-prompts-section');
+            if (aiPromptsSection) {
+                aiPromptsSection.style.display = 'block';
+            }
 
             // Scroll to input section
             document.getElementById('inputSection').scrollIntoView({ behavior: 'smooth', block: 'start' });
@@ -4387,6 +4406,24 @@ Answers:
             // Generate Excel file and trigger download
             XLSX.writeFile(wb, filename);
         }
+
+        // Scroll to Top functionality
+        function scrollToTop() {
+            window.scrollTo({
+                top: 0,
+                behavior: 'smooth'
+            });
+        }
+
+        // Show/hide scroll to top button based on scroll position
+        window.addEventListener('scroll', function() {
+            const scrollToTopBtn = document.getElementById('scrollToTopBtn');
+            if (window.pageYOffset > 300) {
+                scrollToTopBtn.classList.add('show');
+            } else {
+                scrollToTopBtn.classList.remove('show');
+            }
+        });
     </script>
 </body>
 </html>
