@@ -823,17 +823,28 @@
         .timer-input-group input {
             width: 80px;
             padding: 8px;
-            border: 2px solid white;
+            border: 2px solid #667eea;
             border-radius: 8px;
             font-size: 1em;
             text-align: center;
             background: rgba(255, 255, 255, 0.9);
+            color: #333;
         }
 
         .timer-input-group label {
-            color: white;
+            color: var(--text-primary);
             font-weight: 600;
             margin: 0;
+        }
+
+        body.dark-mode .timer-input-group input {
+            border: 2px solid var(--accent-color-light);
+            background: rgba(26, 26, 46, 0.8);
+            color: #e5e7eb;
+        }
+
+        body.dark-mode .timer-input-group label {
+            color: #e5e7eb;
         }
 
         @keyframes pulse {
