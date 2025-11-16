@@ -2235,7 +2235,8 @@ D. Tất cả các mục</div>
             HISTORY: 'quiz_history',
             THEME: 'quiz_theme',
             SAVED_QUIZZES: 'quiz_saved_sets',
-            QUIZ_PROGRESS: 'quiz_progress' // Auto-save progress
+            QUIZ_PROGRESS: 'quiz_progress', // Auto-save progress
+            QUIZ_STATE: 'quiz_state' // Save quiz state for restoration
         };
 
         // LocalStorage helper functions
@@ -3904,6 +3905,11 @@ Answers:
             // Restore saved progress
             restoreQuizProgress();
 
+            // Save quiz state for restoration (only if not specificQuestions - i.e., not retry/filter)
+            if (!specificQuestions) {
+                saveQuizState();
+            }
+
             // Enable inputs when displaying quiz (in case coming from retry)
             enableQuizInputs();
 
@@ -4371,6 +4377,7 @@ Answers:
 
         function clearQuizProgress() {
             localStorage.removeItem(STORAGE_KEYS.QUIZ_PROGRESS);
+            localStorage.removeItem(STORAGE_KEYS.QUIZ_STATE);
             // Hide continue button when progress is cleared
             const continueBtn = document.getElementById('continueQuizBtn');
             if (continueBtn) {
@@ -4380,38 +4387,157 @@ Answers:
 
         function checkAndShowContinueButton() {
             const savedProgress = loadFromStorage(STORAGE_KEYS.QUIZ_PROGRESS);
+            const savedState = loadFromStorage(STORAGE_KEYS.QUIZ_STATE);
             const continueBtn = document.getElementById('continueQuizBtn');
             const continueInfo = document.getElementById('continueQuizInfo');
 
-            if (savedProgress && Object.keys(savedProgress).length > 0) {
-                const savedQuestions = loadFromStorage(STORAGE_KEYS.QUESTIONS, '');
-                const savedAnswers = loadFromStorage(STORAGE_KEYS.ANSWERS, '');
+            if (savedProgress && Object.keys(savedProgress).length > 0 && savedState) {
+                // Show continue button
+                continueBtn.style.display = 'block';
 
-                if (savedQuestions && savedAnswers) {
-                    // Show continue button
-                    continueBtn.style.display = 'block';
+                // Show info about saved progress
+                const answeredCount = Object.keys(savedProgress).filter(key => savedProgress[key].length > 0).length;
 
-                    // Show info about saved progress
-                    const totalQuestions = Object.keys(savedProgress).length;
-                    const answeredCount = Object.keys(savedProgress).filter(key => savedProgress[key].length > 0).length;
-
-                    if (currentLanguage === 'vi') {
-                        continueInfo.textContent = `Đã làm ${answeredCount} câu`;
-                    } else {
-                        continueInfo.textContent = `${answeredCount} questions answered`;
-                    }
-
-                    return;
+                if (currentLanguage === 'vi') {
+                    continueInfo.textContent = `Đã làm ${answeredCount} câu`;
+                } else {
+                    continueInfo.textContent = `${answeredCount} questions answered`;
                 }
+
+                return;
             }
 
             // Hide continue button if no saved progress
             continueBtn.style.display = 'none';
         }
 
+        function saveQuizState() {
+            const state = {
+                quizData: quizData,
+                questionMapping: questionMapping,
+                correctAnswers: correctAnswers,
+                originalQuestionsText: originalQuestionsText,
+                originalAnswersText: originalAnswersText,
+                examModeEnabled: examModeEnabled,
+                practiceModeEnabled: practiceModeEnabled,
+                timeRemaining: timeRemaining
+            };
+            saveToStorage(STORAGE_KEYS.QUIZ_STATE, state);
+        }
+
         function continueQuiz() {
-            // Generate quiz and restore progress
-            generateQuiz();
+            // Load saved quiz state
+            const savedState = loadFromStorage(STORAGE_KEYS.QUIZ_STATE);
+            if (!savedState) {
+                // Fallback to generating new quiz if no saved state
+                generateQuiz();
+                return;
+            }
+
+            // Restore quiz state
+            quizData = savedState.quizData;
+            questionMapping = savedState.questionMapping;
+            correctAnswers = savedState.correctAnswers;
+            originalQuestionsText = savedState.originalQuestionsText;
+            originalAnswersText = savedState.originalAnswersText;
+            examModeEnabled = savedState.examModeEnabled;
+            practiceModeEnabled = savedState.practiceModeEnabled;
+            timeRemaining = savedState.timeRemaining;
+
+            // Show quiz section, hide setup section
+            document.getElementById('setupSection').classList.add('hidden');
+            document.getElementById('quizSection').classList.remove('hidden');
+
+            // Build quiz HTML
+            const container = document.getElementById('quizContainer');
+            container.innerHTML = '';
+
+            quizData.forEach((q, index) => {
+                const originalNumber = questionMapping[index];
+                const isPinned = pinnedQuestions.has(originalNumber);
+                const questionCard = document.createElement('div');
+                questionCard.className = 'question-card';
+                questionCard.id = `card${index}`;
+                if (isPinned) questionCard.classList.add('pinned');
+
+                // Handle images in question text
+                const questionWithImages = q.question.replace(/\[img:(.*?)\]/g, (match, url) => {
+                    return `<div class="question-image"><img src="${url}" alt="Question image" /></div>`;
+                });
+
+                let html = `
+                    <div class="question-header-container">
+                        <div class="question-header">${translations[currentLanguage].question} ${index + 1}</div>
+                        <button class="pin-button ${isPinned ? 'pinned' : 'unpinned'}"
+                                onclick="togglePin(${index})"
+                                id="pin${index}"
+                                title="${isPinned ? translations[currentLanguage].unpinQuestion : translations[currentLanguage].pinQuestion}">
+                            ${isPinned ? '📌' : '📍'}
+                        </button>
+                    </div>
+                    <div class="question-text">${questionWithImages}</div>
+                    <div class="options">
+                `;
+
+                const isMultiple = isMultipleAnswer(originalNumber);
+                const inputType = isMultiple ? 'checkbox' : 'radio';
+
+                q.options.forEach(option => {
+                    html += `
+                        <div class="option">
+                            <input type="${inputType}"
+                                   name="question${index}"
+                                   value="${option.letter}"
+                                   id="q${index}_${option.letter}">
+                            <label for="q${index}_${option.letter}">
+                                ${option.letter.toUpperCase()}. ${option.text}
+                            </label>
+                        </div>
+                    `;
+                });
+
+                html += `
+                    </div>
+                    <div class="question-result hidden" id="result${index}"></div>
+                `;
+
+                questionCard.innerHTML = html;
+                container.appendChild(questionCard);
+            });
+
+            // Start exam timer if needed
+            if (examModeEnabled && timeRemaining > 0) {
+                startExamTimer(timeRemaining);
+            }
+
+            // Show navigator and toggle button
+            document.getElementById('questionNavigator').classList.add('active');
+            document.getElementById('sidebarToggleBtn').classList.add('active');
+
+            // Show fixed right timer and control panel if exam mode enabled
+            if (examModeEnabled) {
+                document.getElementById('fixedRightTimer').classList.add('active');
+            }
+
+            // Always show control panel when quiz is displayed
+            const controlPanel = document.getElementById('fixedControlPanel');
+            controlPanel.classList.add('active');
+            controlPanel.style.display = ''; // Clear inline style
+
+            // Generate question navigator
+            generateQuestionNavigator();
+
+            // Setup answer change listeners
+            setupAnswerListeners();
+
+            // Restore saved progress
+            restoreQuizProgress();
+
+            // Enable inputs when displaying quiz
+            enableQuizInputs();
+
+            // Scroll to top of quiz section
+            window.scrollTo({ top: 0, behavior: 'smooth' });
         }
 
         function showInstantFeedback(event) {
