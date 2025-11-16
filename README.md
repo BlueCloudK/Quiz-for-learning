@@ -104,7 +104,7 @@ e. Lựa chọn E
 
 ### Step 1: Input Questions and Answers
 
-**Question Format:**
+**Question Format 1 (Standard):**
 ```
 1. What is the capital of France?
 a. London
@@ -120,6 +120,21 @@ d. Java
 e. C
 f. Ruby
 ```
+
+**Question Format 2 (With List Items):**
+```
+Which of the following are correct?
+- 1. First item description
+- 2. Second item description
+- 3. Third item description
+- 4. Fourth item description
+
+A. 1, 2, 4
+B. 2, 3, 4
+C. 1, 3
+D. All of the above
+```
+*Use uppercase (A, B, C, D) when referencing list items*
 
 **Answer Format (Single Answer):**
 ```

@@ -715,7 +715,7 @@
 
         .template-grid {
             display: grid;
-            grid-template-columns: 1fr 1fr;
+            grid-template-columns: repeat(3, 1fr);
             gap: 15px;
             margin-top: 15px;
         }
@@ -1474,6 +1474,25 @@ e. Lựa chọn E</div>
                                     <span data-i18n="copyBtn">Copy</span>
                                 </button>
                             </div>
+
+                            <div class="template-item">
+                                <div class="template-label" data-i18n="templateListItemsLabel">Mẫu List Items:</div>
+                                <div class="template-box" id="listItemsTemplate">Các hoạt động nào sau đây là chính trong quy trình review?
+- 1. Lập kế hoạch
+- 2. Review cá nhân
+- 3. Họp nhóm
+- 4. Sửa lỗi
+- 5. Tài liệu hóa
+- 6. Kiểm thử
+
+A. 1, 2, 4
+B. 2, 3, 5
+C. 1, 2, 3, 4
+D. Tất cả các mục</div>
+                                <button class="copy-btn" onclick="copyTemplate('listItems')" id="copyListItemsBtn">
+                                    <span data-i18n="copyBtn">Copy</span>
+                                </button>
+                            </div>
                         </div>
                     </div>
 
@@ -2108,6 +2127,7 @@ e. Lựa chọn E</div>
                 quickTemplatesTitle: '📋 Hoặc Copy Template Mẫu Để Paste Trực Tiếp:',
                 templateQuestionsLabel: 'Mẫu Câu Hỏi:',
                 templateAnswersLabel: 'Mẫu Đáp Án:',
+                templateListItemsLabel: 'Mẫu List Items:',
                 copyBtn: 'Copy',
                 copiedBtn: '✓ Đã copy!',
                 examMode: 'Chế độ thi',
@@ -2196,6 +2216,7 @@ e. Lựa chọn E</div>
                 quickTemplatesTitle: '📋 Or Copy Sample Templates to Paste Directly:',
                 templateQuestionsLabel: 'Questions Template:',
                 templateAnswersLabel: 'Answers Template:',
+                templateListItemsLabel: 'List Items Template:',
                 copyBtn: 'Copy',
                 copiedBtn: '✓ Copied!',
                 examMode: 'Exam Mode',
@@ -2257,7 +2278,19 @@ d. Lựa chọn D
 e. Lựa chọn E`,
                 answers: `1. a
 2. b
-3. a,c,e`
+3. a,c,e`,
+                listItems: `Các hoạt động nào sau đây là chính trong quy trình review?
+- 1. Lập kế hoạch
+- 2. Review cá nhân
+- 3. Họp nhóm
+- 4. Sửa lỗi
+- 5. Tài liệu hóa
+- 6. Kiểm thử
+
+A. 1, 2, 4
+B. 2, 3, 5
+C. 1, 2, 3, 4
+D. Tất cả các mục`
             },
             en: {
                 questions: `1. First question?
@@ -2280,7 +2313,19 @@ d. Option D
 e. Option E`,
                 answers: `1. a
 2. b
-3. a,c,e`
+3. a,c,e`,
+                listItems: `Which of the following are main activities in the review process?
+- 1. Planning
+- 2. Individual review
+- 3. Team meeting
+- 4. Code fixing
+- 5. Documentation
+- 6. Testing
+
+A. 1, 2, 4
+B. 2, 3, 5
+C. 1, 2, 3, 4
+D. All items`
             }
         };
 
@@ -2421,6 +2466,47 @@ Yêu cầu:
 - Độ khó: trung bình đến khó
 - Bao gồm cả câu hỏi lý thuyết và ứng dụng
 - Đáp án sai phải hợp lý về mặt khoa học`
+                },
+                {
+                    title: '📋 Câu Hỏi Với Danh Sách (List Items)',
+                    description: 'Tạo câu hỏi có danh sách mục liệt kê',
+                    prompt: `Tạo 5 câu hỏi về [TOPIC] với danh sách các mục được liệt kê:
+
+Định dạng:
+[Câu hỏi]?
+- 1. [Mục thứ nhất]
+- 2. [Mục thứ hai]
+- 3. [Mục thứ ba]
+- 4. [Mục thứ tư]
+- 5. [Mục thứ năm]
+- 6. [Mục thứ sáu]
+
+A. 1, 2, 4
+B. 2, 3, 5
+C. 1, 3, 4, 6
+D. Tất cả các mục
+
+Lưu ý QUAN TRỌNG:
+- Sử dụng CHỮ HOA (A, B, C, D) cho các lựa chọn khi có danh sách liệt kê
+- Mỗi lựa chọn tham chiếu đến các số trong danh sách
+- Câu hỏi và danh sách liệt kê trước, sau đó mới đến các lựa chọn A, B, C, D
+
+Ví dụ:
+Which of the following are main activities of code review?
+- 1. Planning
+- 2. Individual review
+- 3. Team meeting
+- 4. Code fixing
+- 5. Documentation
+- 6. Testing
+
+A. 1, 2, 4
+B. 2, 3, 5
+C. 1, 2, 3, 4
+D. All items
+
+Đáp án:
+1. C`
                 }
             ],
             en: [
@@ -2558,6 +2644,47 @@ Requirements:
 - Difficulty: medium to hard
 - Include both theoretical and applied questions
 - Wrong answers should be scientifically plausible`
+                },
+                {
+                    title: '📋 Questions With List Items',
+                    description: 'Create questions with enumerated list items',
+                    prompt: `Create 5 questions about [TOPIC] with numbered list items:
+
+Format:
+[Question]?
+- 1. [First item]
+- 2. [Second item]
+- 3. [Third item]
+- 4. [Fourth item]
+- 5. [Fifth item]
+- 6. [Sixth item]
+
+A. 1, 2, 4
+B. 2, 3, 5
+C. 1, 3, 4, 6
+D. All items
+
+IMPORTANT Notes:
+- Use UPPERCASE letters (A, B, C, D) for options when using list items
+- Each option references numbers from the list
+- Question and list items come first, then options A, B, C, D
+
+Example:
+Which of the following are main activities of code review?
+- 1. Planning
+- 2. Individual review
+- 3. Team meeting
+- 4. Code fixing
+- 5. Documentation
+- 6. Testing
+
+A. 1, 2, 4
+B. 2, 3, 5
+C. 1, 2, 3, 4
+D. All items
+
+Answers:
+1. C`
                 }
             ]
         };
@@ -2625,10 +2752,15 @@ Requirements:
         function updateTemplates() {
             const questionsTemplate = document.getElementById('questionsTemplate');
             const answersTemplate = document.getElementById('answersTemplate');
+            const listItemsTemplate = document.getElementById('listItemsTemplate');
 
             if (questionsTemplate && answersTemplate) {
                 questionsTemplate.textContent = templates[currentLanguage].questions;
                 answersTemplate.textContent = templates[currentLanguage].answers;
+            }
+
+            if (listItemsTemplate) {
+                listItemsTemplate.textContent = templates[currentLanguage].listItems;
             }
         }
 
@@ -2727,36 +2859,59 @@ Requirements:
             const questions = [];
             const lines = text.trim().split('\n');
             let currentQuestion = null;
+            let questionNumber = 0;
 
             for (let line of lines) {
                 line = line.trim();
                 if (!line) continue;
 
-                // Kiểm tra dòng câu hỏi (bắt đầu bằng số)
-                const questionMatch = line.match(/^(\d+)\.\s*(.+)/);
-                if (questionMatch) {
+                // Format 1: Câu hỏi bắt đầu bằng số (1. 2. 3.)
+                const numberedQuestionMatch = line.match(/^(\d+)\.\s*(.+)/);
+                if (numberedQuestionMatch) {
                     if (currentQuestion) {
                         questions.push(currentQuestion);
                     }
+                    questionNumber = parseInt(numberedQuestionMatch[1]);
                     currentQuestion = {
-                        number: parseInt(questionMatch[1]),
-                        question: questionMatch[2],
+                        number: questionNumber,
+                        question: numberedQuestionMatch[2],
                         options: []
                     };
                     continue;
                 }
 
-                // Kiểm tra dòng đáp án (bắt đầu bằng chữ cái)
-                const optionMatch = line.match(/^([a-z])\.\s*(.+)/i);
+                // Kiểm tra dòng đáp án (a. b. c. hoặc A. B. C.)
+                const optionMatch = line.match(/^([a-zA-Z])\.\s*(.+)/);
                 if (optionMatch && currentQuestion) {
                     currentQuestion.options.push({
                         letter: optionMatch[1].toLowerCase(),
                         text: optionMatch[2]
                     });
+                    continue;
+                }
+
+                // Format 2: Câu hỏi không có số (dòng text, thường kết thúc bằng ?)
+                // Chỉ coi là câu hỏi mới nếu chưa có currentQuestion hoặc đã có đáp án
+                if (line.includes('?') && (!currentQuestion || currentQuestion.options.length > 0)) {
+                    if (currentQuestion && currentQuestion.options.length > 0) {
+                        questions.push(currentQuestion);
+                    }
+                    questionNumber++;
+                    currentQuestion = {
+                        number: questionNumber,
+                        question: line,
+                        options: []
+                    };
+                    continue;
+                }
+
+                // Các dòng khác (list items: - 1., - I., etc) -> append vào câu hỏi
+                if (currentQuestion && currentQuestion.options.length === 0) {
+                    currentQuestion.question += '\n' + line;
                 }
             }
 
-            if (currentQuestion) {
+            if (currentQuestion && currentQuestion.options.length > 0) {
                 questions.push(currentQuestion);
             }
 
