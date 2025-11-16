@@ -23,20 +23,21 @@ A powerful, interactive quiz application that helps you create, manage, and prac
 - **📌 Pin Questions**: Bookmark important questions for quick access
 - **🔄 Retry Incorrect**: Create new quiz with only the questions you got wrong
 - **🔄 Retry Pinned**: Practice your bookmarked questions
-- **🔍 Filter Questions**: View all, pinned, or incorrect questions
+- **🔍 Filter Questions**: View all, pinned, or incorrect questions with Navigator sidebar
 - **📊 Progress Bar**: Real-time progress tracking showing answered/total questions and completion percentage
-- **🎯 Practice Mode**: Instant feedback when selecting answers - perfect for self-study and learning
-- **💾 Auto-save Progress**: Automatically saves your answers as you go - never lose progress if page refreshes
-- **🎯 Focus Mode**: Hide distracting UI elements (navigator, timer, panels) for better concentration
+- **🎯 Practice Mode**: Instant feedback when selecting answers (immediate grading) - perfect for self-study and learning
+- **💾 Auto-save Progress**: Automatically saves your answers and quiz state as you go - never lose progress if page refreshes
+- **📋 Question Navigator Sidebar**: Visual navigator showing all questions with status indicators (answered/correct/incorrect/pinned)
 - **🔀 Shuffle Answer Choices**: Randomize the order of answer options (a,b,c,d) to prevent memorization
 - **🔢 Start from Specific Question**: Choose which question to start from in sequential mode
 - **🌐 Bilingual**: Switch between Vietnamese and English
 - **🤖 AI Prompt Templates**: Ready-to-use prompts for ChatGPT, Claude, and other AI chatbots
 - **🌙 Dark Mode**: Toggle between light and dark themes
-- **⏱️ Exam Mode**: Timed quiz mode with countdown timer and auto-submit
-- **📚 Quiz Management**: Save and load multiple quiz sets with custom names
-- **📊 Statistics Dashboard**: Track your quiz history with detailed performance analytics
-- **📁 Import/Export**: Import/export questions from Excel (.xlsx, .xls), Word (.docx), or Text (.txt)
+- **⏱️ Exam Mode**: Timed quiz mode with countdown timer, pause/resume functionality, and auto-submit when time expires
+- **📚 Quiz Management**: Save and load multiple quiz sets with custom names - continue interrupted quizzes
+- **📊 Statistics Dashboard**: Track quiz history with performance badges (Excellent/Good/Average/Poor), detailed analytics, and sortable history table
+- **📁 Import/Export**: Import/export questions from Excel (.xlsx, .xls), Word (.docx), or Text (.txt); embed images with lightbox viewer
+- **🖼️ Image Support**: Upload, embed images in questions using [IMG:...] tags, and view images in fullscreen lightbox modal
 
 ### User Interface
 - Beautiful gradient design
@@ -114,20 +115,21 @@ Feel free to fork, modify, and use this project for your learning needs!
 - **📌 Pin Câu Hỏi**: Đánh dấu câu hỏi quan trọng để truy cập nhanh
 - **🔄 Làm Lại Câu Sai**: Tạo quiz mới chỉ với những câu bạn làm sai
 - **🔄 Làm Lại Câu Đã Pin**: Luyện tập các câu hỏi đã đánh dấu
-- **🔍 Lọc Câu Hỏi**: Xem tất cả, câu đã pin, hoặc câu sai
+- **🔍 Lọc Câu Hỏi**: Xem tất cả, câu đã pin, hoặc câu sai với sidebar Navigator
 - **📊 Thanh Tiến Độ**: Theo dõi tiến độ thời gian thực - hiển thị số câu đã trả lời/tổng số và phần trăm hoàn thành
-- **🎯 Chế Độ Ôn Tập**: Hiển thị kết quả ngay khi chọn đáp án - hoàn hảo cho tự học và ôn tập
-- **💾 Tự Động Lưu Tiến Trình**: Tự động lưu câu trả lời khi làm bài - không bao giờ mất tiến trình khi refresh trang
-- **🎯 Chế Độ Tập Trung**: Ẩn các yếu tố giao diện gây xao nhãng (navigator, timer, panels) để tập trung tốt hơn
+- **🎯 Chế Độ Ôn Tập**: Hiển thị kết quả ngay khi chọn đáp án (chấm điểm tức thì) - hoàn hảo cho tự học và ôn tập
+- **💾 Tự Động Lưu Tiến Trình**: Tự động lưu câu trả lời và trạng thái quiz - không bao giờ mất tiến trình khi refresh trang
+- **📋 Sidebar Navigator Câu Hỏi**: Bộ điều hướng trực quan hiển thị tất cả câu hỏi với chỉ báo trạng thái (đã trả lời/đúng/sai/đã pin)
 - **🔀 Xáo Trộn Đáp Án**: Ngẫu nhiên hóa thứ tự các lựa chọn (a,b,c,d) để tránh học thuộc lòng
 - **🔢 Bắt Đầu Từ Câu Cụ Thể**: Chọn câu hỏi bắt đầu trong chế độ trình tự
 - **🌐 Song Ngữ**: Chuyển đổi giữa tiếng Việt và tiếng Anh
 - **🤖 Template AI Prompts**: Sẵn sàng sử dụng cho ChatGPT, Claude, và các AI chatbot khác
 - **🌙 Chế Độ Tối**: Chuyển đổi giữa giao diện sáng và tối
-- **⏱️ Chế Độ Thi**: Chế độ quiz có đếm giờ với tự động nộp bài
-- **📚 Quản Lý Quiz**: Lưu và tải nhiều bộ quiz với tên tùy chỉnh
-- **📊 Bảng Thống Kê**: Theo dõi lịch sử quiz với phân tích hiệu suất chi tiết
-- **📁 Import/Export**: Import/export câu hỏi từ Excel (.xlsx, .xls), Word (.docx), hoặc Text (.txt)
+- **⏱️ Chế Độ Thi**: Chế độ quiz có đếm giờ, tính năng tạm dừng/tiếp tục, và tự động nộp bài khi hết giờ
+- **📚 Quản Lý Quiz**: Lưu và tải nhiều bộ quiz với tên tùy chỉnh - tiếp tục các quiz bị gián đoạn
+- **📊 Bảng Thống Kê**: Theo dõi lịch sử quiz với huy hiệu hiệu suất (Xuất Sắc/Tốt/Trung Bình/Yếu), phân tích chi tiết, và bảng lịch sử có thể sắp xếp
+- **📁 Import/Export**: Import/export câu hỏi từ Excel (.xlsx, .xls), Word (.docx), hoặc Text (.txt); nhúng hình ảnh với trình xem lightbox
+- **🖼️ Hỗ Trợ Hình Ảnh**: Tải lên, nhúng hình ảnh vào câu hỏi bằng thẻ [IMG:...], và xem hình ảnh ở chế độ toàn màn hình lightbox
 
 ### Giao Diện Người Dùng
 - Thiết kế gradient đẹp mắt
