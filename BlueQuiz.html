@@ -3356,17 +3356,17 @@ Answers:
             } else {
                 quizData = allQuestions;
 
-                // Áp dụng thứ tự câu hỏi (random/sequential)
-                const questionOrder = document.querySelector('input[name="questionOrder"]:checked')?.value || 'sequential';
-                if (questionOrder === 'random' || shouldShuffle) {
-                    quizData = shuffleArray([...quizData]);
-                }
-
-                // Áp dụng số lượng câu hỏi
+                // Áp dụng số lượng câu hỏi TRƯỚC
                 const questionCountInput = document.getElementById('questionCount');
                 const questionCount = parseInt(questionCountInput?.value);
                 if (questionCount && questionCount > 0 && questionCount < quizData.length) {
                     quizData = quizData.slice(0, questionCount);
+                }
+
+                // Áp dụng thứ tự câu hỏi (random/sequential) SAU khi đã chọn số câu
+                const questionOrder = document.querySelector('input[name="questionOrder"]:checked')?.value || 'sequential';
+                if (questionOrder === 'random' || shouldShuffle) {
+                    quizData = shuffleArray([...quizData]);
                 }
             }
 
