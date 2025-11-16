@@ -3356,17 +3356,30 @@ Answers:
             } else {
                 quizData = allQuestions;
 
-                // Áp dụng số lượng câu hỏi TRƯỚC
-                const questionCountInput = document.getElementById('questionCount');
-                const questionCount = parseInt(questionCountInput?.value);
-                if (questionCount && questionCount > 0 && questionCount < quizData.length) {
-                    quizData = quizData.slice(0, questionCount);
-                }
-
-                // Áp dụng thứ tự câu hỏi (random/sequential) SAU khi đã chọn số câu
                 const questionOrder = document.querySelector('input[name="questionOrder"]:checked')?.value || 'sequential';
-                if (questionOrder === 'random' || shouldShuffle) {
+
+                if (questionOrder === 'random') {
+                    // Chọn NGẪU NHIÊN: xáo toàn bộ trước, sau đó lấy N câu
                     quizData = shuffleArray([...quizData]);
+
+                    // Áp dụng số lượng câu hỏi
+                    const questionCountInput = document.getElementById('questionCount');
+                    const questionCount = parseInt(questionCountInput?.value);
+                    if (questionCount && questionCount > 0 && questionCount < quizData.length) {
+                        quizData = quizData.slice(0, questionCount);
+                    }
+                } else {
+                    // Chọn TRÌNH TỰ: lấy N câu đầu trước
+                    const questionCountInput = document.getElementById('questionCount');
+                    const questionCount = parseInt(questionCountInput?.value);
+                    if (questionCount && questionCount > 0 && questionCount < quizData.length) {
+                        quizData = quizData.slice(0, questionCount);
+                    }
+
+                    // Sau đó nếu có checkbox "Xáo trộn đề" thì mới xáo
+                    if (shouldShuffle) {
+                        quizData = shuffleArray([...quizData]);
+                    }
                 }
             }
 
