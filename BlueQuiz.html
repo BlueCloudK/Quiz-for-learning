@@ -4468,6 +4468,20 @@ Answers:
                 resultSection.classList.add('hidden');
             }
 
+            // Hide AI prompts section
+            const aiPromptsSection = document.querySelector('.ai-prompts-section');
+            if (aiPromptsSection) {
+                aiPromptsSection.style.display = 'none';
+                console.log('AI prompts section hidden');
+            }
+
+            // Hide statistics section
+            const statisticsSection = document.getElementById('statisticsSection');
+            if (statisticsSection) {
+                statisticsSection.classList.add('hidden');
+                console.log('Statistics section hidden');
+            }
+
             // Build quiz HTML
             const container = document.getElementById('quizContainer');
             if (!container) {
