@@ -1329,6 +1329,53 @@
             border: 2px solid var(--accent-color-light);
         }
 
+        /* Focus Mode Button */
+        .focus-mode-btn {
+            position: fixed;
+            left: 80px;
+            top: 20px;
+            width: 50px;
+            height: 50px;
+            background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+            border: none;
+            border-radius: 10px;
+            color: white;
+            font-size: 1.5em;
+            cursor: pointer;
+            z-index: 999;
+            box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.2);
+            transition: all 0.3s ease;
+            display: none;
+        }
+
+        .focus-mode-btn.active {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .focus-mode-btn:hover {
+            background: linear-gradient(135deg, #38ef7d 0%, #11998e 100%);
+            transform: scale(1.05);
+        }
+
+        .focus-mode-btn.focused {
+            background: linear-gradient(135deg, #ff5722 0%, #ff9800 100%);
+        }
+
+        body.dark-mode .focus-mode-btn {
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            border: 2px solid #38ef7d;
+        }
+
+        /* Focus Mode - Hide elements */
+        body.focus-mode .question-navigator,
+        body.focus-mode .fixed-right-timer,
+        body.focus-mode .fixed-control-panel,
+        body.focus-mode .progress-container {
+            display: none !important;
+        }
+
         .navigator-content {
             overflow: hidden;
         }
@@ -2053,6 +2100,10 @@ D. Tất cả các mục</div>
                         <label for="shuffleChoicesCheckbox" data-i18n="shuffleChoicesLabel">Xáo trộn đáp án (a,b,c,d)</label>
                     </div>
                     <div class="checkbox-group">
+                        <input type="checkbox" id="practiceModeCheckbox">
+                        <label for="practiceModeCheckbox" data-i18n="practiceModeLabel">🎯 Chế độ ôn tập (Hiện đáp án ngay)</label>
+                    </div>
+                    <div class="checkbox-group">
                         <input type="checkbox" id="examModeCheckbox" onchange="toggleExamMode()">
                         <label for="examModeCheckbox" data-i18n="enableExamMode">⏱️ Bật chế độ thi</label>
                     </div>
@@ -2071,6 +2122,11 @@ D. Tất cả các mục</div>
                 <!-- Sidebar Toggle Button -->
                 <button class="sidebar-toggle-btn" id="sidebarToggleBtn" onclick="toggleSidebar()">
                     ☰
+                </button>
+
+                <!-- Focus Mode Toggle Button -->
+                <button class="focus-mode-btn" id="focusModeBtn" onclick="toggleFocusMode()" title="Focus Mode">
+                    🎯
                 </button>
 
                 <!-- Quiz Layout with Navigator -->
@@ -2200,7 +2256,8 @@ D. Tất cả các mục</div>
             LANGUAGE: 'quiz_language',
             HISTORY: 'quiz_history',
             THEME: 'quiz_theme',
-            SAVED_QUIZZES: 'quiz_saved_sets'
+            SAVED_QUIZZES: 'quiz_saved_sets',
+            QUIZ_PROGRESS: 'quiz_progress' // Auto-save progress
         };
 
         // LocalStorage helper functions
@@ -2672,6 +2729,7 @@ D. Tất cả các mục</div>
                 orderRandom: 'Ngẫu nhiên',
                 shuffleLabel: 'Xáo trộn câu hỏi',
                 shuffleChoicesLabel: 'Xáo trộn đáp án (a,b,c,d)',
+                practiceModeLabel: '🎯 Chế độ ôn tập (Hiện đáp án ngay)',
                 createQuizBtn: 'Tạo Quiz',
                 filterLabel: 'Lọc câu hỏi:',
                 filterAll: 'Tất cả',
@@ -2774,6 +2832,7 @@ D. Tất cả các mục</div>
                 orderRandom: 'Random',
                 shuffleLabel: 'Shuffle questions',
                 shuffleChoicesLabel: 'Shuffle answer choices (a,b,c,d)',
+                practiceModeLabel: '🎯 Practice Mode (Instant feedback)',
                 createQuizBtn: 'Create Quiz',
                 filterLabel: 'Filter questions:',
                 filterAll: 'All',
@@ -3615,6 +3674,7 @@ Answers:
                 pinnedQuestions.clear();
                 incorrectQuestions.clear();
                 isGraded = false;
+                clearQuizProgress(); // Clear saved progress when starting new quiz
             }
 
             const shouldShuffle = document.getElementById('shuffleCheckbox').checked;
@@ -3716,6 +3776,9 @@ Answers:
             // Show and reset progress bar
             document.getElementById('progressContainer').style.display = 'block';
             resetProgressBar();
+
+            // Check if practice mode is enabled
+            practiceModeEnabled = document.getElementById('practiceModeCheckbox').checked;
 
             // Ẩn AI prompts section khi vào quiz mode
             const aiPromptsSection = document.querySelector('.ai-prompts-section');
@@ -3828,6 +3891,9 @@ Answers:
 
             // Setup answer change listeners
             setupAnswerListeners();
+
+            // Restore saved progress
+            restoreQuizProgress();
 
             // Enable inputs when displaying quiz (in case coming from retry)
             enableQuizInputs();
@@ -3969,6 +4035,9 @@ Answers:
                     }
                 });
             }
+
+            // Clear auto-saved progress after submitting
+            clearQuizProgress();
 
             // Scroll to top of page
             window.scrollTo(0, 0);
@@ -4154,6 +4223,7 @@ Answers:
             // Show navigator and toggle button
             document.getElementById('questionNavigator').classList.add('active');
             document.getElementById('sidebarToggleBtn').classList.add('active');
+            document.getElementById('focusModeBtn').classList.add('active');
 
             // Show fixed right timer and control panel if exam mode enabled
             if (examModeEnabled) {
@@ -4172,6 +4242,19 @@ Answers:
         function toggleSidebar() {
             const sidebar = document.getElementById('questionNavigator');
             sidebar.classList.toggle('open');
+        }
+
+        function toggleFocusMode() {
+            document.body.classList.toggle('focus-mode');
+            const focusBtn = document.getElementById('focusModeBtn');
+            focusBtn.classList.toggle('focused');
+
+            // Update button title
+            if (document.body.classList.contains('focus-mode')) {
+                focusBtn.title = 'Exit Focus Mode';
+            } else {
+                focusBtn.title = 'Focus Mode';
+            }
         }
 
         function updateQuestionNavigator() {
@@ -4250,8 +4333,93 @@ Answers:
                 input.addEventListener('change', (e) => {
                     updateQuestionNavigator();
                     updateProgressBar(e);
+
+                    // Practice mode: show instant feedback
+                    if (practiceModeEnabled) {
+                        showInstantFeedback(e);
+                    }
+
+                    // Auto-save progress
+                    saveQuizProgress();
                 });
             });
+        }
+
+        function saveQuizProgress() {
+            const progress = {};
+            quizData.forEach((q, index) => {
+                const inputs = document.querySelectorAll(`input[name="question${index}"]:checked`);
+                if (inputs.length > 0) {
+                    progress[index] = Array.from(inputs).map(input => input.value);
+                }
+            });
+            saveToStorage(STORAGE_KEYS.QUIZ_PROGRESS, progress);
+        }
+
+        function restoreQuizProgress() {
+            const progress = getFromStorage(STORAGE_KEYS.QUIZ_PROGRESS);
+            if (!progress) return;
+
+            Object.keys(progress).forEach(questionIndex => {
+                const answers = progress[questionIndex];
+                answers.forEach(answer => {
+                    const input = document.getElementById(`q${questionIndex}_${answer}`);
+                    if (input) {
+                        input.checked = true;
+                        // Trigger change event to update progress bar
+                        input.dispatchEvent(new Event('change', { bubbles: true }));
+                    }
+                });
+            });
+        }
+
+        function clearQuizProgress() {
+            localStorage.removeItem(STORAGE_KEYS.QUIZ_PROGRESS);
+        }
+
+        function showInstantFeedback(event) {
+            // Extract question index from input name
+            const questionIndex = parseInt(event.target.name.replace('question', ''));
+            const originalNumber = questionMapping[questionIndex];
+            const resultDiv = document.getElementById(`result${questionIndex}`);
+
+            // Get user's answer
+            const isMultiple = isMultipleAnswer(originalNumber);
+            let userAnswer;
+            let isCorrect = false;
+
+            if (isMultiple) {
+                const selectedOptions = document.querySelectorAll(`input[name="question${questionIndex}"]:checked`);
+                if (selectedOptions.length === 0) {
+                    resultDiv.classList.add('hidden');
+                    return;
+                }
+                userAnswer = Array.from(selectedOptions).map(opt => opt.value).sort();
+                const correctAnswer = correctAnswers[originalNumber].slice().sort();
+                isCorrect = userAnswer.length === correctAnswer.length &&
+                           userAnswer.every((val, idx) => val === correctAnswer[idx]);
+            } else {
+                const selectedOption = document.querySelector(`input[name="question${questionIndex}"]:checked`);
+                if (!selectedOption) {
+                    resultDiv.classList.add('hidden');
+                    return;
+                }
+                userAnswer = selectedOption.value;
+                isCorrect = userAnswer === correctAnswers[originalNumber];
+            }
+
+            // Show result
+            resultDiv.classList.remove('hidden');
+            if (isCorrect) {
+                resultDiv.className = 'question-result correct';
+                resultDiv.textContent = translations[currentLanguage].correct;
+            } else {
+                const correctAnswerDisplay = Array.isArray(correctAnswers[originalNumber])
+                    ? correctAnswers[originalNumber].map(a => a.toUpperCase()).join(', ')
+                    : correctAnswers[originalNumber].toUpperCase();
+                resultDiv.className = 'question-result incorrect';
+                resultDiv.textContent = `${translations[currentLanguage].incorrect} ${correctAnswerDisplay}`;
+            }
         }
 
         function updateProgressBar(event) {
