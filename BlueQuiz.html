@@ -4444,8 +4444,8 @@ Answers:
             practiceModeEnabled = savedState.practiceModeEnabled;
             timeRemaining = savedState.timeRemaining;
 
-            // Show quiz section, hide setup section
-            document.getElementById('setupSection').classList.add('hidden');
+            // Show quiz section, hide input section
+            document.getElementById('inputSection').classList.add('hidden');
             document.getElementById('quizSection').classList.remove('hidden');
 
             // Build quiz HTML
@@ -4461,9 +4461,7 @@ Answers:
                 if (isPinned) questionCard.classList.add('pinned');
 
                 // Handle images in question text
-                const questionWithImages = q.question.replace(/\[img:(.*?)\]/g, (match, url) => {
-                    return `<div class="question-image"><img src="${url}" alt="Question image" /></div>`;
-                });
+                const questionWithImages = parseQuestionImages(q.question);
 
                 let html = `
                     <div class="question-header-container">
@@ -4507,7 +4505,7 @@ Answers:
 
             // Start exam timer if needed
             if (examModeEnabled && timeRemaining > 0) {
-                startExamTimer(timeRemaining);
+                startTimer();
             }
 
             // Show navigator and toggle button
