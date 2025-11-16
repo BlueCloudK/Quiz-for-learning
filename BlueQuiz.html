@@ -1542,6 +1542,53 @@
                 gap: 10px;
             }
         }
+
+        /* Footer */
+        .footer {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            text-align: center;
+            padding: 30px 20px;
+            margin-top: 60px;
+            border-top: 3px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .footer-content {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .footer p {
+            margin: 10px 0;
+            font-size: 1em;
+        }
+
+        .footer a {
+            color: white;
+            text-decoration: none;
+            font-weight: 600;
+            transition: opacity 0.3s, transform 0.2s;
+            display: inline-block;
+        }
+
+        .footer a:hover {
+            opacity: 0.8;
+            transform: translateY(-2px);
+        }
+
+        .footer .separator {
+            margin: 0 15px;
+            opacity: 0.5;
+        }
+
+        body.dark-mode .footer {
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            border-top-color: rgba(139, 158, 252, 0.2);
+        }
+
+        body.dark-mode .footer a {
+            color: var(--accent-color-light);
+        }
     </style>
 </head>
 <body>
@@ -1838,6 +1885,24 @@ D. Tất cả các mục</div>
             </div>
         </div>
     </div>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="footer-content">
+            <p>
+                Made with ❤️ by <a href="https://github.com/BlueCloudK" target="_blank" rel="noopener noreferrer">BlueCloudK</a>
+            </p>
+            <p>
+                <a href="https://github.com/BlueCloudK/Quiz-for-learning" target="_blank" rel="noopener noreferrer">
+                    ⭐ Star on GitHub
+                </a>
+                <span class="separator">|</span>
+                <a href="mailto:thanhkiennk@gmail.com">
+                    📧 Contact
+                </a>
+            </p>
+        </div>
+    </footer>
 
     <script>
         let quizData = [];

@@ -75,6 +75,11 @@ All templates, formats, and AI prompts are available in the application interfac
 
 This project is open source and available under the MIT License.
 
+## 👤 Author
+
+- **GitHub**: [BlueCloudK](https://github.com/BlueCloudK)
+- **Email**: thanhkiennk@gmail.com
+
 ## 🤝 Contributing
 
 Feel free to fork, modify, and use this project for your learning needs!
@@ -155,6 +160,11 @@ Tất cả templates, formats, và AI prompts đều có sẵn trong giao diện
 ## 📄 Giấy Phép
 
 Dự án này là mã nguồn mở và có sẵn theo Giấy phép MIT.
+
+## 👤 Tác Giả
+
+- **GitHub**: [BlueCloudK](https://github.com/BlueCloudK)
+- **Email**: thanhkiennk@gmail.com
 
 ## 🤝 Đóng Góp
 
