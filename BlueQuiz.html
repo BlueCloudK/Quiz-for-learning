@@ -1530,6 +1530,7 @@
 
             .sidebar-toggle-btn {
                 left: 10px;
+                top: 10px;
                 width: 45px;
                 height: 45px;
                 font-size: 1.3em;
@@ -1686,9 +1687,9 @@
             color: var(--accent-color-light);
         }
 
-        /* Scroll to Top Button */
+        /* Scroll to Top Button - Mobile Only */
         .scroll-to-top {
-            display: none;
+            display: none !important; /* Hidden on desktop */
             position: fixed;
             bottom: 30px;
             right: 30px;
@@ -1712,20 +1713,6 @@
             box-shadow: 0 6px 20px rgba(102, 126, 234, 0.6);
         }
 
-        .scroll-to-top.show {
-            display: flex;
-        }
-
-        @media (max-width: 768px) {
-            .scroll-to-top {
-                bottom: 20px;
-                right: 20px;
-                width: 45px;
-                height: 45px;
-                font-size: 1.3em;
-            }
-        }
-
         body.dark-mode .scroll-to-top {
             background: linear-gradient(135deg, #8b9efc 0%, #a8b5ff 100%);
             box-shadow: 0 4px 15px rgba(139, 158, 252, 0.4);
@@ -1733,6 +1720,22 @@
 
         body.dark-mode .scroll-to-top:hover {
             box-shadow: 0 6px 20px rgba(139, 158, 252, 0.6);
+        }
+
+        /* Mobile-specific scroll to top button */
+        @media (max-width: 768px) {
+            .scroll-to-top {
+                display: none; /* Can be shown with .show class */
+                bottom: 20px;
+                right: 20px;
+                width: 45px;
+                height: 45px;
+                font-size: 1.3em;
+            }
+
+            .scroll-to-top.show {
+                display: flex !important; /* Show on mobile when scrolled */
+            }
         }
     </style>
 </head>
