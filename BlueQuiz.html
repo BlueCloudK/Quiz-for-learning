@@ -4448,20 +4448,32 @@ Answers:
             }
 
             // Update progress bar display
-            const total = quizData.length;
+            const total = quizData ? quizData.length : 0;
             const answered = answeredQuestions.size;
             const percentage = total > 0 ? Math.round((answered / total) * 100) : 0;
 
-            document.getElementById('progressText').textContent = `${answered}/${total} câu`;
-            document.getElementById('progressPercent').textContent = `${percentage}%`;
-            document.getElementById('progressBarFill').style.width = `${percentage}%`;
+            const progressText = document.getElementById('progressText');
+            const progressPercent = document.getElementById('progressPercent');
+            const progressBarFill = document.getElementById('progressBarFill');
+
+            if (progressText && progressPercent && progressBarFill) {
+                progressText.textContent = `${answered}/${total} câu`;
+                progressPercent.textContent = `${percentage}%`;
+                progressBarFill.style.width = `${percentage}%`;
+            }
         }
 
         function resetProgressBar() {
             answeredQuestions.clear();
-            document.getElementById('progressText').textContent = `0/${quizData.length} câu`;
-            document.getElementById('progressPercent').textContent = '0%';
-            document.getElementById('progressBarFill').style.width = '0%';
+            const progressText = document.getElementById('progressText');
+            const progressPercent = document.getElementById('progressPercent');
+            const progressBarFill = document.getElementById('progressBarFill');
+
+            if (progressText && progressPercent && progressBarFill && quizData) {
+                progressText.textContent = `0/${quizData.length} câu`;
+                progressPercent.textContent = '0%';
+                progressBarFill.style.width = '0%';
+            }
         }
 
         function retryAllQuestions() {
