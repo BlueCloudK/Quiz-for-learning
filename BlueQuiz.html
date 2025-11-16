@@ -455,6 +455,73 @@
             box-shadow: 0 6px 20px rgba(139, 158, 252, 0.4);
         }
 
+        /* Image Lightbox Modal */
+        .image-modal {
+            display: none;
+            position: fixed;
+            z-index: 10000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0, 0, 0, 0.95);
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-content {
+            max-width: 90%;
+            max-height: 90%;
+            object-fit: contain;
+            border-radius: 8px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+        }
+
+        .modal-close {
+            position: absolute;
+            top: 20px;
+            right: 40px;
+            color: #fff;
+            font-size: 50px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: color 0.3s;
+        }
+
+        .modal-close:hover {
+            color: #667eea;
+        }
+
+        /* Pause Timer Button */
+        .pause-timer-btn {
+            margin-top: 15px;
+            padding: 10px 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 0.95em;
+            font-weight: 600;
+            transition: transform 0.2s, box-shadow 0.2s;
+            box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
+            width: 100%;
+        }
+
+        .pause-timer-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+        }
+
+        .pause-timer-btn:active {
+            transform: translateY(0);
+        }
+
+        body.dark-mode .pause-timer-btn {
+            background: linear-gradient(135deg, #8b9efc 0%, #9f7aea 100%);
+        }
+
         .options {
             margin-left: 20px;
         }
@@ -1485,6 +1552,9 @@
             <div class="fixed-timer-label" data-i18n="timeRemaining">Thời gian còn lại:</div>
             <div class="fixed-timer-text" id="fixedTimerText">00:30:00</div>
         </div>
+        <button class="pause-timer-btn" id="pauseTimerBtn" onclick="togglePauseTimer()" style="display: none;">
+            <span id="pauseIcon">⏸️</span> <span id="pauseText" data-i18n="pauseTimer">Tạm dừng</span>
+        </button>
     </div>
 
     <!-- Fixed Control Panel - Bottom Right -->
@@ -1498,6 +1568,12 @@
             <button class="btn-warning btn-nav hidden" id="retryIncorrectBtn" onclick="retryIncorrectQuestions()" data-i18n="retryIncorrectBtn">Làm Lại Câu Sai</button>
             <button class="btn-info btn-nav hidden" id="retryPinnedBtn" onclick="retryPinnedQuestions()" data-i18n="retryPinnedBtn">Làm Lại Câu Đã Pin</button>
         </div>
+    </div>
+
+    <!-- Image Lightbox Modal -->
+    <div id="imageModal" class="image-modal" onclick="closeImageModal()">
+        <span class="modal-close">&times;</span>
+        <img class="modal-content" id="modalImage" onclick="event.stopPropagation()">
     </div>
 
     <div class="container">
@@ -1928,6 +2004,8 @@ D. Tất cả các mục</div>
 
         function startTimer() {
             updateTimerDisplay();
+            // Show pause button when timer starts
+            document.getElementById('pauseTimerBtn').style.display = 'block';
             timerInterval = setInterval(() => {
                 if (timeRemaining <= 0) {
                     stopTimer();
@@ -1945,6 +2023,33 @@ D. Tất cả các mục</div>
             if (timerInterval) {
                 clearInterval(timerInterval);
                 timerInterval = null;
+            }
+            // Hide pause button when timer stops
+            document.getElementById('pauseTimerBtn').style.display = 'none';
+        }
+
+        // Pause/Resume timer functionality
+        let timerPaused = false;
+
+        function togglePauseTimer() {
+            const pauseIcon = document.getElementById('pauseIcon');
+            const pauseText = document.getElementById('pauseText');
+
+            if (timerPaused) {
+                // Resume timer
+                startTimer();
+                timerPaused = false;
+                pauseIcon.textContent = '⏸️';
+                pauseText.textContent = translations[currentLanguage].pauseTimer || 'Tạm dừng';
+            } else {
+                // Pause timer
+                if (timerInterval) {
+                    clearInterval(timerInterval);
+                    timerInterval = null;
+                }
+                timerPaused = true;
+                pauseIcon.textContent = '▶️';
+                pauseText.textContent = translations[currentLanguage].resumeTimer || 'Tiếp tục';
             }
         }
 
@@ -2229,6 +2334,8 @@ D. Tất cả các mục</div>
                 retryPinnedBtn: 'Làm Lại Câu Đã Pin',
                 questionNavigator: 'Danh Sách Câu Hỏi',
                 timeRemaining: 'Thời gian còn lại:',
+                pauseTimer: 'Tạm dừng',
+                resumeTimer: 'Tiếp tục',
                 confirmBackToEdit: 'Bạn có chắc muốn quay lại? Tiến trình làm bài sẽ KHÔNG được lưu.',
                 confirmRestart: 'Bạn có chắc muốn làm lại? Bài làm hiện tại sẽ bị xóa.',
                 question: 'Câu',
@@ -2325,6 +2432,8 @@ D. Tất cả các mục</div>
                 retryPinnedBtn: 'Retry Pinned',
                 questionNavigator: 'Question List',
                 timeRemaining: 'Time Remaining:',
+                pauseTimer: 'Pause',
+                resumeTimer: 'Resume',
                 confirmBackToEdit: 'Are you sure you want to go back? Your progress will NOT be saved.',
                 confirmRestart: 'Are you sure you want to restart? Your current answers will be cleared.',
                 question: 'Question',
@@ -3186,10 +3295,37 @@ Answers:
 
         // Parse [IMG:...] tags and convert to HTML <img> tags
         function parseQuestionImages(questionText) {
-            // Replace [IMG:data:image...] with actual <img> tags
-            return questionText.replace(/\[IMG:([^\]]+)\]/g, (match, src) => {
-                return `<img src="${src}" class="question-image" alt="Question image" />`;
+            // Replace [IMGx:filename] placeholders with actual images from storage
+            let result = questionText.replace(/\[(IMG\d+):[^\]]+\]/g, (match, imageId) => {
+                const base64 = imageStorage[imageId];
+                if (base64) {
+                    return `<img src="${base64}" class="question-image" alt="Question image" onclick="openImageModal(this.src)" />`;
+                }
+                return match; // Keep original if not found
             });
+
+            // Also support old format [IMG:data:image...] for backward compatibility
+            result = result.replace(/\[IMG:(data:image[^\]]+)\]/g, (match, src) => {
+                return `<img src="${src}" class="question-image" alt="Question image" onclick="openImageModal(this.src)" />`;
+            });
+
+            return result;
+        }
+
+        // Open image in modal for full-size viewing
+        function openImageModal(imageSrc) {
+            const modal = document.getElementById('imageModal');
+            const modalImg = document.getElementById('modalImage');
+            modal.style.display = 'flex';
+            modalImg.src = imageSrc;
+            document.body.style.overflow = 'hidden'; // Prevent background scroll
+        }
+
+        // Close image modal
+        function closeImageModal() {
+            const modal = document.getElementById('imageModal');
+            modal.style.display = 'none';
+            document.body.style.overflow = 'auto';
         }
 
         function displayQuiz() {
@@ -3749,6 +3885,10 @@ Answers:
             event.target.value = '';
         }
 
+        // Global image storage for base64 mapping
+        let imageStorage = {};
+        let imageCounter = 0;
+
         // Handle image upload and convert to base64
         async function handleImageUpload(event) {
             const files = event.target.files;
@@ -3772,11 +3912,16 @@ Answers:
                     // Convert image to base64
                     const base64 = await imageToBase64(file);
 
-                    // Insert [IMG:...] tag at cursor position
+                    // Generate unique image ID
+                    imageCounter++;
+                    const imageId = `IMG${imageCounter}`;
+                    imageStorage[imageId] = base64;
+
+                    // Insert short placeholder tag instead of full base64
                     const cursorPos = textarea.selectionStart;
                     const textBefore = textarea.value.substring(0, cursorPos);
                     const textAfter = textarea.value.substring(cursorPos);
-                    const imageTag = `[IMG:${base64}]\n`;
+                    const imageTag = `[${imageId}:${file.name}]\n`;
 
                     textarea.value = textBefore + imageTag + textAfter;
 
