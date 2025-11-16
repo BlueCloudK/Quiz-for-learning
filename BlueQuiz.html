@@ -4144,8 +4144,15 @@ Answers:
             `;
             resultSection.classList.remove('hidden');
 
-            // Scroll to results
-            resultSection.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+            // Move result section to top of quiz (after progress bar)
+            const progressContainer = document.getElementById('progressContainer');
+            if (progressContainer && progressContainer.parentNode) {
+                // Insert result section right after progress bar
+                progressContainer.parentNode.insertBefore(resultSection, progressContainer.nextSibling);
+            }
+
+            // Scroll to top to see results
+            window.scrollTo({ top: 0, behavior: 'smooth' });
         }
 
         function backToEdit() {
@@ -5058,24 +5065,21 @@ Answers:
                     // Save original dimensions before making it fixed (only once)
                     if (!progressContainer.classList.contains('fixed')) {
                         const rect = progressContainer.getBoundingClientRect();
-                        const offsetLeft = progressContainer.offsetLeft;
 
-                        // Store original width and position
+                        // Store original width
                         progressContainer.setAttribute('data-original-width', rect.width);
-                        progressContainer.setAttribute('data-original-left', offsetLeft);
                     }
 
                     progressContainer.classList.add('fixed');
 
-                    // Apply original width and position
+                    // Apply original width and center it
                     const originalWidth = progressContainer.getAttribute('data-original-width');
-                    const originalLeft = progressContainer.getAttribute('data-original-left');
 
                     if (originalWidth) {
                         progressContainer.style.width = originalWidth + 'px';
-                    }
-                    if (originalLeft) {
-                        progressContainer.style.left = originalLeft + 'px';
+                        // Center horizontally
+                        progressContainer.style.left = '50%';
+                        progressContainer.style.transform = 'translateX(-50%)';
                     }
 
                     if (quizMainContent) {
@@ -5086,6 +5090,7 @@ Answers:
                     // Clear inline styles
                     progressContainer.style.width = '';
                     progressContainer.style.left = '';
+                    progressContainer.style.transform = '';
 
                     if (quizMainContent) {
                         quizMainContent.classList.remove('has-fixed-progress');
