@@ -762,12 +762,20 @@
 
         /* Progress Bar */
         .progress-container {
+            position: sticky;
+            top: 0;
+            z-index: 998;
             margin-bottom: 20px;
             padding: 15px;
             background: var(--card-bg);
             border-radius: 10px;
             box-shadow: 0 2px 8px var(--shadow-color);
-            transition: background 0.3s ease;
+            transition: all 0.3s ease;
+        }
+
+        .progress-container.scrolled {
+            box-shadow: 0 4px 12px var(--shadow-color);
+            border-radius: 0 0 10px 10px;
         }
 
         .progress-info {
