@@ -3883,7 +3883,32 @@ Answers:
             // Show filter section after grading
             if (isGraded) {
                 document.getElementById('filterSection').style.display = 'block';
+
+                // Reset filter to 'all' and set active button
+                currentFilter = 'all';
+                document.querySelectorAll('.filter-button').forEach(btn => {
+                    btn.classList.remove('active');
+                });
+                // Set first button (All) as active
+                const allButton = document.querySelector('.filter-button[onclick*="all"]');
+                if (allButton) {
+                    allButton.classList.add('active');
+                }
+
+                // Show all questions
+                quizData.forEach((q, index) => {
+                    const card = document.getElementById(`card${index}`);
+                    if (card) {
+                        card.style.display = 'block';
+                    }
+                });
             }
+
+            // Scroll to top of page
+            window.scrollTo({
+                top: 0,
+                behavior: 'smooth'
+            });
         }
 
         function disableQuizInputs() {
