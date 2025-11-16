@@ -377,6 +377,30 @@
             box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
         }
 
+        .btn-continue {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+            margin-top: 10px;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1em;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            box-shadow: 0 3px 10px rgba(245, 87, 108, 0.3);
+            width: 100%;
+        }
+
+        .btn-continue:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(245, 87, 108, 0.4);
+        }
+
+        body.dark-mode .btn-continue {
+            background: linear-gradient(135deg, #c471f5 0%, #fa709a 100%);
+        }
+
         .btn-success {
             background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
             color: white;
@@ -2068,6 +2092,10 @@ D. Tất cả các mục</div>
                         <input type="number" id="timerMinutes" min="0" max="59" value="30" />
                     </div>
                     <button class="btn-primary" onclick="generateQuiz()" data-i18n="createQuizBtn">Tạo Quiz</button>
+                    <button class="btn-continue" id="continueQuizBtn" onclick="continueQuiz()" style="display: none;">
+                        <span data-i18n="continueQuizBtn">⏩ Tiếp tục Quiz đã lưu</span>
+                        <small id="continueQuizInfo" style="display: block; margin-top: 5px; font-size: 0.85em; opacity: 0.9;"></small>
+                    </button>
                 </div>
             </div>
 
@@ -2681,6 +2709,7 @@ D. Tất cả các mục</div>
                 shuffleChoicesLabel: 'Xáo trộn đáp án (a,b,c,d)',
                 practiceModeLabel: '🎯 Chế độ ôn tập (Hiện đáp án ngay)',
                 createQuizBtn: 'Tạo Quiz',
+                continueQuizBtn: '⏩ Tiếp tục Quiz đã lưu',
                 filterLabel: 'Lọc câu hỏi:',
                 filterAll: 'Tất cả',
                 filterPinned: 'Câu đã pin',
@@ -2784,6 +2813,7 @@ D. Tất cả các mục</div>
                 shuffleChoicesLabel: 'Shuffle answer choices (a,b,c,d)',
                 practiceModeLabel: '🎯 Practice Mode (Instant feedback)',
                 createQuizBtn: 'Create Quiz',
+                continueQuizBtn: '⏩ Continue Saved Quiz',
                 filterLabel: 'Filter questions:',
                 filterAll: 'All',
                 filterPinned: 'Pinned',
@@ -3377,20 +3407,8 @@ Answers:
             renderAIPrompts();
             displaySavedQuizzes(); // Display saved quiz sets
 
-            // Auto-restore quiz if there's saved progress
-            const savedProgress = loadFromStorage(STORAGE_KEYS.QUIZ_PROGRESS);
-            if (savedProgress && Object.keys(savedProgress).length > 0) {
-                // Check if we have questions and answers saved
-                const savedQuestions = loadFromStorage(STORAGE_KEYS.QUESTIONS, '');
-                const savedAnswers = loadFromStorage(STORAGE_KEYS.ANSWERS, '');
-
-                if (savedQuestions && savedAnswers) {
-                    // Auto-generate quiz to restore progress
-                    setTimeout(() => {
-                        generateQuiz();
-                    }, 100);
-                }
-            }
+            // Check if there's saved progress and show continue button
+            checkAndShowContinueButton();
 
             // Add auto-save event listeners
             const questionsInput = document.getElementById('questionsInput');
@@ -4353,6 +4371,47 @@ Answers:
 
         function clearQuizProgress() {
             localStorage.removeItem(STORAGE_KEYS.QUIZ_PROGRESS);
+            // Hide continue button when progress is cleared
+            const continueBtn = document.getElementById('continueQuizBtn');
+            if (continueBtn) {
+                continueBtn.style.display = 'none';
+            }
+        }
+
+        function checkAndShowContinueButton() {
+            const savedProgress = loadFromStorage(STORAGE_KEYS.QUIZ_PROGRESS);
+            const continueBtn = document.getElementById('continueQuizBtn');
+            const continueInfo = document.getElementById('continueQuizInfo');
+
+            if (savedProgress && Object.keys(savedProgress).length > 0) {
+                const savedQuestions = loadFromStorage(STORAGE_KEYS.QUESTIONS, '');
+                const savedAnswers = loadFromStorage(STORAGE_KEYS.ANSWERS, '');
+
+                if (savedQuestions && savedAnswers) {
+                    // Show continue button
+                    continueBtn.style.display = 'block';
+
+                    // Show info about saved progress
+                    const totalQuestions = Object.keys(savedProgress).length;
+                    const answeredCount = Object.keys(savedProgress).filter(key => savedProgress[key].length > 0).length;
+
+                    if (currentLanguage === 'vi') {
+                        continueInfo.textContent = `Đã làm ${answeredCount} câu`;
+                    } else {
+                        continueInfo.textContent = `${answeredCount} questions answered`;
+                    }
+
+                    return;
+                }
+            }
+
+            // Hide continue button if no saved progress
+            continueBtn.style.display = 'none';
+        }
+
+        function continueQuiz() {
+            // Generate quiz and restore progress
+            generateQuiz();
         }
 
         function showInstantFeedback(event) {
