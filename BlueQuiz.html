@@ -3739,6 +3739,12 @@ Answers:
                 }
             }
 
+            // Check if quizData is empty after slicing/filtering
+            if (quizData.length === 0) {
+                alert(translations[currentLanguage].alertNoQuestions || 'Không có câu hỏi nào để hiển thị. Vui lòng kiểm tra lại số câu bắt đầu hoặc số lượng câu hỏi.');
+                return;
+            }
+
             // Shuffle choices if enabled
             const shouldShuffleChoices = document.getElementById('shuffleChoicesCheckbox').checked;
             if (shouldShuffleChoices) {
