@@ -3738,6 +3738,11 @@ Answers:
             sidebarToggleBtn.classList.remove('active');
             fixedControlPanel.classList.remove('active');
 
+            // Ensure fixedControlPanel is completely hidden
+            if (fixedControlPanel) {
+                fixedControlPanel.style.display = 'none';
+            }
+
             // Show input section, hide quiz and result sections
             document.getElementById('inputSection').classList.remove('hidden');
             document.getElementById('quizSection').classList.add('hidden');
@@ -3813,7 +3818,9 @@ Answers:
             }
 
             // Always show control panel when quiz is displayed
-            document.getElementById('fixedControlPanel').classList.add('active');
+            const controlPanel = document.getElementById('fixedControlPanel');
+            controlPanel.classList.add('active');
+            controlPanel.style.display = ''; // Clear inline style
 
             // Initial update to show pinned status
             updateQuestionNavigator();
