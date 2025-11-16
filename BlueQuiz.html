@@ -1513,15 +1513,39 @@
         }
 
         @media (max-width: 768px) {
+            /* Container & Layout */
+            body {
+                padding: 10px;
+            }
+
+            .container {
+                border-radius: 15px;
+                box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            }
+
+            .header {
+                padding: 20px 15px;
+            }
+
+            .header h1 {
+                font-size: 1.8em;
+            }
+
+            .content {
+                padding: 15px;
+            }
+
+            /* Template Grid */
             .template-grid {
                 grid-template-columns: 1fr;
             }
 
-
+            /* Sidebar Navigation */
             .question-navigator {
-                width: 90% !important;
-                max-width: 320px;
+                width: 85% !important;
+                max-width: 300px;
                 transform: translateX(-100%);
+                padding: 15px;
             }
 
             .question-navigator.open {
@@ -1545,9 +1569,17 @@
             }
 
             .question-nav-list {
-                grid-template-columns: repeat(6, 1fr);
+                grid-template-columns: repeat(5, 1fr);
+                gap: 8px;
             }
 
+            .question-nav-item {
+                min-width: 45px;
+                height: 45px;
+                font-size: 0.95em;
+            }
+
+            /* Fixed Panels - Make them static on mobile */
             .fixed-right-timer {
                 position: relative !important;
                 right: auto !important;
@@ -1609,9 +1641,17 @@
                 padding: 6px 12px;
             }
 
+            /* Buttons - Larger touch targets */
             .controls {
                 flex-direction: column;
                 align-items: stretch;
+                gap: 12px;
+            }
+
+            button:not(.pin-button):not(.filter-button):not(.language-button):not(.theme-toggle) {
+                min-height: 44px;
+                padding: 12px 20px;
+                font-size: 1em;
             }
 
             button:not(.pin-button):not(.filter-button):not(.sidebar-toggle-btn):not(.scroll-to-top) {
