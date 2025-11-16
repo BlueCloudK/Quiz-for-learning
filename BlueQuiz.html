@@ -3356,17 +3356,30 @@ Answers:
             } else {
                 quizData = allQuestions;
 
-                // Áp dụng thứ tự câu hỏi (random/sequential)
                 const questionOrder = document.querySelector('input[name="questionOrder"]:checked')?.value || 'sequential';
-                if (questionOrder === 'random' || shouldShuffle) {
-                    quizData = shuffleArray([...quizData]);
-                }
 
-                // Áp dụng số lượng câu hỏi
-                const questionCountInput = document.getElementById('questionCount');
-                const questionCount = parseInt(questionCountInput?.value);
-                if (questionCount && questionCount > 0 && questionCount < quizData.length) {
-                    quizData = quizData.slice(0, questionCount);
+                if (questionOrder === 'random') {
+                    // Chọn NGẪU NHIÊN: xáo toàn bộ trước, sau đó lấy N câu
+                    quizData = shuffleArray([...quizData]);
+
+                    // Áp dụng số lượng câu hỏi
+                    const questionCountInput = document.getElementById('questionCount');
+                    const questionCount = parseInt(questionCountInput?.value);
+                    if (questionCount && questionCount > 0 && questionCount < quizData.length) {
+                        quizData = quizData.slice(0, questionCount);
+                    }
+                } else {
+                    // Chọn TRÌNH TỰ: lấy N câu đầu trước
+                    const questionCountInput = document.getElementById('questionCount');
+                    const questionCount = parseInt(questionCountInput?.value);
+                    if (questionCount && questionCount > 0 && questionCount < quizData.length) {
+                        quizData = quizData.slice(0, questionCount);
+                    }
+
+                    // Sau đó nếu có checkbox "Xáo trộn đề" thì mới xáo
+                    if (shouldShuffle) {
+                        quizData = shuffleArray([...quizData]);
+                    }
                 }
             }
 
@@ -3711,18 +3724,24 @@ Answers:
                 examModeEnabled = false;
                 document.getElementById('examModeCheckbox').checked = false;
                 document.getElementById('fixedRightTimer').classList.remove('active');
-                document.getElementById('fixedControlPanel').classList.remove('active');
                 document.getElementById('timerHours').disabled = false;
                 document.getElementById('timerMinutes').disabled = false;
             }
 
-            // Hide navigator and toggle button
+            // Hide all quiz panels
             const navigator = document.getElementById('questionNavigator');
             const sidebarToggleBtn = document.getElementById('sidebarToggleBtn');
+            const fixedControlPanel = document.getElementById('fixedControlPanel');
 
             navigator.classList.remove('active');
             navigator.classList.remove('open');
             sidebarToggleBtn.classList.remove('active');
+            fixedControlPanel.classList.remove('active');
+
+            // Ensure fixedControlPanel is completely hidden
+            if (fixedControlPanel) {
+                fixedControlPanel.style.display = 'none';
+            }
 
             // Show input section, hide quiz and result sections
             document.getElementById('inputSection').classList.remove('hidden');
@@ -3799,7 +3818,9 @@ Answers:
             }
 
             // Always show control panel when quiz is displayed
-            document.getElementById('fixedControlPanel').classList.add('active');
+            const controlPanel = document.getElementById('fixedControlPanel');
+            controlPanel.classList.add('active');
+            controlPanel.style.display = ''; // Clear inline style
 
             // Initial update to show pinned status
             updateQuestionNavigator();
