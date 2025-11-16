@@ -1201,22 +1201,25 @@
 
         .question-navigator {
             position: fixed;
-            left: 20px;
-            top: 20px;
-            width: 280px;
-            height: calc(100vh - 40px);
+            left: 0;
+            top: 0;
+            width: 320px;
+            height: 100vh;
             background: var(--card-bg);
-            border-radius: 15px;
             padding: 20px;
-            box-shadow: 0 5px 20px var(--shadow-color);
-            transition: background 0.3s ease;
+            box-shadow: 5px 0 20px var(--shadow-color);
+            transition: transform 0.3s ease, background 0.3s ease;
             overflow-y: auto;
-            z-index: 100;
-            display: none;
+            z-index: 1000;
+            transform: translateX(-100%);
         }
 
         .question-navigator.active {
             display: block;
+        }
+
+        .question-navigator.open {
+            transform: translateX(0);
         }
 
         .quiz-main-content {
@@ -1233,30 +1236,58 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
+        }
+
+        .navigator-close-btn {
+            font-size: 1.5em;
             cursor: pointer;
+            color: var(--text-primary);
+            transition: color 0.3s, transform 0.3s;
             user-select: none;
         }
 
-        .navigator-toggle {
-            font-size: 1.2em;
-            transition: transform 0.3s;
-            cursor: pointer;
+        .navigator-close-btn:hover {
+            color: var(--accent-color);
+            transform: scale(1.2);
         }
 
-        .navigator-toggle.collapsed {
-            transform: rotate(-90deg);
+        /* Sidebar Toggle Button */
+        .sidebar-toggle-btn {
+            position: fixed;
+            left: 20px;
+            top: 20px;
+            width: 50px;
+            height: 50px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border: none;
+            border-radius: 10px;
+            color: white;
+            font-size: 1.5em;
+            cursor: pointer;
+            z-index: 999;
+            box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.2);
+            transition: all 0.3s ease;
+            display: none;
+        }
+
+        .sidebar-toggle-btn.active {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .sidebar-toggle-btn:hover {
+            background: linear-gradient(135deg, #764ba2 0%, #667eea 100%);
+            transform: scale(1.05);
+        }
+
+        body.dark-mode .sidebar-toggle-btn {
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            border: 2px solid var(--accent-color-light);
         }
 
         .navigator-content {
-            max-height: 9999px;
             overflow: hidden;
-            transition: max-height 0.3s ease-out, opacity 0.3s ease-out;
-            opacity: 1;
-        }
-
-        .navigator-content.collapsed {
-            max-height: 0;
-            opacity: 0;
         }
 
         /* Fixed Right Timer Panel */
@@ -1488,13 +1519,20 @@
 
 
             .question-navigator {
-                position: relative !important;
-                left: 0 !important;
-                top: 0 !important;
-                width: 100% !important;
-                height: auto !important;
-                margin-bottom: 20px;
-                display: block !important;
+                width: 90% !important;
+                max-width: 320px;
+                transform: translateX(-100%);
+            }
+
+            .question-navigator.open {
+                transform: translateX(0) !important;
+            }
+
+            .sidebar-toggle-btn {
+                left: 10px;
+                width: 45px;
+                height: 45px;
+                font-size: 1.3em;
             }
 
             .quiz-main-content {
@@ -1820,13 +1858,18 @@ D. Tất cả các mục</div>
 
             <!-- Quiz Section -->
             <div class="section hidden" id="quizSection">
+                <!-- Sidebar Toggle Button -->
+                <button class="sidebar-toggle-btn" id="sidebarToggleBtn" onclick="toggleSidebar()">
+                    ☰
+                </button>
+
                 <!-- Quiz Layout with Navigator -->
                 <div class="quiz-layout">
                     <!-- Question Navigator Sidebar -->
                     <div class="question-navigator" id="questionNavigator">
-                        <div class="navigator-header" onclick="toggleNavigator()">
+                        <div class="navigator-header">
                             <span data-i18n="questionNavigator">Danh Sách Câu Hỏi</span>
-                            <span class="navigator-toggle" id="navigatorToggle">▼</span>
+                            <span class="navigator-close-btn" onclick="toggleSidebar()">✕</span>
                         </div>
 
                         <!-- Question Navigation List -->
@@ -1897,9 +1940,7 @@ D. Tất cả các mục</div>
                     ⭐ Star on GitHub
                 </a>
                 <span class="separator">|</span>
-                <a href="mailto:thanhkiennk@gmail.com">
-                    📧 Contact
-                </a>
+                📧 thanhkiennk@gmail.com
             </p>
         </div>
     </footer>
@@ -3675,8 +3716,13 @@ Answers:
                 document.getElementById('timerMinutes').disabled = false;
             }
 
-            // Hide navigator
-            document.getElementById('questionNavigator').classList.remove('active');
+            // Hide navigator and toggle button
+            const navigator = document.getElementById('questionNavigator');
+            const sidebarToggleBtn = document.getElementById('sidebarToggleBtn');
+
+            navigator.classList.remove('active');
+            navigator.classList.remove('open');
+            sidebarToggleBtn.classList.remove('active');
 
             // Show input section, hide quiz and result sections
             document.getElementById('inputSection').classList.remove('hidden');
@@ -3743,8 +3789,9 @@ Answers:
                 navList.appendChild(navItem);
             });
 
-            // Show navigator
+            // Show navigator and toggle button
             document.getElementById('questionNavigator').classList.add('active');
+            document.getElementById('sidebarToggleBtn').classList.add('active');
 
             // Show fixed right timer and control panel if exam mode enabled
             if (examModeEnabled) {
@@ -3758,12 +3805,9 @@ Answers:
             updateQuestionNavigator();
         }
 
-        function toggleNavigator() {
-            const content = document.getElementById('navigatorContent');
-            const toggle = document.getElementById('navigatorToggle');
-
-            content.classList.toggle('collapsed');
-            toggle.classList.toggle('collapsed');
+        function toggleSidebar() {
+            const sidebar = document.getElementById('questionNavigator');
+            sidebar.classList.toggle('open');
         }
 
         function updateQuestionNavigator() {
