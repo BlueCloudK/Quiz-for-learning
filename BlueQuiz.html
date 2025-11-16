@@ -773,11 +773,12 @@
         /* Fixed progress bar when scrolling */
         .progress-container.fixed {
             position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
+            top: 10px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: calc(100% - 40px);
+            max-width: 1200px;
             margin: 0;
-            border-radius: 0;
             z-index: 998;
             box-shadow: 0 4px 12px var(--shadow-color);
         }
