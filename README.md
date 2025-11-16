@@ -24,9 +24,14 @@ A powerful, interactive quiz application that helps you create, manage, and prac
 - **🔄 Retry Incorrect**: Create new quiz with only the questions you got wrong
 - **🔄 Retry Pinned**: Practice your bookmarked questions
 - **🔍 Filter Questions**: View all, pinned, or incorrect questions
+- **📊 Progress Bar**: Real-time progress tracking showing answered/total questions and completion percentage
+- **🎯 Practice Mode**: Instant feedback when selecting answers - perfect for self-study and learning
+- **💾 Auto-save Progress**: Automatically saves your answers as you go - never lose progress if page refreshes
+- **🎯 Focus Mode**: Hide distracting UI elements (navigator, timer, panels) for better concentration
+- **🔀 Shuffle Answer Choices**: Randomize the order of answer options (a,b,c,d) to prevent memorization
+- **🔢 Start from Specific Question**: Choose which question to start from in sequential mode
 - **🌐 Bilingual**: Switch between Vietnamese and English
 - **🤖 AI Prompt Templates**: Ready-to-use prompts for ChatGPT, Claude, and other AI chatbots
-- **💾 LocalStorage Auto-Save**: Automatically saves your questions, answers, and preferences
 - **🌙 Dark Mode**: Toggle between light and dark themes
 - **⏱️ Exam Mode**: Timed quiz mode with countdown timer and auto-submit
 - **📚 Quiz Management**: Save and load multiple quiz sets with custom names
@@ -110,9 +115,14 @@ Feel free to fork, modify, and use this project for your learning needs!
 - **🔄 Làm Lại Câu Sai**: Tạo quiz mới chỉ với những câu bạn làm sai
 - **🔄 Làm Lại Câu Đã Pin**: Luyện tập các câu hỏi đã đánh dấu
 - **🔍 Lọc Câu Hỏi**: Xem tất cả, câu đã pin, hoặc câu sai
+- **📊 Thanh Tiến Độ**: Theo dõi tiến độ thời gian thực - hiển thị số câu đã trả lời/tổng số và phần trăm hoàn thành
+- **🎯 Chế Độ Ôn Tập**: Hiển thị kết quả ngay khi chọn đáp án - hoàn hảo cho tự học và ôn tập
+- **💾 Tự Động Lưu Tiến Trình**: Tự động lưu câu trả lời khi làm bài - không bao giờ mất tiến trình khi refresh trang
+- **🎯 Chế Độ Tập Trung**: Ẩn các yếu tố giao diện gây xao nhãng (navigator, timer, panels) để tập trung tốt hơn
+- **🔀 Xáo Trộn Đáp Án**: Ngẫu nhiên hóa thứ tự các lựa chọn (a,b,c,d) để tránh học thuộc lòng
+- **🔢 Bắt Đầu Từ Câu Cụ Thể**: Chọn câu hỏi bắt đầu trong chế độ trình tự
 - **🌐 Song Ngữ**: Chuyển đổi giữa tiếng Việt và tiếng Anh
 - **🤖 Template AI Prompts**: Sẵn sàng sử dụng cho ChatGPT, Claude, và các AI chatbot khác
-- **💾 Tự Động Lưu LocalStorage**: Tự động lưu câu hỏi, đáp án và tùy chọn
 - **🌙 Chế Độ Tối**: Chuyển đổi giữa giao diện sáng và tối
 - **⏱️ Chế Độ Thi**: Chế độ quiz có đếm giờ với tự động nộp bài
 - **📚 Quản Lý Quiz**: Lưu và tải nhiều bộ quiz với tên tùy chỉnh

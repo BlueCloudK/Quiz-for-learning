@@ -377,6 +377,30 @@
             box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
         }
 
+        .btn-continue {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+            margin-top: 10px;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1em;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            box-shadow: 0 3px 10px rgba(245, 87, 108, 0.3);
+            width: 100%;
+        }
+
+        .btn-continue:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(245, 87, 108, 0.4);
+        }
+
+        body.dark-mode .btn-continue {
+            background: linear-gradient(135deg, #c471f5 0%, #fa709a 100%);
+        }
+
         .btn-success {
             background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
             color: white;
@@ -589,10 +613,15 @@
             margin-bottom: 20px;
         }
 
+        #resultSection {
+            margin-bottom: 30px;
+        }
+
         .score-display {
             font-size: 3em;
             font-weight: bold;
             margin: 20px 0;
+            color: var(--text-primary);
         }
 
         .result-details {
@@ -612,11 +641,21 @@
         .result-item h3 {
             font-size: 1.2em;
             margin-bottom: 5px;
+            color: var(--text-primary);
         }
 
         .result-item p {
             font-size: 2em;
             font-weight: bold;
+        }
+
+        /* Dark mode for result section */
+        body.dark-mode #resultSection h2 {
+            color: var(--text-primary);
+        }
+
+        body.dark-mode .result-item {
+            background: rgba(255, 255, 255, 0.1);
         }
 
         .question-result {
@@ -734,6 +773,64 @@
         .filter-button.active {
             background: #667eea;
             color: white;
+        }
+
+        /* Progress Bar */
+        .progress-container {
+            margin-bottom: 20px;
+            padding: 15px;
+            background: var(--card-bg);
+            border-radius: 10px;
+            box-shadow: 0 2px 8px var(--shadow-color);
+            transition: box-shadow 0.3s ease, background 0.3s ease;
+        }
+
+        /* Fixed progress bar when scrolling */
+        .progress-container.fixed {
+            position: fixed;
+            top: 10px;
+            /* left and width will be set by JavaScript to match original size */
+            margin: 0;
+            z-index: 998;
+            box-shadow: 0 4px 12px var(--shadow-color);
+        }
+
+        /* Add padding to prevent content jump when progress bar becomes fixed */
+        .quiz-main-content.has-fixed-progress {
+            padding-top: 80px;
+        }
+
+        .progress-info {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .progress-bar-bg {
+            width: 100%;
+            height: 24px;
+            background: var(--input-border);
+            border-radius: 12px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .progress-bar-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+            border-radius: 12px;
+            transition: width 0.3s ease;
+            width: 0%;
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            padding-right: 10px;
+            color: white;
+            font-weight: 600;
+            font-size: 0.85em;
         }
 
         .ai-prompts-section {
@@ -1285,6 +1382,7 @@
             background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
             border: 2px solid var(--accent-color-light);
         }
+
 
         .navigator-content {
             overflow: hidden;
@@ -2010,6 +2108,10 @@ D. Tất cả các mục</div>
                         <label for="shuffleChoicesCheckbox" data-i18n="shuffleChoicesLabel">Xáo trộn đáp án (a,b,c,d)</label>
                     </div>
                     <div class="checkbox-group">
+                        <input type="checkbox" id="practiceModeCheckbox">
+                        <label for="practiceModeCheckbox" data-i18n="practiceModeLabel">🎯 Chế độ ôn tập (Hiện đáp án ngay)</label>
+                    </div>
+                    <div class="checkbox-group">
                         <input type="checkbox" id="examModeCheckbox" onchange="toggleExamMode()">
                         <label for="examModeCheckbox" data-i18n="enableExamMode">⏱️ Bật chế độ thi</label>
                     </div>
@@ -2020,6 +2122,10 @@ D. Tất cả các mục</div>
                         <input type="number" id="timerMinutes" min="0" max="59" value="30" />
                     </div>
                     <button class="btn-primary" onclick="generateQuiz()" data-i18n="createQuizBtn">Tạo Quiz</button>
+                    <button class="btn-continue" id="continueQuizBtn" onclick="continueQuiz()" style="display: none;">
+                        <span data-i18n="continueQuizBtn">⏩ Tiếp tục Quiz đã lưu</span>
+                        <small id="continueQuizInfo" style="display: block; margin-top: 5px; font-size: 0.85em; opacity: 0.9;"></small>
+                    </button>
                 </div>
             </div>
 
@@ -2029,6 +2135,7 @@ D. Tất cả các mục</div>
                 <button class="sidebar-toggle-btn" id="sidebarToggleBtn" onclick="toggleSidebar()">
                     ☰
                 </button>
+
 
                 <!-- Quiz Layout with Navigator -->
                 <div class="quiz-layout">
@@ -2049,6 +2156,18 @@ D. Tất cả các mục</div>
 
                     <!-- Main Quiz Content -->
                     <div class="quiz-main-content">
+                        <!-- Progress Bar -->
+                        <div class="progress-container" id="progressContainer" style="display: none;">
+                            <div class="progress-info">
+                                <span data-i18n="progressLabel">Tiến độ:</span>
+                                <span id="progressText">0/0 câu</span>
+                                <span id="progressPercent">0%</span>
+                            </div>
+                            <div class="progress-bar-bg">
+                                <div class="progress-bar-fill" id="progressBarFill"></div>
+                            </div>
+                        </div>
+
                         <!-- Filter Section -->
                         <div class="filter-section" id="filterSection" style="display: none;">
                             <label style="margin-bottom: 10px;" data-i18n="filterLabel">Lọc câu hỏi:</label>
@@ -2123,12 +2242,14 @@ D. Tất cả các mục</div>
         let questionMapping = {}; // Lưu mapping giữa vị trí hiện tại và số thứ tự gốc
         let pinnedQuestions = new Set(); // Lưu index các câu được pin
         let incorrectQuestions = new Set(); // Lưu index các câu sai
+        let answeredQuestions = new Set(); // Track câu đã trả lời (cho progress bar)
         let isGraded = false; // Track xem đã chấm điểm chưa
         let originalQuestionsText = ''; // Lưu câu hỏi gốc
         let originalAnswersText = ''; // Lưu đáp án gốc
         let currentFilter = 'all'; // Bộ lọc hiện tại
         let currentLanguage = 'vi'; // Ngôn ngữ hiện tại
         let quizHistory = []; // Lưu lịch sử làm bài
+        let practiceModeEnabled = false; // Practice mode with instant feedback
 
         // Exam Mode variables
         let examModeEnabled = false;
@@ -2143,7 +2264,9 @@ D. Tất cả các mục</div>
             LANGUAGE: 'quiz_language',
             HISTORY: 'quiz_history',
             THEME: 'quiz_theme',
-            SAVED_QUIZZES: 'quiz_saved_sets'
+            SAVED_QUIZZES: 'quiz_saved_sets',
+            QUIZ_PROGRESS: 'quiz_progress', // Auto-save progress
+            QUIZ_STATE: 'quiz_state' // Save quiz state for restoration
         };
 
         // LocalStorage helper functions
@@ -2615,11 +2738,14 @@ D. Tất cả các mục</div>
                 orderRandom: 'Ngẫu nhiên',
                 shuffleLabel: 'Xáo trộn câu hỏi',
                 shuffleChoicesLabel: 'Xáo trộn đáp án (a,b,c,d)',
+                practiceModeLabel: '🎯 Chế độ ôn tập (Hiện đáp án ngay)',
                 createQuizBtn: 'Tạo Quiz',
+                continueQuizBtn: '⏩ Tiếp tục Quiz đã lưu',
                 filterLabel: 'Lọc câu hỏi:',
                 filterAll: 'Tất cả',
                 filterPinned: 'Câu đã pin',
                 filterIncorrect: 'Câu sai',
+                progressLabel: 'Tiến độ:',
                 submitBtn: 'Chấm Điểm',
                 backToEditBtn: '⬅️ Quay Lại',
                 restartBtn: '🔄 Làm Lại',
@@ -2716,11 +2842,14 @@ D. Tất cả các mục</div>
                 orderRandom: 'Random',
                 shuffleLabel: 'Shuffle questions',
                 shuffleChoicesLabel: 'Shuffle answer choices (a,b,c,d)',
+                practiceModeLabel: '🎯 Practice Mode (Instant feedback)',
                 createQuizBtn: 'Create Quiz',
+                continueQuizBtn: '⏩ Continue Saved Quiz',
                 filterLabel: 'Filter questions:',
                 filterAll: 'All',
                 filterPinned: 'Pinned',
                 filterIncorrect: 'Incorrect',
+                progressLabel: 'Progress:',
                 submitBtn: 'Submit & Grade',
                 backToEditBtn: '⬅️ Back',
                 restartBtn: '🔄 Restart',
@@ -3309,6 +3438,9 @@ Answers:
             renderAIPrompts();
             displaySavedQuizzes(); // Display saved quiz sets
 
+            // Check if there's saved progress and show continue button
+            checkAndShowContinueButton();
+
             // Add auto-save event listeners
             const questionsInput = document.getElementById('questionsInput');
             const answersInput = document.getElementById('answersInput');
@@ -3556,6 +3688,7 @@ Answers:
                 pinnedQuestions.clear();
                 incorrectQuestions.clear();
                 isGraded = false;
+                clearQuizProgress(); // Clear saved progress when starting new quiz
             }
 
             const shouldShuffle = document.getElementById('shuffleCheckbox').checked;
@@ -3620,6 +3753,12 @@ Answers:
                 }
             }
 
+            // Check if quizData is empty after slicing/filtering
+            if (quizData.length === 0) {
+                alert(translations[currentLanguage].alertNoQuestions || 'Không có câu hỏi nào để hiển thị. Vui lòng kiểm tra lại số câu bắt đầu hoặc số lượng câu hỏi.');
+                return;
+            }
+
             // Shuffle choices if enabled
             const shouldShuffleChoices = document.getElementById('shuffleChoicesCheckbox').checked;
             if (shouldShuffleChoices) {
@@ -3649,19 +3788,38 @@ Answers:
             }
 
             // Hiển thị quiz
-            displayQuiz();
-            document.getElementById('inputSection').classList.add('hidden');
-            document.getElementById('quizSection').classList.remove('hidden');
-            document.getElementById('resultSection').classList.add('hidden');
+            try {
+                console.log('Starting displayQuiz with quizData:', quizData);
+                displayQuiz();
+                document.getElementById('inputSection').classList.add('hidden');
+                document.getElementById('quizSection').classList.remove('hidden');
+                document.getElementById('resultSection').classList.add('hidden');
 
-            // Ẩn AI prompts section khi vào quiz mode
-            const aiPromptsSection = document.querySelector('.ai-prompts-section');
-            if (aiPromptsSection) {
-                aiPromptsSection.style.display = 'none';
+                // Show and reset progress bar
+                document.getElementById('progressContainer').style.display = 'block';
+                resetProgressBar();
+
+                // Check if practice mode is enabled
+                practiceModeEnabled = document.getElementById('practiceModeCheckbox').checked;
+
+                // Ẩn AI prompts section khi vào quiz mode
+                const aiPromptsSection = document.querySelector('.ai-prompts-section');
+                if (aiPromptsSection) {
+                    aiPromptsSection.style.display = 'none';
+                }
+
+                // Scroll to top of page
+                window.scrollTo(0, 0);
+                console.log('Quiz displayed successfully');
+
+                // Save quiz state for restoration (only if not specificQuestions - i.e., not retry/filter)
+                if (!specificQuestions) {
+                    saveQuizState();
+                }
+            } catch (error) {
+                console.error('Error displaying quiz:', error);
+                alert('Lỗi khi hiển thị quiz: ' + error.message + '\nVui lòng mở Console (F12) để xem chi tiết.');
             }
-
-            // Scroll to top of page
-            window.scrollTo(0, 0);
         }
 
         // Parse [IMG:...] tags and convert to HTML <img> tags
@@ -3701,7 +3859,20 @@ Answers:
 
         function displayQuiz() {
             const container = document.getElementById('quizContainer');
+            if (!container) {
+                console.error('quizContainer element not found');
+                alert('Lỗi: Không tìm thấy container để hiển thị quiz');
+                return;
+            }
+
+            if (!quizData || quizData.length === 0) {
+                console.error('quizData is empty or undefined');
+                alert('Lỗi: Không có dữ liệu câu hỏi');
+                return;
+            }
+
             container.innerHTML = '';
+            console.log('Displaying quiz with', quizData.length, 'questions');
 
             quizData.forEach((q, index) => {
                 const questionCard = document.createElement('div');
@@ -3765,6 +3936,9 @@ Answers:
 
             // Setup answer change listeners
             setupAnswerListeners();
+
+            // Restore saved progress
+            restoreQuizProgress();
 
             // Enable inputs when displaying quiz (in case coming from retry)
             enableQuizInputs();
@@ -3907,6 +4081,9 @@ Answers:
                 });
             }
 
+            // Clear auto-saved progress after submitting
+            clearQuizProgress();
+
             // Scroll to top of page
             window.scrollTo(0, 0);
         }
@@ -3982,8 +4159,15 @@ Answers:
             `;
             resultSection.classList.remove('hidden');
 
-            // Scroll to results
-            resultSection.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+            // Move result section to top of quiz (after progress bar)
+            const progressContainer = document.getElementById('progressContainer');
+            if (progressContainer && progressContainer.parentNode) {
+                // Insert result section right after progress bar
+                progressContainer.parentNode.insertBefore(resultSection, progressContainer.nextSibling);
+            }
+
+            // Scroll to top to see results
+            window.scrollTo({ top: 0, behavior: 'smooth' });
         }
 
         function backToEdit() {
@@ -4021,6 +4205,18 @@ Answers:
             document.getElementById('inputSection').classList.remove('hidden');
             document.getElementById('quizSection').classList.add('hidden');
             document.getElementById('resultSection').classList.add('hidden');
+
+            // Enable all checkboxes in setup section (exam mode, practice mode, shuffle, etc.)
+            const setupCheckboxes = document.querySelectorAll('#inputSection input[type="checkbox"]');
+            setupCheckboxes.forEach(checkbox => {
+                checkbox.disabled = false;
+            });
+
+            // Also enable radio buttons for question order
+            const setupRadios = document.querySelectorAll('#inputSection input[type="radio"]');
+            setupRadios.forEach(radio => {
+                radio.disabled = false;
+            });
 
             // Hiện lại AI prompts section khi quay về edit mode
             const aiPromptsSection = document.querySelector('.ai-prompts-section');
@@ -4111,6 +4307,7 @@ Answers:
             sidebar.classList.toggle('open');
         }
 
+
         function updateQuestionNavigator() {
             quizData.forEach((q, index) => {
                 const navItem = document.getElementById(`nav-q${index}`);
@@ -4184,10 +4381,365 @@ Answers:
         // Setup answer change listeners
         function setupAnswerListeners() {
             document.querySelectorAll('input[type="radio"], input[type="checkbox"]').forEach(input => {
-                input.addEventListener('change', () => {
+                input.addEventListener('change', (e) => {
                     updateQuestionNavigator();
+                    updateProgressBar(e);
+
+                    // Practice mode: show instant feedback
+                    if (practiceModeEnabled) {
+                        showInstantFeedback(e);
+                    }
+
+                    // Auto-save progress
+                    saveQuizProgress();
                 });
             });
+        }
+
+        function saveQuizProgress() {
+            const progress = {};
+            quizData.forEach((q, index) => {
+                const inputs = document.querySelectorAll(`input[name="question${index}"]:checked`);
+                if (inputs.length > 0) {
+                    progress[index] = Array.from(inputs).map(input => input.value);
+                }
+            });
+            saveToStorage(STORAGE_KEYS.QUIZ_PROGRESS, progress);
+        }
+
+        function restoreQuizProgress() {
+            const progress = loadFromStorage(STORAGE_KEYS.QUIZ_PROGRESS);
+            if (!progress) return;
+
+            Object.keys(progress).forEach(questionIndex => {
+                const answers = progress[questionIndex];
+                answers.forEach(answer => {
+                    const input = document.getElementById(`q${questionIndex}_${answer}`);
+                    if (input) {
+                        input.checked = true;
+                        // Trigger change event to update progress bar
+                        input.dispatchEvent(new Event('change', { bubbles: true }));
+                    }
+                });
+            });
+        }
+
+        function clearQuizProgress() {
+            localStorage.removeItem(STORAGE_KEYS.QUIZ_PROGRESS);
+            localStorage.removeItem(STORAGE_KEYS.QUIZ_STATE);
+            // Hide continue button when progress is cleared
+            const continueBtn = document.getElementById('continueQuizBtn');
+            if (continueBtn) {
+                continueBtn.style.display = 'none';
+            }
+        }
+
+        function checkAndShowContinueButton() {
+            const savedProgress = loadFromStorage(STORAGE_KEYS.QUIZ_PROGRESS);
+            const savedState = loadFromStorage(STORAGE_KEYS.QUIZ_STATE);
+            const continueBtn = document.getElementById('continueQuizBtn');
+            const continueInfo = document.getElementById('continueQuizInfo');
+
+            if (savedProgress && Object.keys(savedProgress).length > 0 && savedState) {
+                // Show continue button
+                continueBtn.style.display = 'block';
+
+                // Show info about saved progress
+                const answeredCount = Object.keys(savedProgress).filter(key => savedProgress[key].length > 0).length;
+
+                if (currentLanguage === 'vi') {
+                    continueInfo.textContent = `Đã làm ${answeredCount} câu`;
+                } else {
+                    continueInfo.textContent = `${answeredCount} questions answered`;
+                }
+
+                return;
+            }
+
+            // Hide continue button if no saved progress
+            continueBtn.style.display = 'none';
+        }
+
+        function saveQuizState() {
+            const state = {
+                quizData: quizData,
+                questionMapping: questionMapping,
+                correctAnswers: correctAnswers,
+                originalQuestionsText: originalQuestionsText,
+                originalAnswersText: originalAnswersText,
+                examModeEnabled: examModeEnabled,
+                practiceModeEnabled: practiceModeEnabled,
+                timeRemaining: timeRemaining
+            };
+            saveToStorage(STORAGE_KEYS.QUIZ_STATE, state);
+        }
+
+        function continueQuiz() {
+            // Load saved quiz state
+            const savedState = loadFromStorage(STORAGE_KEYS.QUIZ_STATE);
+            if (!savedState) {
+                // Fallback to generating new quiz if no saved state
+                generateQuiz();
+                return;
+            }
+
+            // Restore quiz state
+            quizData = savedState.quizData;
+            questionMapping = savedState.questionMapping;
+            correctAnswers = savedState.correctAnswers;
+            originalQuestionsText = savedState.originalQuestionsText;
+            originalAnswersText = savedState.originalAnswersText;
+            examModeEnabled = savedState.examModeEnabled;
+            practiceModeEnabled = savedState.practiceModeEnabled;
+            timeRemaining = savedState.timeRemaining;
+
+            // Show quiz section, hide input section
+            const inputSection = document.getElementById('inputSection');
+            const quizSection = document.getElementById('quizSection');
+
+            if (!inputSection) {
+                console.error('inputSection not found!');
+            } else {
+                inputSection.classList.add('hidden');
+                console.log('inputSection hidden');
+            }
+
+            if (!quizSection) {
+                console.error('quizSection not found!');
+            } else {
+                quizSection.classList.remove('hidden');
+                console.log('quizSection shown');
+            }
+
+            // Also hide result section
+            const resultSection = document.getElementById('resultSection');
+            if (resultSection) {
+                resultSection.classList.add('hidden');
+            }
+
+            // Hide AI prompts section
+            const aiPromptsSection = document.querySelector('.ai-prompts-section');
+            if (aiPromptsSection) {
+                aiPromptsSection.style.display = 'none';
+                console.log('AI prompts section hidden');
+            }
+
+            // Hide statistics section
+            const statisticsSection = document.getElementById('statisticsSection');
+            if (statisticsSection) {
+                statisticsSection.classList.add('hidden');
+                console.log('Statistics section hidden');
+            }
+
+            // Build quiz HTML
+            const container = document.getElementById('quizContainer');
+            if (!container) {
+                console.error('quizContainer not found!');
+                alert('Lỗi: Không tìm thấy container để hiển thị quiz');
+                return;
+            }
+
+            container.innerHTML = '';
+
+            quizData.forEach((q, index) => {
+                const originalNumber = questionMapping[index];
+                const isPinned = pinnedQuestions.has(originalNumber);
+                const questionCard = document.createElement('div');
+                questionCard.className = 'question-card';
+                questionCard.id = `card${index}`;
+                if (isPinned) questionCard.classList.add('pinned');
+
+                // Handle images in question text
+                const questionWithImages = parseQuestionImages(q.question);
+
+                let html = `
+                    <div class="question-header-container">
+                        <div class="question-header">${translations[currentLanguage].question} ${index + 1}</div>
+                        <button class="pin-button ${isPinned ? 'pinned' : 'unpinned'}"
+                                onclick="togglePin(${index})"
+                                id="pin${index}"
+                                title="${isPinned ? translations[currentLanguage].unpinQuestion : translations[currentLanguage].pinQuestion}">
+                            ${isPinned ? '📌' : '📍'}
+                        </button>
+                    </div>
+                    <div class="question-text">${questionWithImages}</div>
+                    <div class="options">
+                `;
+
+                const isMultiple = isMultipleAnswer(originalNumber);
+                const inputType = isMultiple ? 'checkbox' : 'radio';
+
+                q.options.forEach(option => {
+                    html += `
+                        <div class="option">
+                            <input type="${inputType}"
+                                   name="question${index}"
+                                   value="${option.letter}"
+                                   id="q${index}_${option.letter}">
+                            <label for="q${index}_${option.letter}">
+                                ${option.letter.toUpperCase()}. ${option.text}
+                            </label>
+                        </div>
+                    `;
+                });
+
+                html += `
+                    </div>
+                    <div class="question-result hidden" id="result${index}"></div>
+                `;
+
+                questionCard.innerHTML = html;
+                container.appendChild(questionCard);
+            });
+
+            // Start exam timer if needed
+            if (examModeEnabled && timeRemaining > 0) {
+                startTimer();
+            }
+
+            // Show navigator and toggle button
+            const questionNavigator = document.getElementById('questionNavigator');
+            const sidebarToggleBtn = document.getElementById('sidebarToggleBtn');
+            if (questionNavigator) questionNavigator.classList.add('active');
+            if (sidebarToggleBtn) sidebarToggleBtn.classList.add('active');
+
+            // Show fixed right timer and control panel if exam mode enabled
+            if (examModeEnabled) {
+                const fixedRightTimer = document.getElementById('fixedRightTimer');
+                if (fixedRightTimer) fixedRightTimer.classList.add('active');
+            }
+
+            // Always show control panel when quiz is displayed
+            const controlPanel = document.getElementById('fixedControlPanel');
+            if (controlPanel) {
+                controlPanel.classList.add('active');
+                controlPanel.style.display = ''; // Clear inline style
+            }
+
+            // Show and reset progress bar
+            const progressContainer = document.getElementById('progressContainer');
+            if (progressContainer) {
+                progressContainer.style.display = 'block';
+            }
+
+            // Generate question navigator
+            generateQuestionNavigator();
+
+            // Setup answer change listeners
+            setupAnswerListeners();
+
+            // Restore saved progress (this will update progress bar)
+            restoreQuizProgress();
+
+            // Enable inputs when displaying quiz
+            enableQuizInputs();
+
+            // Scroll to quiz section
+            const quizSectionElement = document.getElementById('quizSection');
+            if (quizSectionElement) {
+                quizSectionElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            } else {
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            }
+        }
+
+        function showInstantFeedback(event) {
+            // Extract question index from input name
+            const questionIndex = parseInt(event.target.name.replace('question', ''));
+            const originalNumber = questionMapping[questionIndex];
+            const resultDiv = document.getElementById(`result${questionIndex}`);
+
+            // Get user's answer
+            const isMultiple = isMultipleAnswer(originalNumber);
+            let userAnswer;
+            let isCorrect = false;
+
+            if (isMultiple) {
+                const selectedOptions = document.querySelectorAll(`input[name="question${questionIndex}"]:checked`);
+                if (selectedOptions.length === 0) {
+                    resultDiv.classList.add('hidden');
+                    return;
+                }
+                userAnswer = Array.from(selectedOptions).map(opt => opt.value).sort();
+                const correctAnswer = correctAnswers[originalNumber].slice().sort();
+                isCorrect = userAnswer.length === correctAnswer.length &&
+                           userAnswer.every((val, idx) => val === correctAnswer[idx]);
+            } else {
+                const selectedOption = document.querySelector(`input[name="question${questionIndex}"]:checked`);
+                if (!selectedOption) {
+                    resultDiv.classList.add('hidden');
+                    return;
+                }
+                userAnswer = selectedOption.value;
+                isCorrect = userAnswer === correctAnswers[originalNumber];
+            }
+
+            // Show result
+            resultDiv.classList.remove('hidden');
+            if (isCorrect) {
+                resultDiv.className = 'question-result correct';
+                resultDiv.textContent = translations[currentLanguage].correct;
+            } else {
+                const correctAnswerDisplay = Array.isArray(correctAnswers[originalNumber])
+                    ? correctAnswers[originalNumber].map(a => a.toUpperCase()).join(', ')
+                    : correctAnswers[originalNumber].toUpperCase();
+                resultDiv.className = 'question-result incorrect';
+                resultDiv.textContent = `${translations[currentLanguage].incorrect} ${correctAnswerDisplay}`;
+            }
+        }
+
+        function updateProgressBar(event) {
+            // Extract question index from input name (e.g., "question0" -> 0)
+            const questionIndex = parseInt(event.target.name.replace('question', ''));
+
+            // Check if this question has any answer selected
+            const inputType = event.target.type;
+            let hasAnswer = false;
+
+            if (inputType === 'radio') {
+                // For radio, check if any radio is selected
+                const selectedRadio = document.querySelector(`input[name="question${questionIndex}"]:checked`);
+                hasAnswer = selectedRadio !== null;
+            } else if (inputType === 'checkbox') {
+                // For checkbox, check if any checkbox is checked
+                const checkedBoxes = document.querySelectorAll(`input[name="question${questionIndex}"]:checked`);
+                hasAnswer = checkedBoxes.length > 0;
+            }
+
+            // Update answeredQuestions set
+            if (hasAnswer) {
+                answeredQuestions.add(questionIndex);
+            } else {
+                answeredQuestions.delete(questionIndex);
+            }
+
+            // Update progress bar display
+            const total = quizData ? quizData.length : 0;
+            const answered = answeredQuestions.size;
+            const percentage = total > 0 ? Math.round((answered / total) * 100) : 0;
+
+            const progressText = document.getElementById('progressText');
+            const progressPercent = document.getElementById('progressPercent');
+            const progressBarFill = document.getElementById('progressBarFill');
+
+            if (progressText && progressPercent && progressBarFill) {
+                progressText.textContent = `${answered}/${total} câu`;
+                progressPercent.textContent = `${percentage}%`;
+                progressBarFill.style.width = `${percentage}%`;
+            }
+        }
+
+        function resetProgressBar() {
+            answeredQuestions.clear();
+            const progressText = document.getElementById('progressText');
+            const progressPercent = document.getElementById('progressPercent');
+            const progressBarFill = document.getElementById('progressBarFill');
+
+            if (progressText && progressPercent && progressBarFill && quizData) {
+                progressText.textContent = `0/${quizData.length} câu`;
+                progressPercent.textContent = '0%';
+                progressBarFill.style.width = '0%';
+            }
         }
 
         function retryAllQuestions() {
@@ -4527,6 +5079,50 @@ Answers:
                 scrollToTopBtn.classList.add('show');
             } else {
                 scrollToTopBtn.classList.remove('show');
+            }
+
+            // Fixed progress bar on scroll
+            const progressContainer = document.getElementById('progressContainer');
+            const quizMainContent = document.querySelector('.quiz-main-content');
+
+            if (progressContainer && progressContainer.style.display !== 'none') {
+                const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+
+                if (scrollTop > 100) {
+                    // Save original dimensions before making it fixed (only once)
+                    if (!progressContainer.classList.contains('fixed')) {
+                        const rect = progressContainer.getBoundingClientRect();
+
+                        // Store original width
+                        progressContainer.setAttribute('data-original-width', rect.width);
+                    }
+
+                    progressContainer.classList.add('fixed');
+
+                    // Apply original width and center it
+                    const originalWidth = progressContainer.getAttribute('data-original-width');
+
+                    if (originalWidth) {
+                        progressContainer.style.width = originalWidth + 'px';
+                        // Center horizontally
+                        progressContainer.style.left = '50%';
+                        progressContainer.style.transform = 'translateX(-50%)';
+                    }
+
+                    if (quizMainContent) {
+                        quizMainContent.classList.add('has-fixed-progress');
+                    }
+                } else {
+                    progressContainer.classList.remove('fixed');
+                    // Clear inline styles
+                    progressContainer.style.width = '';
+                    progressContainer.style.left = '';
+                    progressContainer.style.transform = '';
+
+                    if (quizMainContent) {
+                        quizMainContent.classList.remove('has-fixed-progress');
+                    }
+                }
             }
         });
     </script>
