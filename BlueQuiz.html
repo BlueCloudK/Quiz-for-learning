@@ -4206,6 +4206,18 @@ Answers:
             document.getElementById('quizSection').classList.add('hidden');
             document.getElementById('resultSection').classList.add('hidden');
 
+            // Enable all checkboxes in setup section (exam mode, practice mode, shuffle, etc.)
+            const setupCheckboxes = document.querySelectorAll('#inputSection input[type="checkbox"]');
+            setupCheckboxes.forEach(checkbox => {
+                checkbox.disabled = false;
+            });
+
+            // Also enable radio buttons for question order
+            const setupRadios = document.querySelectorAll('#inputSection input[type="radio"]');
+            setupRadios.forEach(radio => {
+                radio.disabled = false;
+            });
+
             // Hiện lại AI prompts section khi quay về edit mode
             const aiPromptsSection = document.querySelector('.ai-prompts-section');
             if (aiPromptsSection) {
