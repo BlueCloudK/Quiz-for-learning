@@ -2943,7 +2943,28 @@
             }
         }
 
+        // Pause/resume state must be reset between exam attempts.
+        let timerPaused = false;
+
+        function updatePauseTimerControl() {
+            const pauseIcon = document.getElementById('pauseIcon');
+            const pauseText = document.getElementById('pauseText');
+
+            pauseIcon.textContent = timerPaused ? '▶️' : '⏸️';
+            pauseText.textContent = timerPaused
+                ? (translations[currentLanguage].resumeTimer || 'Tiếp tục')
+                : (translations[currentLanguage].pauseTimer || 'Tạm dừng');
+        }
+
         function startTimer() {
+            // Never allow multiple countdown intervals to run concurrently.
+            if (timerInterval) {
+                clearInterval(timerInterval);
+                timerInterval = null;
+            }
+
+            timerPaused = false;
+            updatePauseTimerControl();
             updateTimerDisplay();
             // Show pause button when timer starts
             document.getElementById('pauseTimerBtn').style.display = 'block';
@@ -2965,23 +2986,18 @@
                 clearInterval(timerInterval);
                 timerInterval = null;
             }
+
+            timerPaused = false;
+            updatePauseTimerControl();
             // Hide pause button when timer stops
             document.getElementById('pauseTimerBtn').style.display = 'none';
         }
 
         // Pause/Resume timer functionality
-        let timerPaused = false;
-
         function togglePauseTimer() {
-            const pauseIcon = document.getElementById('pauseIcon');
-            const pauseText = document.getElementById('pauseText');
-
             if (timerPaused) {
                 // Resume timer
                 startTimer();
-                timerPaused = false;
-                pauseIcon.textContent = '⏸️';
-                pauseText.textContent = translations[currentLanguage].pauseTimer || 'Tạm dừng';
             } else {
                 // Pause timer
                 if (timerInterval) {
@@ -2989,8 +3005,7 @@
                     timerInterval = null;
                 }
                 timerPaused = true;
-                pauseIcon.textContent = '▶️';
-                pauseText.textContent = translations[currentLanguage].resumeTimer || 'Tiếp tục';
+                updatePauseTimerControl();
             }
         }
 

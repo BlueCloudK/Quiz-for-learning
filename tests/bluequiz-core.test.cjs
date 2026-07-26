@@ -109,6 +109,64 @@ assert.equal(settingsElements.timerInputGroup.style.display, 'grid');
 assert.doesNotMatch(html, /id="practiceModeCheckbox"|id="examModeCheckbox"/);
 assert.equal((html.match(/<input type="radio" name="quizMode"/g) || []).length, 3);
 
+const timerElements = {
+    pauseTimerBtn: { style: {} },
+    pauseIcon: { textContent: '' },
+    pauseText: { textContent: '' }
+};
+let nextIntervalId = 0;
+const activeIntervals = new Set();
+const timerApi = new Function(
+    'document', 'translations', 'currentLanguage', 'setInterval', 'clearInterval',
+    `
+        let timerInterval = null;
+        let timeRemaining = 60;
+        function updateTimerDisplay() {}
+        function alert() {}
+        function submitQuiz() {}
+        ${extractFunction('updatePauseTimerControl')}
+        ${extractFunction('startTimer')}
+        ${extractFunction('stopTimer')}
+        ${extractFunction('togglePauseTimer')}
+        return {
+            startTimer,
+            stopTimer,
+            togglePauseTimer,
+            getState: () => ({ timerInterval, timerPaused })
+        };
+    `
+)(
+    { getElementById: id => timerElements[id] },
+    { vi: { pauseTimer: 'Tạm dừng', resumeTimer: 'Tiếp tục', timeUp: 'Hết giờ' } },
+    'vi',
+    () => {
+        const id = ++nextIntervalId;
+        activeIntervals.add(id);
+        return id;
+    },
+    id => activeIntervals.delete(id)
+);
+
+timerApi.startTimer();
+timerApi.startTimer();
+assert.equal(activeIntervals.size, 1, 'Starting a timer twice must keep only one interval');
+assert.equal(timerApi.getState().timerPaused, false);
+assert.equal(timerElements.pauseText.textContent, 'Tạm dừng');
+
+timerApi.togglePauseTimer();
+assert.equal(activeIntervals.size, 0);
+assert.equal(timerApi.getState().timerPaused, true);
+assert.equal(timerElements.pauseText.textContent, 'Tiếp tục');
+
+timerApi.stopTimer();
+assert.equal(timerApi.getState().timerPaused, false, 'Stopping must reset pause state for the next attempt');
+assert.equal(timerElements.pauseText.textContent, 'Tạm dừng');
+assert.equal(timerElements.pauseTimerBtn.style.display, 'none');
+
+timerApi.startTimer();
+timerApi.togglePauseTimer();
+assert.equal(activeIntervals.size, 0, 'The first click in a new attempt must pause, not start another interval');
+
 const pairElements = {
     quizPairStatus: { textContent: '', style: {} },
     questionsInput: { value: '' },
