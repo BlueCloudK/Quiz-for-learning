@@ -1492,6 +1492,7 @@
 
         .quiz-main-content {
             margin-left: 0;
+            min-width: 0;
         }
 
         .navigator-header {
@@ -1757,6 +1758,55 @@
             display: block;
         }
 
+        @media (min-width: 769px) {
+            body.quiz-active .header {
+                padding: 16px 24px;
+                text-align: left;
+            }
+
+            body.quiz-active .header h1 {
+                font-size: 1.8em;
+                margin: 0;
+            }
+
+            body.quiz-active .header p {
+                display: none;
+            }
+
+            body.quiz-active .language-selector {
+                top: 14px;
+                right: 20px;
+            }
+
+            .quiz-layout {
+                display: grid;
+                grid-template-columns: minmax(0, 1fr) 280px;
+                gap: 20px;
+                align-items: start;
+            }
+
+            .quiz-side-rail {
+                position: sticky;
+                top: 20px;
+                grid-column: 2;
+                grid-row: 1;
+                display: flex;
+                flex-direction: column;
+                gap: 16px;
+                align-self: start;
+            }
+
+            .fixed-right-timer,
+            .fixed-control-panel {
+                position: static;
+                right: auto;
+                bottom: auto;
+                top: auto;
+                width: 100%;
+                z-index: 20;
+            }
+        }
+
         .control-panel-header {
             font-weight: 600;
             font-size: 1.1em;
@@ -1841,6 +1891,10 @@
 
             .quiz-main-content {
                 margin-left: 0 !important;
+            }
+
+            .quiz-layout {
+                display: block;
             }
 
             .question-nav-list {
@@ -2099,31 +2153,6 @@
     </style>
 </head>
 <body>
-    <!-- Fixed Right Timer Panel -->
-    <div class="fixed-right-timer" id="fixedRightTimer">
-        <div class="timer-panel-header" data-i18n="timerPanelHeader">⏱️ Thời Gian</div>
-        <div class="timer-display-box">
-            <div class="fixed-timer-label" data-i18n="timeRemaining">Thời gian còn lại:</div>
-            <div class="fixed-timer-text" id="fixedTimerText">00:30:00</div>
-        </div>
-        <button class="pause-timer-btn" id="pauseTimerBtn" onclick="togglePauseTimer()" style="display: none;">
-            <span id="pauseIcon">⏸️</span> <span id="pauseText" data-i18n="pauseTimer">Tạm dừng</span>
-        </button>
-    </div>
-
-    <!-- Fixed Control Panel - Bottom Right -->
-    <div class="fixed-control-panel" id="fixedControlPanel">
-        <div class="control-panel-header" data-i18n="controlPanelHeader">🎮 Điều Khiển</div>
-        <div class="navigator-controls">
-            <button class="btn-success btn-nav" onclick="submitQuiz()" data-i18n="submitBtn">Chấm Điểm</button>
-            <button class="btn-secondary btn-nav" onclick="backToEdit()" data-i18n="backToEditBtn">⬅️ Quay Lại</button>
-            <button class="btn-secondary btn-nav" onclick="restartQuiz()" data-i18n="restartBtn">🔄 Làm Lại</button>
-            <button class="btn-primary btn-nav hidden" id="retryAllBtn" onclick="retryAllQuestions()" data-i18n="retryAllBtn">🔄 Làm Lại Tất Cả</button>
-            <button class="btn-warning btn-nav hidden" id="retryIncorrectBtn" onclick="retryIncorrectQuestions()" data-i18n="retryIncorrectBtn">Làm Lại Câu Sai</button>
-            <button class="btn-info btn-nav hidden" id="retryPinnedBtn" onclick="retryPinnedQuestions()" data-i18n="retryPinnedBtn">Làm Lại Câu Đã Pin</button>
-        </div>
-    </div>
-
     <!-- Image Lightbox Modal -->
     <div id="imageModal" class="image-modal" onclick="closeImageModal()">
         <span class="modal-close">&times;</span>
@@ -2365,6 +2394,32 @@
                         </div>
 
                         <div id="quizContainer"></div>
+                    </div>
+
+                    <!-- Desktop side rail; becomes normal content below the quiz on mobile. -->
+                    <div class="quiz-side-rail">
+                        <div class="fixed-right-timer" id="fixedRightTimer">
+                            <div class="timer-panel-header" data-i18n="timerPanelHeader">⏱️ Thời Gian</div>
+                            <div class="timer-display-box">
+                                <div class="fixed-timer-label" data-i18n="timeRemaining">Thời gian còn lại:</div>
+                                <div class="fixed-timer-text" id="fixedTimerText">00:30:00</div>
+                            </div>
+                            <button class="pause-timer-btn" id="pauseTimerBtn" onclick="togglePauseTimer()" style="display: none;">
+                                <span id="pauseIcon">⏸️</span> <span id="pauseText" data-i18n="pauseTimer">Tạm dừng</span>
+                            </button>
+                        </div>
+
+                        <aside class="fixed-control-panel" id="fixedControlPanel" aria-labelledby="controlPanelTitle">
+                            <div class="control-panel-header" id="controlPanelTitle" data-i18n="controlPanelHeader">🎮 Điều Khiển</div>
+                            <div class="navigator-controls">
+                                <button class="btn-success btn-nav" id="submitQuizBtn" onclick="submitQuiz()" data-i18n="submitBtn">Chấm Điểm</button>
+                                <button class="btn-secondary btn-nav" onclick="backToEdit()" data-i18n="backToEditBtn">⬅️ Quay Lại</button>
+                                <button class="btn-secondary btn-nav" onclick="restartQuiz()" data-i18n="restartBtn">🔄 Làm Lại</button>
+                                <button class="btn-primary btn-nav hidden" id="retryAllBtn" onclick="retryAllQuestions()" data-i18n="retryAllBtn">🔄 Làm Lại Tất Cả</button>
+                                <button class="btn-warning btn-nav hidden" id="retryIncorrectBtn" onclick="retryIncorrectQuestions()" data-i18n="retryIncorrectBtn">Làm Lại Câu Sai</button>
+                                <button class="btn-info btn-nav hidden" id="retryPinnedBtn" onclick="retryPinnedQuestions()" data-i18n="retryPinnedBtn">Làm Lại Câu Đã Pin</button>
+                            </div>
+                        </aside>
                     </div>
                 </div>
             </div>
@@ -3412,8 +3467,11 @@ DATA TO REVIEW:
                     const pinButton = document.getElementById(`pin${index}`);
                     if (pinButton) {
                         pinButton.title = isPinned ? translations[lang].unpinQuestion : translations[lang].pinQuestion;
+                        pinButton.setAttribute('aria-label', pinButton.title);
                     }
                 });
+
+                updateProgressBar();
             }
 
             // Update result section if it exists
@@ -3839,8 +3897,7 @@ DATA TO REVIEW:
 
             // Reset trạng thái
             isGraded = false;
-            document.getElementById('retryIncorrectBtn').classList.add('hidden');
-            document.getElementById('retryPinnedBtn').classList.add('hidden');
+            updateRetryButtons();
             document.getElementById('filterSection').style.display = 'none';
 
             // Sync the selected mode before starting the quiz.
@@ -3863,6 +3920,7 @@ DATA TO REVIEW:
                 document.getElementById('inputSection').classList.add('hidden');
                 document.getElementById('quizSection').classList.remove('hidden');
                 document.getElementById('resultSection').classList.add('hidden');
+                document.body.classList.add('quiz-active');
 
                 // Show and reset progress bar
                 document.getElementById('progressContainer').style.display = 'block';
@@ -3963,7 +4021,8 @@ DATA TO REVIEW:
                         <button class="pin-button ${isPinned ? 'pinned' : 'unpinned'}"
                                 onclick="togglePin(${index})"
                                 id="pin${index}"
-                                title="${isPinned ? translations[currentLanguage].unpinQuestion : translations[currentLanguage].pinQuestion}">
+                                title="${isPinned ? translations[currentLanguage].unpinQuestion : translations[currentLanguage].pinQuestion}"
+                                aria-label="${isPinned ? translations[currentLanguage].unpinQuestion : translations[currentLanguage].pinQuestion}">
                             ${isPinned ? '📌' : '📍'}
                         </button>
                     </div>
@@ -4024,6 +4083,7 @@ DATA TO REVIEW:
                 pinButton.classList.add('unpinned');
                 pinButton.textContent = '📍';
                 pinButton.title = translations[currentLanguage].pinQuestion;
+                pinButton.setAttribute('aria-label', pinButton.title);
                 card.classList.remove('pinned');
             } else {
                 pinnedQuestions.add(originalNumber);
@@ -4031,6 +4091,7 @@ DATA TO REVIEW:
                 pinButton.classList.add('pinned');
                 pinButton.textContent = '📌';
                 pinButton.title = translations[currentLanguage].unpinQuestion;
+                pinButton.setAttribute('aria-label', pinButton.title);
                 card.classList.add('pinned');
             }
 
@@ -4167,9 +4228,14 @@ DATA TO REVIEW:
         }
 
         function updateRetryButtons() {
+            const submitQuizBtn = document.getElementById('submitQuizBtn');
             const retryAllBtn = document.getElementById('retryAllBtn');
             const retryIncorrectBtn = document.getElementById('retryIncorrectBtn');
             const retryPinnedBtn = document.getElementById('retryPinnedBtn');
+
+            if (submitQuizBtn) {
+                submitQuizBtn.classList.toggle('hidden', isGraded);
+            }
 
             // Only show retry buttons after quiz is graded
             if (isGraded) {
@@ -4273,6 +4339,7 @@ DATA TO REVIEW:
             document.getElementById('inputSection').classList.remove('hidden');
             document.getElementById('quizSection').classList.add('hidden');
             document.getElementById('resultSection').classList.add('hidden');
+            document.body.classList.remove('quiz-active');
 
             // Enable all checkboxes in setup section (exam mode, practice mode, shuffle, etc.)
             const setupCheckboxes = document.querySelectorAll('#inputSection input[type="checkbox"]');
@@ -4330,6 +4397,7 @@ DATA TO REVIEW:
             document.getElementById('resultSection').classList.add('hidden');
             document.getElementById('retryIncorrectBtn').classList.add('hidden');
             document.getElementById('filterSection').style.display = 'none';
+            updateRetryButtons();
 
             // Update navigator
             updateQuestionNavigator();
@@ -4576,6 +4644,7 @@ DATA TO REVIEW:
                 console.error('quizSection not found!');
             } else {
                 quizSection.classList.remove('hidden');
+                document.body.classList.add('quiz-active');
                 console.log('quizSection shown');
             }
 
@@ -4626,7 +4695,8 @@ DATA TO REVIEW:
                         <button class="pin-button ${isPinned ? 'pinned' : 'unpinned'}"
                                 onclick="togglePin(${index})"
                                 id="pin${index}"
-                                title="${isPinned ? translations[currentLanguage].unpinQuestion : translations[currentLanguage].pinQuestion}">
+                                title="${isPinned ? translations[currentLanguage].unpinQuestion : translations[currentLanguage].pinQuestion}"
+                                aria-label="${isPinned ? translations[currentLanguage].unpinQuestion : translations[currentLanguage].pinQuestion}">
                             ${isPinned ? '📌' : '📍'}
                         </button>
                     </div>
@@ -4683,6 +4753,7 @@ DATA TO REVIEW:
                 controlPanel.classList.add('active');
                 controlPanel.style.display = ''; // Clear inline style
             }
+            updateRetryButtons();
 
             // Show and reset progress bar
             const progressContainer = document.getElementById('progressContainer');
@@ -4791,7 +4862,7 @@ DATA TO REVIEW:
             const progressBarFill = document.getElementById('progressBarFill');
 
             if (progressText && progressPercent && progressBarFill) {
-                progressText.textContent = `${answered}/${total} câu`;
+                progressText.textContent = `${answered}/${total} ${translations[currentLanguage].questions}`;
                 progressPercent.textContent = `${percentage}%`;
                 progressBarFill.style.width = `${percentage}%`;
             }
@@ -4804,7 +4875,7 @@ DATA TO REVIEW:
             const progressBarFill = document.getElementById('progressBarFill');
 
             if (progressText && progressPercent && progressBarFill && quizData) {
-                progressText.textContent = `0/${quizData.length} câu`;
+                progressText.textContent = `0/${quizData.length} ${translations[currentLanguage].questions}`;
                 progressPercent.textContent = '0%';
                 progressBarFill.style.width = '0%';
             }
