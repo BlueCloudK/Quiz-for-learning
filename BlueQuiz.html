@@ -10,29 +10,29 @@
     <script src="vendor/mammoth.browser.min.js"></script>
     <style>
         :root {
-            --bg-gradient-start: #667eea;
-            --bg-gradient-end: #764ba2;
-            --container-bg: #ffffff;
-            --text-primary: #333333;
-            --text-secondary: #666666;
-            --card-bg: #f8f9fa;
-            --border-color: #ddd;
+            --bg-gradient-start: #eef3f9;
+            --bg-gradient-end: #e8eef7;
+            --container-bg: #fbfcfe;
+            --text-primary: #1f2937;
+            --text-secondary: #64748b;
+            --card-bg: #f8fafc;
+            --border-color: #dbe3ef;
             --input-bg: #ffffff;
-            --input-border: #ddd;
-            --correct-bg: #d4edda;
-            --correct-text: #155724;
-            --incorrect-bg: #f8d7da;
-            --incorrect-text: #721c24;
-            --filter-bg: #f0f4ff;
+            --input-border: #cbd5e1;
+            --correct-bg: #ecfdf3;
+            --correct-text: #166534;
+            --incorrect-bg: #fff1f2;
+            --incorrect-text: #be123c;
+            --filter-bg: #eef2ff;
             --ai-prompts-bg-start: #a8edea;
             --ai-prompts-bg-end: #fed6e3;
             --template-bg: rgba(255, 255, 255, 0.5);
             --template-item-bg: #ffffff;
             --prompt-card-bg: #ffffff;
             --prompt-text-bg: #f8f9fa;
-            --shadow-color: rgba(0, 0, 0, 0.1);
-            --accent-color: #667eea;
-            --accent-color-light: #8b9efc;
+            --shadow-color: rgba(15, 23, 42, 0.08);
+            --accent-color: #586fd8;
+            --accent-color-light: #a5b4fc;
         }
 
         body.dark-mode {
@@ -80,7 +80,7 @@
             margin: 0 auto;
             background: var(--container-bg);
             border-radius: 20px;
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            box-shadow: 0 18px 48px var(--shadow-color);
             overflow: hidden;
             transition: background 0.3s ease;
         }
@@ -1909,6 +1909,155 @@
 
         .fixed-control-panel.active {
             display: block;
+        }
+
+        /* Calm, high-contrast light theme for long study sessions. */
+        body:not(.dark-mode).quiz-active .header {
+            background: #ffffff;
+            color: var(--text-primary);
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        body:not(.dark-mode).quiz-active .theme-toggle,
+        body:not(.dark-mode).quiz-active .language-button {
+            background: #f8fafc;
+            border-color: #cbd5e1;
+            color: #475569;
+        }
+
+        body:not(.dark-mode).quiz-active .theme-toggle:hover,
+        body:not(.dark-mode).quiz-active .language-button:hover {
+            background: #eef2ff;
+            border-color: var(--accent-color-light);
+        }
+
+        body:not(.dark-mode).quiz-active .language-button.active {
+            background: #e8f7ee;
+            border-color: #86d3a1;
+            color: #166534;
+            box-shadow: none;
+        }
+
+        body:not(.dark-mode) .progress-container,
+        body:not(.dark-mode) .fixed-right-timer,
+        body:not(.dark-mode) .fixed-control-panel {
+            border: 1px solid var(--border-color);
+            box-shadow: 0 8px 24px rgba(15, 23, 42, 0.06);
+        }
+
+        body:not(.dark-mode) .progress-bar-bg {
+            height: 12px;
+            background: #e2e8f0;
+        }
+
+        body:not(.dark-mode) .question-card {
+            background: #ffffff;
+            border: 1px solid var(--border-color);
+            border-left: 4px solid var(--accent-color);
+            box-shadow: 0 4px 14px rgba(15, 23, 42, 0.05);
+        }
+
+        body:not(.dark-mode) #resultSection:not(.hidden) {
+            margin: 0 0 20px;
+            padding: 22px;
+            background: #f8fafc;
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            color: var(--text-primary);
+        }
+
+        body:not(.dark-mode) #resultSection h2 {
+            margin-bottom: 6px;
+            color: var(--text-primary);
+            font-size: 1.45em;
+        }
+
+        body:not(.dark-mode) #resultSection .score-display {
+            margin: 8px 0 18px;
+            font-size: 2.5em;
+            color: #334155;
+        }
+
+        body:not(.dark-mode) #resultSection .result-details {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+            gap: 10px;
+            margin-top: 0;
+        }
+
+        body:not(.dark-mode) #resultSection .result-item {
+            padding: 13px 14px;
+            background: #ffffff;
+            border: 1px solid var(--border-color);
+            border-radius: 9px;
+        }
+
+        body:not(.dark-mode) #resultSection .result-item h3 {
+            color: var(--text-secondary);
+            font-size: 0.86em;
+        }
+
+        body:not(.dark-mode) #resultSection .result-item p {
+            font-size: 1.65em;
+            color: var(--text-primary);
+        }
+
+        .result-value.correct-value { color: #16a34a !important; }
+        .result-value.incorrect-value { color: #dc2626 !important; }
+        .result-value.unanswered-value { color: #d97706 !important; }
+
+        body.dark-mode .result-value.correct-value { color: #4ade80 !important; }
+        body.dark-mode .result-value.incorrect-value { color: #f87171 !important; }
+        body.dark-mode .result-value.unanswered-value { color: #fbbf24 !important; }
+
+        body:not(.dark-mode) .question-navigator {
+            background: #ffffff;
+            box-shadow: 0 18px 42px rgba(15, 23, 42, 0.16);
+        }
+
+        body:not(.dark-mode) .navigator-header {
+            background: #ffffff;
+        }
+
+        body:not(.dark-mode) .navigator-backdrop {
+            background: rgba(30, 41, 59, 0.24);
+        }
+
+        body:not(.dark-mode) .sidebar-toggle-btn {
+            background: #ffffff;
+            color: var(--accent-color);
+            border-color: #c7d2fe;
+            box-shadow: 0 8px 22px rgba(15, 23, 42, 0.12);
+        }
+
+        body:not(.dark-mode) .question-nav-item.answered {
+            background: #eff6ff;
+            border-color: #93c5fd;
+            color: #1d4ed8;
+        }
+
+        body:not(.dark-mode) .question-nav-item.correct {
+            background: #ecfdf3;
+            border-color: #86efac;
+            color: #166534;
+        }
+
+        body:not(.dark-mode) .question-nav-item.incorrect {
+            background: #fff1f2;
+            border-color: #fda4af;
+            color: #be123c;
+        }
+
+        body:not(.dark-mode) .question-nav-item.pinned {
+            background: #fffbeb;
+            border-color: #fbbf24;
+            color: #92400e;
+        }
+
+        body:not(.dark-mode) .question-nav-item.pinned.answered {
+            background: #fff7ed;
+            border-color: #f59e0b;
+            color: #9a3412;
         }
 
         @media (min-width: 769px) {
@@ -4566,16 +4715,16 @@ DATA TO REVIEW:
                     </div>
                     <div class="result-item">
                         <h3>${translations[currentLanguage].correctAnswers}</h3>
-                        <p style="color: #38ef7d;">${correct}</p>
+                        <p class="result-value correct-value">${correct}</p>
                     </div>
                     <div class="result-item">
                         <h3>${translations[currentLanguage].incorrectAnswers}</h3>
-                        <p style="color: #ff6b6b;">${incorrect}</p>
+                        <p class="result-value incorrect-value">${incorrect}</p>
                     </div>
                     ${unanswered > 0 ? `
                     <div class="result-item">
                         <h3>${translations[currentLanguage].unansweredQuestions}</h3>
-                        <p style="color: #ffd93d;">${unanswered}</p>
+                        <p class="result-value unanswered-value">${unanswered}</p>
                     </div>
                     ` : ''}
                 </div>
