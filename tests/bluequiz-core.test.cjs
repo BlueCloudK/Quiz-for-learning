@@ -3,25 +3,25 @@ const fs = require('node:fs');
 const path = require('node:path');
 
 const htmlPath = path.join(__dirname, '..', 'BlueQuiz.html');
+const appScriptPath = path.join(__dirname, '..', 'assets', 'bluequiz.js');
 const html = fs.readFileSync(htmlPath, 'utf8');
-const inlineScript = [...html.matchAll(/<script(?:\s[^>]*)?>([\s\S]*?)<\/script>/gi)]
-    .map(match => match[1])
-    .find(script => script.trim());
+const appScript = fs.readFileSync(appScriptPath, 'utf8');
 
-assert.ok(inlineScript, 'BlueQuiz must contain an inline application script');
-new Function(inlineScript);
+assert.match(html, /<link rel="stylesheet" href="assets\/bluequiz\.css">/);
+assert.match(html, /<script src="assets\/bluequiz\.js"><\/script>/);
+new Function(appScript);
 
 function extractFunction(name) {
-    let start = inlineScript.indexOf(`async function ${name}`);
-    if (start < 0) start = inlineScript.indexOf(`function ${name}`);
+    let start = appScript.indexOf(`async function ${name}`);
+    if (start < 0) start = appScript.indexOf(`function ${name}`);
     assert.notEqual(start, -1, `Missing function: ${name}`);
 
-    const bodyStart = inlineScript.indexOf('{', start);
+    const bodyStart = appScript.indexOf('{', start);
     let depth = 0;
-    for (let index = bodyStart; index < inlineScript.length; index++) {
-        if (inlineScript[index] === '{') depth++;
-        if (inlineScript[index] === '}' && --depth === 0) {
-            return inlineScript.slice(start, index + 1);
+    for (let index = bodyStart; index < appScript.length; index++) {
+        if (appScript[index] === '{') depth++;
+        if (appScript[index] === '}' && --depth === 0) {
+            return appScript.slice(start, index + 1);
         }
     }
     throw new Error(`Unclosed function: ${name}`);

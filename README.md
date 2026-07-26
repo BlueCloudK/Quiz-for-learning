@@ -79,6 +79,8 @@ All templates, formats, and AI prompts are available in the application interfac
 - Client-side only (no server required)
 - Responsive design using CSS Grid and Flexbox
 - Cross-browser compatible
+- `BlueQuiz.html` contains the page structure, `assets/bluequiz.css` contains styles, and `assets/bluequiz.js` contains application behavior
+- Run the regression checks with `node tests/bluequiz-core.test.cjs`
 
 ## 📄 License
 
@@ -174,6 +176,8 @@ Tất cả templates, formats, và AI prompts đều có sẵn trong giao diện
 - Chỉ chạy phía client (không cần server)
 - Thiết kế responsive sử dụng CSS Grid và Flexbox
 - Tương thích đa trình duyệt
+- `BlueQuiz.html` chứa cấu trúc trang, `assets/bluequiz.css` chứa giao diện và `assets/bluequiz.js` chứa logic ứng dụng
+- Chạy kiểm thử hồi quy bằng lệnh `node tests/bluequiz-core.test.cjs`
 
 ## 📄 Giấy Phép
 
