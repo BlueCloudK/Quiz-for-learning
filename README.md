@@ -35,8 +35,11 @@ A powerful, interactive quiz application that helps you create, manage, and prac
 - **🌙 Dark Mode**: Toggle between light and dark themes
 - **⏱️ Exam Mode**: Timed quiz mode with countdown timer, pause/resume functionality, and auto-submit when time expires
 - **📚 Quiz Management**: Save and load multiple quiz sets with custom names - continue interrupted quizzes
+- **🛡️ Data Validation**: Block missing, orphaned, duplicate, or invalid answers before saving or starting a quiz
+- **📂 Paired Import**: Select questions and answers files together; BlueQuiz identifies, validates, and names the set
+- **🗄️ Full Backup & Restore**: Export and restore all BlueQuiz sets, history, preferences, and progress as JSON
 - **📊 Statistics Dashboard**: Track quiz history with performance badges (Excellent/Good/Average/Poor), detailed analytics, and sortable history table
-- **📁 Import/Export**: Import/export questions from Excel (.xlsx, .xls), Word (.docx), or Text (.txt); embed images with lightbox viewer
+- **📁 Offline Import/Export**: Import/export Excel (.xlsx, .xls), Word (.docx), or Text (.txt) without an internet connection; embed images with lightbox viewer
 - **🖼️ Image Support**: Upload, embed images in questions using [IMG:...] tags, and view images in fullscreen lightbox modal
 
 ### User Interface
@@ -119,6 +122,9 @@ Feel free to fork, modify, and use this project for your learning needs!
 - **📊 Thanh Tiến Độ**: Theo dõi tiến độ thời gian thực - hiển thị số câu đã trả lời/tổng số và phần trăm hoàn thành
 - **🎯 Chế Độ Ôn Tập**: Hiển thị kết quả ngay khi chọn đáp án (chấm điểm tức thì) - hoàn hảo cho tự học và ôn tập
 - **💾 Tự Động Lưu Tiến Trình**: Tự động lưu câu trả lời và trạng thái quiz - không bao giờ mất tiến trình khi refresh trang
+- **🛡️ Kiểm Tra Dữ Liệu**: Chặn đáp án thiếu, thừa, trùng hoặc không tồn tại trước khi lưu và tạo quiz
+- **📂 Nhập Cặp File**: Chọn đồng thời file câu hỏi và đáp án; BlueQuiz tự nhận diện, kiểm tra và đặt tên bộ đề
+- **🗄️ Sao Lưu & Khôi Phục**: Xuất và khôi phục toàn bộ bộ đề, lịch sử, tùy chọn và tiến trình bằng JSON
 - **📋 Sidebar Navigator Câu Hỏi**: Bộ điều hướng trực quan hiển thị tất cả câu hỏi với chỉ báo trạng thái (đã trả lời/đúng/sai/đã pin)
 - **🔀 Xáo Trộn Đáp Án**: Ngẫu nhiên hóa thứ tự các lựa chọn (a,b,c,d) để tránh học thuộc lòng
 - **🔢 Bắt Đầu Từ Câu Cụ Thể**: Chọn câu hỏi bắt đầu trong chế độ trình tự
@@ -128,7 +134,7 @@ Feel free to fork, modify, and use this project for your learning needs!
 - **⏱️ Chế Độ Thi**: Chế độ quiz có đếm giờ, tính năng tạm dừng/tiếp tục, và tự động nộp bài khi hết giờ
 - **📚 Quản Lý Quiz**: Lưu và tải nhiều bộ quiz với tên tùy chỉnh - tiếp tục các quiz bị gián đoạn
 - **📊 Bảng Thống Kê**: Theo dõi lịch sử quiz với huy hiệu hiệu suất (Xuất Sắc/Tốt/Trung Bình/Yếu), phân tích chi tiết, và bảng lịch sử có thể sắp xếp
-- **📁 Import/Export**: Import/export câu hỏi từ Excel (.xlsx, .xls), Word (.docx), hoặc Text (.txt); nhúng hình ảnh với trình xem lightbox
+- **📁 Import/Export Offline**: Import/export Excel (.xlsx, .xls), Word (.docx), hoặc Text (.txt) không cần Internet; nhúng hình ảnh với trình xem lightbox
 - **🖼️ Hỗ Trợ Hình Ảnh**: Tải lên, nhúng hình ảnh vào câu hỏi bằng thẻ [IMG:...], và xem hình ảnh ở chế độ toàn màn hình lightbox
 
 ### Giao Diện Người Dùng

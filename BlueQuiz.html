@@ -6,8 +6,8 @@
     <title>BlueQuiz - Tạo và Chấm Điểm</title>
     <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='20' fill='%23667eea'/><text x='50' y='70' font-size='60' text-anchor='middle' fill='white' font-family='Arial, sans-serif' font-weight='bold'>Q</text></svg>">
     <!-- Libraries for file import -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.6.0/mammoth.browser.min.js"></script>
+    <script src="vendor/xlsx.full.min.js"></script>
+    <script src="vendor/mammoth.browser.min.js"></script>
     <style>
         :root {
             --bg-gradient-start: #667eea;
@@ -353,6 +353,43 @@
             font-size: 12px;
             color: var(--text-secondary);
             margin-top: 5px;
+        }
+
+        .validation-summary {
+            display: none;
+            margin: 0 0 18px;
+            padding: 14px 16px;
+            border: 1px solid var(--border-color);
+            border-left-width: 4px;
+            border-radius: 10px;
+            background: var(--card-bg);
+            color: var(--text-primary);
+        }
+
+        .validation-summary.visible {
+            display: block;
+        }
+
+        .validation-summary.error {
+            border-left-color: #dc3545;
+            background: var(--incorrect-bg);
+            color: var(--incorrect-text);
+        }
+
+        .validation-summary.success {
+            border-left-color: #28a745;
+            background: var(--correct-bg);
+            color: var(--correct-text);
+        }
+
+        .validation-summary strong {
+            display: block;
+            margin-bottom: 6px;
+        }
+
+        .validation-summary ul {
+            margin: 6px 0 0 20px;
+            padding: 0;
         }
 
         button {
@@ -1088,6 +1125,53 @@
             transform: translateY(-2px);
         }
 
+        .quiz-data-tools {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
+        }
+
+        .quiz-data-tool {
+            position: relative;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            box-sizing: border-box;
+            height: 46px;
+            margin: 0;
+            padding: 8px 14px;
+            border: 1px solid rgba(255, 255, 255, 0.7);
+            border-radius: 8px;
+            background: rgba(255, 255, 255, 0.18);
+            color: white;
+            font-family: inherit;
+            font-size: 14px;
+            font-weight: 600;
+            line-height: 1.2;
+            cursor: pointer;
+        }
+
+        .quiz-data-tool:hover {
+            background: rgba(255, 255, 255, 0.28);
+        }
+
+        .quiz-data-tool input[type="file"] {
+            position: absolute;
+            inset: 0;
+            width: 100%;
+            opacity: 0;
+            cursor: pointer;
+        }
+
+        .quiz-pair-status {
+            display: block;
+            min-height: 18px;
+            margin: -7px 0 12px;
+            color: white;
+            font-size: 13px;
+        }
+
         .saved-quizzes-list {
             background: rgba(255, 255, 255, 0.1);
             border-radius: 10px;
@@ -1130,6 +1214,8 @@
         .saved-quiz-actions {
             display: flex;
             gap: 8px;
+            flex-wrap: wrap;
+            justify-content: flex-end;
         }
 
         .btn-load, .btn-delete {
@@ -1782,6 +1868,26 @@
             }
         }
 
+        @media (max-width: 768px) {
+            .saved-quiz-item {
+                align-items: stretch;
+                flex-direction: column;
+            }
+
+            .saved-quiz-actions {
+                justify-content: stretch;
+            }
+
+            .saved-quiz-actions button,
+            .quiz-data-tool {
+                flex: 1 1 auto;
+            }
+
+            .validation-summary {
+                padding: 12px;
+            }
+        }
+
         /* Footer */
         .footer {
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
@@ -2023,6 +2129,18 @@ D. Tất cả các mục</div>
                         <input type="text" id="quizNameInput" data-i18n-placeholder="quizNamePlaceholder" placeholder="Nhập tên bộ quiz (VD: Lịch Sử Việt Nam, JavaScript Basics...)">
                         <button onclick="saveQuizSet()" data-i18n="saveQuizBtn">💾 Lưu Bộ Quiz</button>
                     </div>
+                    <div class="quiz-data-tools">
+                        <label class="quiz-data-tool">
+                            <span data-i18n="pairImportBtn">📂 Nhập cặp Q&amp;A</span>
+                            <input type="file" id="quizPairFileInput" accept=".xlsx,.xls,.docx,.txt" multiple onchange="handleQuizPairUpload(event)">
+                        </label>
+                        <button type="button" class="quiz-data-tool" onclick="exportBlueQuizData()" data-i18n="backupDataBtn">⬇️ Sao lưu dữ liệu</button>
+                        <label class="quiz-data-tool">
+                            <span data-i18n="restoreDataBtn">⬆️ Khôi phục dữ liệu</span>
+                            <input type="file" id="restoreDataInput" accept=".json,application/json" onchange="importBlueQuizData(event)">
+                        </label>
+                    </div>
+                    <span id="quizPairStatus" class="quiz-pair-status" role="status" aria-live="polite"></span>
                     <div class="saved-quizzes-list" id="savedQuizzesList">
                         <!-- Saved quizzes will appear here -->
                     </div>
@@ -2072,6 +2190,8 @@ D. Tất cả các mục</div>
                     <p class="hint" data-i18n="answersHint">Nhập đáp án đúng cho mỗi câu theo số thứ tự</p>
                     <p class="upload-hint" data-i18n="uploadHint">Hỗ trợ: Excel (.xlsx, .xls), Word (.docx), Text (.txt)</p>
                 </div>
+
+                <div id="validationSummary" class="validation-summary" role="alert" aria-live="polite"></div>
 
                 <div class="controls">
                     <div class="quiz-settings-group">
@@ -2296,6 +2416,54 @@ D. Tất cả các mục</div>
             }
         }
 
+        function exportBlueQuizData() {
+            const data = {};
+            Object.values(STORAGE_KEYS).forEach(storageKey => {
+                data[storageKey] = localStorage.getItem(storageKey);
+            });
+
+            const backup = {
+                app: 'BlueQuiz',
+                version: 1,
+                exportedAt: new Date().toISOString(),
+                data
+            };
+            const date = new Date().toISOString().slice(0, 10);
+            downloadTextFile(JSON.stringify(backup, null, 2), `bluequiz-backup-${date}.json`);
+        }
+
+        async function importBlueQuizData(event) {
+            const file = event.target.files?.[0];
+            if (!file) return;
+
+            try {
+                const text = await readTextFile(file);
+                const backup = JSON.parse(text);
+                if (backup.app !== 'BlueQuiz' || backup.version !== 1 || !backup.data || typeof backup.data !== 'object') {
+                    throw new Error(translations[currentLanguage].invalidBackupFile);
+                }
+
+                if (!confirm(translations[currentLanguage].confirmRestoreData)) {
+                    event.target.value = '';
+                    return;
+                }
+
+                Object.values(STORAGE_KEYS).forEach(storageKey => {
+                    if (!Object.prototype.hasOwnProperty.call(backup.data, storageKey)) return;
+                    const value = backup.data[storageKey];
+                    if (value === null) localStorage.removeItem(storageKey);
+                    else localStorage.setItem(storageKey, value);
+                });
+
+                alert(translations[currentLanguage].restoreSuccess);
+                window.location.reload();
+            } catch (error) {
+                alert(`${translations[currentLanguage].restoreFailed} ${error.message}`);
+            } finally {
+                event.target.value = '';
+            }
+        }
+
         // Auto-save functions
         function autoSaveQuestions() {
             const questionsText = document.getElementById('questionsInput').value;
@@ -2505,6 +2673,13 @@ D. Tất cả các mục</div>
 
             if (!questionsText || !answersText) {
                 alert(translations[currentLanguage].alertNoData);
+                return;
+            }
+
+            const validation = validateQuizData(parseQuestions(questionsText), parseAnswers(answersText));
+            renderValidationSummary(validation);
+            if (!validation.valid) {
+                document.getElementById('validationSummary')?.scrollIntoView({ behavior: 'smooth', block: 'center' });
                 return;
             }
 
@@ -2793,6 +2968,18 @@ D. Tất cả các mục</div>
                 quizManagement: 'Quản Lý Bộ Quiz',
                 quizNamePlaceholder: 'Nhập tên bộ quiz (VD: Lịch Sử Việt Nam, JavaScript Basics...)',
                 saveQuizBtn: '💾 Lưu Bộ Quiz',
+                pairImportBtn: '📂 Nhập cặp Q&A',
+                pairImportNeedTwoFiles: '✗ Hãy chọn đúng 2 file: câu hỏi và đáp án.',
+                pairImportReading: 'Đang đọc và kiểm tra hai file...',
+                pairImportUnrecognized: 'Không nhận diện được file câu hỏi và file đáp án.',
+                pairImportInvalid: 'Hai file có {count} lỗi dữ liệu. Xem bảng kiểm tra bên dưới.',
+                pairImportSuccess: '✓ Đã nhập {count} câu — {name}',
+                backupDataBtn: '⬇️ Sao lưu dữ liệu',
+                restoreDataBtn: '⬆️ Khôi phục dữ liệu',
+                confirmRestoreData: 'Khôi phục sẽ thay thế dữ liệu BlueQuiz hiện tại bằng dữ liệu trong file. Tiếp tục?',
+                invalidBackupFile: 'File sao lưu BlueQuiz không hợp lệ.',
+                restoreSuccess: 'Khôi phục dữ liệu thành công. BlueQuiz sẽ tải lại.',
+                restoreFailed: 'Không thể khôi phục:',
                 loadBtn: 'Tải',
                 deleteBtn: 'Xóa',
                 questions: 'câu hỏi',
@@ -2897,6 +3084,18 @@ D. Tất cả các mục</div>
                 quizManagement: 'Quiz Management',
                 quizNamePlaceholder: 'Enter quiz name (e.g., World History, JavaScript Basics...)',
                 saveQuizBtn: '💾 Save Quiz Set',
+                pairImportBtn: '📂 Import Q&A pair',
+                pairImportNeedTwoFiles: '✗ Select exactly 2 files: questions and answers.',
+                pairImportReading: 'Reading and validating both files...',
+                pairImportUnrecognized: 'Could not identify the questions and answers files.',
+                pairImportInvalid: 'The files contain {count} data errors. See the validation report below.',
+                pairImportSuccess: '✓ Imported {count} questions — {name}',
+                backupDataBtn: '⬇️ Back up data',
+                restoreDataBtn: '⬆️ Restore data',
+                confirmRestoreData: 'Restoring will replace current BlueQuiz data with the data in this file. Continue?',
+                invalidBackupFile: 'Invalid BlueQuiz backup file.',
+                restoreSuccess: 'Data restored successfully. BlueQuiz will reload.',
+                restoreFailed: 'Unable to restore:',
                 loadBtn: 'Load',
                 deleteBtn: 'Delete',
                 questions: 'questions',
@@ -3450,11 +3649,13 @@ Answers:
             let answersSaveTimer;
 
             questionsInput.addEventListener('input', function() {
+                clearValidationSummary();
                 clearTimeout(questionsSaveTimer);
                 questionsSaveTimer = setTimeout(autoSaveQuestions, 1000);
             });
 
             answersInput.addEventListener('input', function() {
+                clearValidationSummary();
                 clearTimeout(answersSaveTimer);
                 answersSaveTimer = setTimeout(autoSaveAnswers, 1000);
             });
@@ -3621,6 +3822,81 @@ Answers:
             return answers;
         }
 
+        function validateQuizData(questions, answers) {
+            const errors = [];
+            const questionNumbers = new Set();
+
+            questions.forEach(question => {
+                if (questionNumbers.has(question.number)) {
+                    errors.push(`Câu ${question.number}: số thứ tự bị trùng.`);
+                }
+                questionNumbers.add(question.number);
+
+                if (!question.options || question.options.length < 2) {
+                    errors.push(`Câu ${question.number}: cần ít nhất 2 lựa chọn.`);
+                    return;
+                }
+
+                const optionLetters = question.options.map(option => option.letter);
+                const uniqueLetters = new Set(optionLetters);
+                if (uniqueLetters.size !== optionLetters.length) {
+                    errors.push(`Câu ${question.number}: ký tự lựa chọn bị trùng.`);
+                }
+
+                const answer = answers[question.number];
+                if (!answer) {
+                    errors.push(`Câu ${question.number}: thiếu đáp án.`);
+                    return;
+                }
+
+                const answerLetters = Array.isArray(answer) ? answer : [answer];
+                const invalidLetters = answerLetters.filter(letter => !uniqueLetters.has(letter));
+                if (invalidLetters.length > 0) {
+                    errors.push(`Câu ${question.number}: đáp án ${invalidLetters.join(', ').toUpperCase()} không tồn tại trong các lựa chọn.`);
+                }
+            });
+
+            Object.keys(answers).forEach(number => {
+                const questionNumber = parseInt(number);
+                if (!questionNumbers.has(questionNumber)) {
+                    errors.push(`Đáp án câu ${questionNumber}: không có câu hỏi tương ứng.`);
+                }
+            });
+
+            return {
+                valid: errors.length === 0,
+                errors,
+                questionCount: questions.length,
+                answerCount: Object.keys(answers).length
+            };
+        }
+
+        function renderValidationSummary(validation) {
+            const container = document.getElementById('validationSummary');
+            if (!container) return;
+
+            container.className = `validation-summary visible ${validation.valid ? 'success' : 'error'}`;
+            if (validation.valid) {
+                container.innerHTML = `<strong>✓ Dữ liệu hợp lệ</strong><span>${validation.questionCount} câu hỏi và ${validation.answerCount} đáp án đã khớp.</span>`;
+                return;
+            }
+
+            const visibleErrors = validation.errors.slice(0, 8);
+            const remaining = validation.errors.length - visibleErrors.length;
+            container.innerHTML = `
+                <strong>✗ Chưa thể tạo quiz — phát hiện ${validation.errors.length} lỗi</strong>
+                <ul>${visibleErrors.map(error => `<li>${error}</li>`).join('')}</ul>
+                ${remaining > 0 ? `<div>… và ${remaining} lỗi khác.</div>` : ''}
+            `;
+        }
+
+        function clearValidationSummary() {
+            const container = document.getElementById('validationSummary');
+            if (!container) return;
+            container.className = 'validation-summary';
+            container.innerHTML = '';
+        }
+
         function isMultipleAnswer(questionNumber) {
             const answer = correctAnswers[questionNumber];
             return Array.isArray(answer);
@@ -3704,6 +3980,13 @@ Answers:
 
             if (allQuestions.length === 0) {
                 alert(translations[currentLanguage].alertNoQuestions);
+                return;
+            }
+
+            const validation = validateQuizData(allQuestions, correctAnswers);
+            renderValidationSummary(validation);
+            if (!validation.valid) {
+                document.getElementById('validationSummary')?.scrollIntoView({ behavior: 'smooth', block: 'center' });
                 return;
             }
 
@@ -4799,6 +5082,77 @@ Answers:
         }
 
         // File import functions
+        async function handleQuizPairUpload(event) {
+            const files = Array.from(event.target.files || []);
+            const status = document.getElementById('quizPairStatus');
+            const setStatus = (message, isError = false) => {
+                status.textContent = message;
+                status.style.color = isError ? '#ffe0e0' : 'white';
+            };
+
+            if (files.length !== 2) {
+                setStatus(translations[currentLanguage].pairImportNeedTwoFiles, true);
+                event.target.value = '';
+                return;
+            }
+
+            setStatus(translations[currentLanguage].pairImportReading);
+
+            try {
+                const loaded = await Promise.all(files.map(async file => ({
+                    file,
+                    text: await readFile(file),
+                    normalizedName: file.name.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase()
+                })));
+
+                let questionFile = loaded.find(item => /(cau[\s_-]*hoi|questions?)/.test(item.normalizedName));
+                let answerFile = loaded.find(item => /(dap[\s_-]*an|answers?)/.test(item.normalizedName));
+
+                if (!questionFile || !answerFile || questionFile === answerFile) {
+                    const classified = loaded.map(item => ({
+                        ...item,
+                        parsedQuestions: parseQuestions(item.text),
+                        parsedAnswers: parseAnswers(item.text)
+                    }));
+                    questionFile = classified.find(item => item.parsedQuestions.length > 0);
+                    answerFile = classified.find(item => item !== questionFile && Object.keys(item.parsedAnswers).length > 0);
+                }
+
+                if (!questionFile || !answerFile) {
+                    throw new Error(translations[currentLanguage].pairImportUnrecognized);
+                }
+
+                const questions = parseQuestions(questionFile.text);
+                const answers = parseAnswers(answerFile.text);
+                const validation = validateQuizData(questions, answers);
+                if (!validation.valid) {
+                    renderValidationSummary(validation);
+                    throw new Error(translations[currentLanguage].pairImportInvalid.replace('{count}', validation.errors.length));
+                }
+
+                document.getElementById('questionsInput').value = questionFile.text;
+                document.getElementById('answersInput').value = answerFile.text;
+                const quizName = questionFile.file.name
+                    .replace(/\.[^.]+$/, '')
+                    .replace(/[\s_-]*(c[aâ]u[\s_-]*h[oỏ]i|questions?)$/iu, '')
+                    .replace(/[_-]+/g, ' ')
+                    .replace(/\s+/g, ' ')
+                    .trim();
+                document.getElementById('quizNameInput').value = quizName;
+
+                autoSaveQuestions();
+                autoSaveAnswers();
+                renderValidationSummary(validation);
+                setStatus(translations[currentLanguage].pairImportSuccess
+                    .replace('{count}', questions.length)
+                    .replace('{name}', quizName || questionFile.file.name));
+            } catch (error) {
+                setStatus(`✗ ${error.message}`, true);
+            } finally {
+                event.target.value = '';
+            }
+        }
+
         async function handleQuestionsFileUpload(event) {
             const file = event.target.files[0];
             if (!file) return;
