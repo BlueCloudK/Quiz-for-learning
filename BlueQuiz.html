@@ -1938,6 +1938,17 @@
             }
         }
 
+        @media (min-width: 1200px) {
+            body.quiz-active.navigator-open {
+                padding-left: 340px;
+            }
+
+            body.quiz-active.navigator-open .navigator-backdrop.open {
+                opacity: 0;
+                pointer-events: none;
+            }
+        }
+
         .control-panel-header {
             font-weight: 600;
             font-size: 1.1em;
@@ -4528,6 +4539,7 @@ DATA TO REVIEW:
             document.getElementById('quizSection').classList.add('hidden');
             document.getElementById('resultSection').classList.add('hidden');
             document.body.classList.remove('quiz-active');
+            document.body.classList.remove('navigator-open');
 
             // Enable all checkboxes in setup section (exam mode, practice mode, shuffle, etc.)
             const setupCheckboxes = document.querySelectorAll('#inputSection input[type="checkbox"]');
@@ -4642,6 +4654,7 @@ DATA TO REVIEW:
 
             sidebar.classList.toggle('open', shouldOpen);
             backdrop.classList.toggle('open', shouldOpen);
+            document.body.classList.toggle('navigator-open', shouldOpen);
             sidebar.setAttribute('aria-hidden', String(!shouldOpen));
             toggleButton.setAttribute('aria-expanded', String(shouldOpen));
             backdrop.setAttribute('aria-hidden', String(!shouldOpen));
