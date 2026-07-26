@@ -852,37 +852,70 @@
 
         .filter-section {
             margin-bottom: 20px;
-            padding: 15px;
-            background: var(--filter-bg);
+            padding: 12px;
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
             border-radius: 10px;
-            transition: background 0.3s ease;
+            transition: background 0.3s ease, border-color 0.3s ease;
+        }
+
+        .filter-title {
+            display: block;
+            margin-bottom: 9px;
+            color: var(--text-secondary);
+            font-size: 0.78em;
+            font-weight: 700;
+            letter-spacing: 0.04em;
+            text-transform: uppercase;
         }
 
         .filter-buttons {
-            display: flex;
-            gap: 10px;
-            flex-wrap: wrap;
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 7px;
         }
 
         .filter-button {
-            padding: 8px 20px;
-            border: 2px solid #667eea;
-            background: white;
-            color: #667eea;
-            border-radius: 20px;
+            min-width: 0;
+            padding: 8px 10px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 8px;
+            border: 1px solid var(--border-color);
+            background: var(--input-bg);
+            color: var(--text-primary);
+            border-radius: 8px;
             cursor: pointer;
-            transition: all 0.3s;
-            font-size: 0.9em;
+            transition: background 0.16s, border-color 0.16s, color 0.16s;
+            font-size: 0.82em;
             font-weight: 600;
         }
 
         .filter-button:hover {
-            background: #667eea;
-            color: white;
+            border-color: var(--accent-color);
+            background: var(--filter-bg);
+            color: var(--accent-color);
         }
 
         .filter-button.active {
-            background: #667eea;
+            border-color: var(--accent-color);
+            background: var(--accent-color);
+            color: white;
+        }
+
+        .filter-count {
+            min-width: 24px;
+            padding: 2px 6px;
+            border-radius: 999px;
+            background: var(--filter-bg);
+            color: var(--text-secondary);
+            font-size: 0.86em;
+            text-align: center;
+        }
+
+        .filter-button.active .filter-count {
+            background: rgba(255, 255, 255, 0.2);
             color: white;
         }
 
@@ -1962,7 +1995,7 @@
         .navigator-controls {
             display: flex;
             flex-direction: column;
-            gap: 10px;
+            gap: 8px;
         }
 
         .btn-nav {
@@ -1971,6 +2004,22 @@
             font-size: 0.95em;
             border-radius: 8px;
             font-weight: 600;
+        }
+
+        .control-back-btn {
+            margin-top: 4px;
+            background: transparent;
+            border: 1px solid var(--border-color);
+            color: var(--text-secondary);
+            box-shadow: none;
+        }
+
+        .control-back-btn:hover {
+            background: var(--filter-bg);
+            border-color: var(--accent-color);
+            color: var(--text-primary);
+            transform: none;
+            box-shadow: none;
         }
 
         @media (max-width: 900px) {
@@ -2130,6 +2179,10 @@
                 min-height: 44px;
                 padding: 12px 20px;
                 font-size: 1em;
+            }
+
+            .filter-buttons {
+                grid-template-columns: 1fr;
             }
 
             button:not(.pin-button):not(.filter-button):not(.sidebar-toggle-btn):not(.scroll-to-top):not(.question-nav-item):not(.navigator-close-btn) {
@@ -2558,11 +2611,17 @@
 
                         <!-- Filter Section -->
                         <div class="filter-section" id="filterSection" style="display: none;">
-                            <label style="margin-bottom: 10px;" data-i18n="filterLabel">Lọc câu hỏi:</label>
+                            <label class="filter-title" data-i18n="filterLabel">Lọc câu hỏi:</label>
                             <div class="filter-buttons">
-                                <button class="filter-button active" onclick="filterQuestions('all')" data-i18n="filterAll">Tất cả</button>
-                                <button class="filter-button" onclick="filterQuestions('pinned')" data-i18n="filterPinned">Câu đã pin</button>
-                                <button class="filter-button" onclick="filterQuestions('incorrect')" data-i18n="filterIncorrect">Câu sai</button>
+                                <button class="filter-button active" type="button" onclick="filterQuestions('all', this)">
+                                    <span data-i18n="filterAll">Tất cả</span><span class="filter-count" id="filterAllCount">0</span>
+                                </button>
+                                <button class="filter-button" type="button" onclick="filterQuestions('pinned', this)">
+                                    <span data-i18n="filterPinned">Câu đã pin</span><span class="filter-count" id="filterPinnedCount">0</span>
+                                </button>
+                                <button class="filter-button" type="button" onclick="filterQuestions('incorrect', this)">
+                                    <span data-i18n="filterIncorrect">Câu sai</span><span class="filter-count" id="filterIncorrectCount">0</span>
+                                </button>
                             </div>
                         </div>
 
@@ -2586,11 +2645,11 @@
                             <div class="control-panel-header" id="controlPanelTitle" data-i18n="controlPanelHeader">🎮 Điều Khiển</div>
                             <div class="navigator-controls">
                                 <button class="btn-success btn-nav" id="submitQuizBtn" onclick="submitQuiz()" data-i18n="submitBtn">Chấm Điểm</button>
-                                <button class="btn-secondary btn-nav" onclick="backToEdit()" data-i18n="backToEditBtn">⬅️ Quay Lại</button>
-                                <button class="btn-secondary btn-nav" onclick="restartQuiz()" data-i18n="restartBtn">🔄 Làm Lại</button>
-                                <button class="btn-primary btn-nav hidden" id="retryAllBtn" onclick="retryAllQuestions()" data-i18n="retryAllBtn">🔄 Làm Lại Tất Cả</button>
-                                <button class="btn-warning btn-nav hidden" id="retryIncorrectBtn" onclick="retryIncorrectQuestions()" data-i18n="retryIncorrectBtn">Làm Lại Câu Sai</button>
-                                <button class="btn-info btn-nav hidden" id="retryPinnedBtn" onclick="retryPinnedQuestions()" data-i18n="retryPinnedBtn">Làm Lại Câu Đã Pin</button>
+                                <button class="btn-secondary btn-nav" id="restartQuizBtn" onclick="restartQuiz()" data-i18n="restartBtn">↻ Xóa câu trả lời</button>
+                                <button class="btn-warning btn-nav hidden" id="retryIncorrectBtn" onclick="retryIncorrectQuestions()" data-i18n="retryIncorrectBtn">↻ Luyện lại câu sai</button>
+                                <button class="btn-info btn-nav hidden" id="retryPinnedBtn" onclick="retryPinnedQuestions()" data-i18n="retryPinnedBtn">↻ Luyện lại câu đã pin</button>
+                                <button class="btn-primary btn-nav hidden" id="retryAllBtn" onclick="retryAllQuestions()" data-i18n="retryAllBtn">↻ Lượt mới — tất cả</button>
+                                <button class="btn-nav control-back-btn" onclick="backToEdit()" data-i18n="backToEditBtn">← Quay lại thiết lập</button>
                             </div>
                         </aside>
                     </div>
@@ -3228,11 +3287,11 @@
                 filterIncorrect: 'Câu sai',
                 progressLabel: 'Tiến độ:',
                 submitBtn: 'Chấm Điểm',
-                backToEditBtn: '⬅️ Quay Lại',
-                restartBtn: '🔄 Làm Lại',
-                retryAllBtn: '🔄 Làm Lại Tất Cả',
-                retryIncorrectBtn: 'Làm Lại Câu Sai',
-                retryPinnedBtn: 'Làm Lại Câu Đã Pin',
+                backToEditBtn: '← Quay lại thiết lập',
+                restartBtn: '↻ Xóa câu trả lời',
+                retryAllBtn: '↻ Lượt mới — tất cả',
+                retryIncorrectBtn: '↻ Luyện lại câu sai',
+                retryPinnedBtn: '↻ Luyện lại câu đã pin',
                 questionNavigator: 'Danh Sách Câu Hỏi',
                 navigatorToggle: 'Câu hỏi',
                 navigatorClose: 'Đóng danh sách câu hỏi',
@@ -3356,11 +3415,11 @@
                 filterIncorrect: 'Incorrect',
                 progressLabel: 'Progress:',
                 submitBtn: 'Submit & Grade',
-                backToEditBtn: '⬅️ Back',
-                restartBtn: '🔄 Restart',
-                retryAllBtn: '🔄 Retry All Questions',
-                retryIncorrectBtn: 'Retry Incorrect',
-                retryPinnedBtn: 'Retry Pinned',
+                backToEditBtn: '← Back to setup',
+                restartBtn: '↻ Clear answers',
+                retryAllBtn: '↻ New attempt — all',
+                retryIncorrectBtn: '↻ Practice incorrect',
+                retryPinnedBtn: '↻ Practice pinned',
                 questionNavigator: 'Question List',
                 navigatorToggle: 'Questions',
                 navigatorClose: 'Close question list',
@@ -4422,14 +4481,34 @@ DATA TO REVIEW:
             });
         }
 
+        function updateFilterCounts() {
+            let pinnedCount = 0;
+            let incorrectCount = 0;
+
+            quizData.forEach((question, index) => {
+                const originalNumber = questionMapping[index];
+                if (pinnedQuestions.has(originalNumber)) pinnedCount++;
+                if (incorrectQuestions.has(originalNumber)) incorrectCount++;
+            });
+
+            document.getElementById('filterAllCount').textContent = quizData.length;
+            document.getElementById('filterPinnedCount').textContent = pinnedCount;
+            document.getElementById('filterIncorrectCount').textContent = incorrectCount;
+        }
+
         function updateRetryButtons() {
             const submitQuizBtn = document.getElementById('submitQuizBtn');
+            const restartQuizBtn = document.getElementById('restartQuizBtn');
             const retryAllBtn = document.getElementById('retryAllBtn');
             const retryIncorrectBtn = document.getElementById('retryIncorrectBtn');
             const retryPinnedBtn = document.getElementById('retryPinnedBtn');
 
             if (submitQuizBtn) {
                 submitQuizBtn.classList.toggle('hidden', isGraded);
+            }
+
+            if (restartQuizBtn) {
+                restartQuizBtn.classList.toggle('hidden', isGraded);
             }
 
             // Only show retry buttons after quiz is graded
@@ -4450,6 +4529,8 @@ DATA TO REVIEW:
             } else {
                 retryPinnedBtn.classList.add('hidden');
             }
+
+            updateFilterCounts();
         }
 
         function displayResults(correct, incorrect, unanswered) {
@@ -5135,14 +5216,14 @@ DATA TO REVIEW:
             generateQuiz(pinnedQuestions);
         }
 
-        function filterQuestions(filterType) {
+        function filterQuestions(filterType, triggerButton) {
             currentFilter = filterType;
 
             // Update active filter button
             document.querySelectorAll('.filter-button').forEach(btn => {
                 btn.classList.remove('active');
             });
-            event.target.classList.add('active');
+            triggerButton.classList.add('active');
 
             // Filter question cards
             quizData.forEach((q, index) => {
