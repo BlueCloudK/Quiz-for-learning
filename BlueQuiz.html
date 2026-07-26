@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="application-version" content="1.3.1">
+    <meta name="application-version" content="1.3.2">
     <title>BlueQuiz - Tạo và Chấm Điểm</title>
     <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='20' fill='%23667eea'/><text x='50' y='70' font-size='60' text-anchor='middle' fill='white' font-family='Arial, sans-serif' font-weight='bold'>Q</text></svg>">
     <!-- Libraries for file import -->
@@ -347,6 +347,44 @@
             box-shadow: 0 0 0 1px var(--accent-color);
         }
 
+        .display-mode-card {
+            grid-column: 1 / -1;
+        }
+
+        .display-options {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 8px;
+        }
+
+        .display-option {
+            min-height: 52px;
+            padding: 10px 12px;
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            line-height: 1.25;
+        }
+
+        .display-option:has(input:checked) {
+            color: var(--accent-color);
+            background: var(--filter-bg);
+            border-color: var(--accent-color);
+            box-shadow: 0 0 0 1px var(--accent-color);
+        }
+
+        .display-option-copy {
+            display: flex;
+            flex-direction: column;
+            gap: 3px;
+        }
+
+        .display-option-copy small {
+            color: var(--text-secondary);
+            font-size: 0.78em;
+            font-weight: 400;
+        }
+
         .quiz-settings-actions {
             display: flex;
             justify-content: flex-end;
@@ -539,6 +577,77 @@
 
         #quizContainer {
             margin-top: 30px;
+        }
+
+        .focus-card-controls {
+            display: none;
+            grid-template-columns: minmax(110px, auto) 1fr minmax(110px, auto);
+            align-items: center;
+            gap: 12px;
+            margin-top: 14px;
+            padding: 12px;
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+        }
+
+        .focus-card-mode .focus-card-controls {
+            display: grid;
+        }
+
+        .focus-card-mode #quizContainer {
+            margin-top: 18px;
+        }
+
+        .focus-card-mode #quizContainer .question-card {
+            display: none !important;
+            min-height: 360px;
+            margin-bottom: 0;
+        }
+
+        .focus-card-mode #quizContainer .question-card.focus-active {
+            display: block !important;
+        }
+
+        .focus-card-empty {
+            margin-top: 18px;
+            padding: 28px 20px;
+            text-align: center;
+            color: var(--text-secondary);
+            background: var(--card-bg);
+            border: 1px dashed var(--border-color);
+            border-radius: 12px;
+        }
+
+        .focus-card-position {
+            text-align: center;
+            color: var(--text-primary);
+            font-weight: 700;
+        }
+
+        .focus-card-position small {
+            display: block;
+            margin-top: 3px;
+            color: var(--text-secondary);
+            font-size: 0.72em;
+            font-weight: 400;
+        }
+
+        .focus-nav-btn {
+            min-height: 44px;
+            padding: 9px 14px;
+            border: 1px solid var(--border-color);
+            background: var(--input-bg);
+            color: var(--text-primary);
+            text-transform: none;
+            letter-spacing: 0;
+        }
+
+        .focus-nav-btn:hover:not(:disabled) {
+            background: var(--filter-bg);
+            border-color: var(--accent-color);
+            color: var(--accent-color);
+            transform: none;
         }
 
         .question-card {
@@ -2335,6 +2444,24 @@
                 grid-template-columns: 1fr;
             }
 
+            .display-options {
+                grid-template-columns: 1fr;
+            }
+
+            .focus-card-controls {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+                gap: 8px;
+            }
+
+            .focus-card-position {
+                grid-column: 1 / -1;
+                grid-row: 1;
+            }
+
+            .focus-card-mode #quizContainer .question-card {
+                min-height: 0;
+            }
+
             button:not(.pin-button):not(.filter-button):not(.sidebar-toggle-btn):not(.scroll-to-top):not(.question-nav-item):not(.navigator-close-btn) {
                 width: 100%;
             }
@@ -2343,6 +2470,12 @@
                 flex-direction: column;
                 align-items: flex-start;
                 gap: 10px;
+            }
+
+            .focus-card-mode .question-header-container {
+                flex-direction: row;
+                align-items: flex-start;
+                justify-content: space-between;
             }
 
             .upload-container {
@@ -2689,6 +2822,26 @@
                                     </label>
                                 </div>
                             </fieldset>
+
+                            <fieldset class="settings-card display-mode-card">
+                                <legend data-i18n="displayModeLabel">Cách hiển thị</legend>
+                                <div class="display-options">
+                                    <label class="radio-label display-option">
+                                        <input type="radio" name="questionDisplayMode" value="list" checked>
+                                        <span class="display-option-copy">
+                                            <strong data-i18n="displayModeList">Danh sách</strong>
+                                            <small data-i18n="displayModeListHint">Hiện toàn bộ câu hỏi để cuộn và xem nhanh</small>
+                                        </span>
+                                    </label>
+                                    <label class="radio-label display-option">
+                                        <input type="radio" name="questionDisplayMode" value="focus">
+                                        <span class="display-option-copy">
+                                            <strong data-i18n="displayModeFocus">Focus Card</strong>
+                                            <small data-i18n="displayModeFocusHint">Chỉ hiện một câu để tập trung làm bài</small>
+                                        </span>
+                                    </label>
+                                </div>
+                            </fieldset>
                         </div>
 
                         <div class="quiz-settings-actions">
@@ -2782,6 +2935,23 @@
                         </div>
 
                         <div id="quizContainer"></div>
+                        <div class="focus-card-empty hidden" id="focusCardEmpty" data-i18n="focusEmpty">
+                            Không có câu hỏi phù hợp với bộ lọc này.
+                        </div>
+
+                        <nav class="focus-card-controls hidden" id="focusCardControls" aria-label="Điều hướng Focus Card"
+                             data-i18n-aria-label="focusNavigation">
+                            <button class="focus-nav-btn" id="focusPreviousBtn" type="button" onclick="moveFocusQuestion(-1)">
+                                <span aria-hidden="true">←</span> <span data-i18n="focusPrevious">Câu trước</span>
+                            </button>
+                            <div class="focus-card-position" aria-live="polite">
+                                <span id="focusCardPosition">1 / 1</span>
+                                <small data-i18n="focusShortcuts">A–F chọn đáp án · ← → chuyển câu · P để pin</small>
+                            </div>
+                            <button class="focus-nav-btn" id="focusNextBtn" type="button" onclick="moveFocusQuestion(1)">
+                                <span data-i18n="focusNext">Câu tiếp</span> <span aria-hidden="true">→</span>
+                            </button>
+                        </nav>
                     </div>
 
                     <!-- Desktop side rail; becomes normal content below the quiz on mobile. -->
@@ -2849,7 +3019,7 @@
         <div class="footer-content">
             <p>
                 Made with ❤️ by <a href="https://github.com/BlueCloudK" target="_blank" rel="noopener noreferrer">BlueCloudK</a>
-                <span class="app-version">BlueQuiz v1.3.1</span>
+                <span class="app-version">BlueQuiz v1.3.2</span>
             </p>
             <p>
                 <a href="https://github.com/BlueCloudK/Quiz-for-learning" target="_blank" rel="noopener noreferrer">
@@ -2881,6 +3051,7 @@
         let currentQuestionIndex = 0; // Câu được chọn gần nhất trong navigator
         let quizHistory = []; // Lưu lịch sử làm bài
         let practiceModeEnabled = false; // Practice mode with instant feedback
+        let questionDisplayMode = 'list'; // List or single-question Focus Card
 
         // Exam Mode variables
         let examModeEnabled = false;
@@ -3097,6 +3268,127 @@
                 // Random mode already samples questions across the entire set.
                 startQuestionRow.style.display = 'none';
                 shuffleQuestionsGroup.style.display = 'none';
+            }
+        }
+
+        function readQuestionDisplayMode() {
+            return document.querySelector('input[name="questionDisplayMode"]:checked')?.value || 'list';
+        }
+
+        function questionMatchesCurrentFilter(index) {
+            const originalNumber = questionMapping[index];
+            if (currentFilter === 'pinned') return pinnedQuestions.has(originalNumber);
+            if (currentFilter === 'incorrect') return incorrectQuestions.has(originalNumber);
+            return true;
+        }
+
+        function getFocusableQuestionIndices() {
+            return quizData
+                .map((_, index) => index)
+                .filter(questionMatchesCurrentFilter);
+        }
+
+        function syncQuestionDisplayMode() {
+            questionDisplayMode = readQuestionDisplayMode();
+            const quizSection = document.getElementById('quizSection');
+            if (!quizSection) return;
+
+            quizSection.classList.toggle('focus-card-mode', questionDisplayMode === 'focus');
+            updateFocusCardView();
+        }
+
+        function updateFocusCardView(options = {}) {
+            const controls = document.getElementById('focusCardControls');
+            const emptyState = document.getElementById('focusCardEmpty');
+            const cards = document.querySelectorAll('#quizContainer .question-card');
+            if (!controls) return;
+
+            if (questionDisplayMode !== 'focus') {
+                controls.classList.add('hidden');
+                emptyState?.classList.add('hidden');
+                cards.forEach((card, index) => {
+                    card.classList.remove('focus-active');
+                    card.style.display = questionMatchesCurrentFilter(index) ? 'block' : 'none';
+                });
+                return;
+            }
+
+            controls.classList.remove('hidden');
+            const availableIndices = getFocusableQuestionIndices();
+            emptyState?.classList.toggle('hidden', availableIndices.length > 0);
+            if (!availableIndices.includes(currentQuestionIndex)) {
+                currentQuestionIndex = availableIndices[0] ?? 0;
+            }
+
+            cards.forEach((card, index) => {
+                card.style.display = '';
+                card.classList.toggle('focus-active', availableIndices.length > 0 && index === currentQuestionIndex);
+            });
+
+            const activePosition = availableIndices.indexOf(currentQuestionIndex);
+            const positionLabel = document.getElementById('focusCardPosition');
+            const previousButton = document.getElementById('focusPreviousBtn');
+            const nextButton = document.getElementById('focusNextBtn');
+
+            positionLabel.textContent = availableIndices.length > 0
+                ? `${activePosition + 1} / ${availableIndices.length}`
+                : `0 / 0`;
+            previousButton.disabled = activePosition <= 0;
+            nextButton.disabled = activePosition < 0 || activePosition >= availableIndices.length - 1;
+            updateQuestionNavigator();
+
+            if (options.scroll) {
+                document.getElementById(`card${currentQuestionIndex}`)?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }
+        }
+
+        function moveFocusQuestion(offset) {
+            if (questionDisplayMode !== 'focus') return;
+            const availableIndices = getFocusableQuestionIndices();
+            const currentPosition = availableIndices.indexOf(currentQuestionIndex);
+            const nextPosition = Math.max(0, Math.min(availableIndices.length - 1, currentPosition + offset));
+            if (availableIndices[nextPosition] === undefined || nextPosition === currentPosition) return;
+
+            currentQuestionIndex = availableIndices[nextPosition];
+            updateFocusCardView({ scroll: true });
+        }
+
+        function selectFocusOption(optionIndex) {
+            const inputs = Array.from(document.querySelectorAll(`input[name="question${currentQuestionIndex}"]`));
+            const input = inputs[optionIndex];
+            if (!input || input.disabled) return;
+
+            input.checked = input.type === 'checkbox' ? !input.checked : true;
+            input.dispatchEvent(new Event('change', { bubbles: true }));
+            input.focus({ preventScroll: true });
+        }
+
+        function handleFocusCardKeyboard(event) {
+            if (questionDisplayMode !== 'focus' || document.getElementById('quizSection')?.classList.contains('hidden')) return;
+            if (document.getElementById('questionNavigator')?.classList.contains('open')) return;
+            if (event.altKey || event.ctrlKey || event.metaKey) return;
+
+            const target = event.target;
+            const isTypingField = target instanceof HTMLTextAreaElement ||
+                (target instanceof HTMLInputElement && !['radio', 'checkbox'].includes(target.type));
+            if (isTypingField || (target instanceof HTMLButtonElement && event.key === 'Enter')) return;
+
+            const key = event.key.toLowerCase();
+            if (/^[a-f]$/.test(key)) {
+                event.preventDefault();
+                selectFocusOption(key.charCodeAt(0) - 97);
+            } else if (/^[1-9]$/.test(key)) {
+                event.preventDefault();
+                selectFocusOption(Number(key) - 1);
+            } else if (event.key === 'ArrowLeft') {
+                event.preventDefault();
+                moveFocusQuestion(-1);
+            } else if (event.key === 'ArrowRight' || event.key === 'Enter') {
+                event.preventDefault();
+                moveFocusQuestion(1);
+            } else if (key === 'p') {
+                event.preventDefault();
+                togglePin(currentQuestionIndex);
             }
         }
 
@@ -3451,6 +3743,16 @@
                 quizModeStandard: 'Kiểm tra',
                 quizModePractice: 'Ôn tập — hiện đáp án ngay',
                 quizModeExam: 'Thi có giờ',
+                displayModeLabel: 'Cách hiển thị',
+                displayModeList: 'Danh sách',
+                displayModeListHint: 'Hiện toàn bộ câu hỏi để cuộn và xem nhanh',
+                displayModeFocus: 'Focus Card',
+                displayModeFocusHint: 'Chỉ hiện một câu để tập trung làm bài',
+                focusPrevious: 'Câu trước',
+                focusNext: 'Câu tiếp',
+                focusNavigation: 'Điều hướng Focus Card',
+                focusShortcuts: 'A–F chọn đáp án · ← → chuyển câu · P để pin',
+                focusEmpty: 'Không có câu hỏi phù hợp với bộ lọc này.',
                 createQuizBtn: 'Tạo Quiz',
                 continueQuizBtn: '⏩ Tiếp tục Quiz đã lưu',
                 filterLabel: 'Lọc câu hỏi:',
@@ -3579,6 +3881,16 @@
                 quizModeStandard: 'Test',
                 quizModePractice: 'Practice — instant feedback',
                 quizModeExam: 'Timed exam',
+                displayModeLabel: 'Question display',
+                displayModeList: 'List',
+                displayModeListHint: 'Show every question for scrolling and quick review',
+                displayModeFocus: 'Focus Card',
+                displayModeFocusHint: 'Show one question at a time for focused study',
+                focusPrevious: 'Previous',
+                focusNext: 'Next',
+                focusNavigation: 'Focus Card navigation',
+                focusShortcuts: 'A–F answer · ← → navigate · P to pin',
+                focusEmpty: 'No questions match this filter.',
                 createQuizBtn: 'Create Quiz',
                 continueQuizBtn: '⏩ Continue Saved Quiz',
                 filterLabel: 'Filter questions:',
@@ -3880,6 +4192,13 @@ DATA TO REVIEW:
                 const key = element.getAttribute('data-i18n-title');
                 if (translations[lang][key]) {
                     element.title = translations[lang][key];
+                    element.setAttribute('aria-label', translations[lang][key]);
+                }
+            });
+
+            document.querySelectorAll('[data-i18n-aria-label]').forEach(element => {
+                const key = element.getAttribute('data-i18n-aria-label');
+                if (translations[lang][key]) {
                     element.setAttribute('aria-label', translations[lang][key]);
                 }
             });
@@ -4323,6 +4642,12 @@ DATA TO REVIEW:
 
             // Reset trạng thái
             isGraded = false;
+            currentFilter = 'all';
+            currentQuestionIndex = 0;
+            questionDisplayMode = readQuestionDisplayMode();
+            document.querySelectorAll('.filter-button').forEach((button, index) => {
+                button.classList.toggle('active', index === 0);
+            });
             updateRetryButtons();
             document.getElementById('filterSection').style.display = 'none';
 
@@ -4494,6 +4819,9 @@ DATA TO REVIEW:
             // Enable inputs when displaying quiz (in case coming from retry)
             enableQuizInputs();
 
+            // Apply list or single-question Focus Card display.
+            syncQuestionDisplayMode();
+
             // Scroll to top of quiz section
             window.scrollTo({ top: 0, behavior: 'smooth' });
         }
@@ -4529,6 +4857,9 @@ DATA TO REVIEW:
 
             // Update button visibility
             updateRetryButtons();
+            if (questionDisplayMode === 'focus') {
+                updateFocusCardView();
+            }
         }
 
         function submitQuiz() {
@@ -4834,9 +5165,12 @@ DATA TO REVIEW:
             // Clear answers but keep questions
             isGraded = false;
             incorrectQuestions.clear();
+            answeredQuestions.clear();
+            currentFilter = 'all';
+            currentQuestionIndex = 0;
 
             // Clear all answer selections and enable inputs
-            document.querySelectorAll('input[type="radio"], input[type="checkbox"]').forEach(input => {
+            document.querySelectorAll('#quizContainer input[type="radio"], #quizContainer input[type="checkbox"]').forEach(input => {
                 input.checked = false;
             });
             enableQuizInputs();
@@ -4850,10 +5184,15 @@ DATA TO REVIEW:
             document.getElementById('resultSection').classList.add('hidden');
             document.getElementById('retryIncorrectBtn').classList.add('hidden');
             document.getElementById('filterSection').style.display = 'none';
+            document.querySelectorAll('.filter-button').forEach((button, index) => {
+                button.classList.toggle('active', index === 0);
+            });
             updateRetryButtons();
+            resetProgressBar();
 
             // Update navigator
             updateQuestionNavigator();
+            updateFocusCardView();
 
             // Scroll to top of quiz
             document.getElementById('quizSection').scrollIntoView({ behavior: 'smooth', block: 'start' });
@@ -4922,7 +5261,10 @@ DATA TO REVIEW:
         document.addEventListener('keydown', event => {
             if (event.key === 'Escape' && document.getElementById('questionNavigator').classList.contains('open')) {
                 toggleSidebar(false);
+                return;
             }
+
+            handleFocusCardKeyboard(event);
         });
 
         function updateQuestionNavigator() {
@@ -4992,18 +5334,25 @@ DATA TO REVIEW:
             const questionCard = document.getElementById(`card${index}`);
             if (questionCard) {
                 currentQuestionIndex = index;
-                updateQuestionNavigator();
-
-                // Scroll to question
-                questionCard.scrollIntoView({ behavior: 'smooth', block: 'center' });
                 toggleSidebar(false);
+
+                if (questionDisplayMode === 'focus') {
+                    updateFocusCardView({ scroll: true });
+                } else {
+                    updateQuestionNavigator();
+                    questionCard.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                }
             }
         }
 
         // Setup answer change listeners
         function setupAnswerListeners() {
-            document.querySelectorAll('input[type="radio"], input[type="checkbox"]').forEach(input => {
+            document.querySelectorAll('#quizContainer input[type="radio"], #quizContainer input[type="checkbox"]').forEach(input => {
                 input.addEventListener('change', (e) => {
+                    const questionIndex = Number(e.target.name.replace('question', ''));
+                    if (Number.isInteger(questionIndex)) {
+                        currentQuestionIndex = questionIndex;
+                    }
                     updateQuestionNavigator();
                     updateProgressBar(e);
 
@@ -5091,6 +5440,7 @@ DATA TO REVIEW:
                 originalAnswersText: originalAnswersText,
                 examModeEnabled: examModeEnabled,
                 practiceModeEnabled: practiceModeEnabled,
+                questionDisplayMode: questionDisplayMode,
                 timeRemaining: timeRemaining
             };
             saveToStorage(STORAGE_KEYS.QUIZ_STATE, state);
@@ -5113,7 +5463,15 @@ DATA TO REVIEW:
             originalAnswersText = savedState.originalAnswersText;
             examModeEnabled = savedState.examModeEnabled;
             practiceModeEnabled = savedState.practiceModeEnabled;
+            questionDisplayMode = savedState.questionDisplayMode || 'list';
             timeRemaining = savedState.timeRemaining;
+            currentFilter = 'all';
+            currentQuestionIndex = 0;
+
+            const savedDisplayModeInput = document.querySelector(
+                `input[name="questionDisplayMode"][value="${questionDisplayMode}"]`
+            );
+            if (savedDisplayModeInput) savedDisplayModeInput.checked = true;
 
             // Show quiz section, hide input section
             const inputSection = document.getElementById('inputSection');
@@ -5258,6 +5616,7 @@ DATA TO REVIEW:
 
             // Enable inputs when displaying quiz
             enableQuizInputs();
+            syncQuestionDisplayMode();
 
             // Scroll to quiz section
             const quizSectionElement = document.getElementById('quizSection');
@@ -5396,31 +5755,7 @@ DATA TO REVIEW:
                 btn.classList.remove('active');
             });
             triggerButton.classList.add('active');
-
-            // Filter question cards
-            quizData.forEach((q, index) => {
-                const card = document.getElementById(`card${index}`);
-                const originalNumber = questionMapping[index];
-                let shouldShow = false;
-
-                switch(filterType) {
-                    case 'all':
-                        shouldShow = true;
-                        break;
-                    case 'pinned':
-                        shouldShow = pinnedQuestions.has(originalNumber);
-                        break;
-                    case 'incorrect':
-                        shouldShow = incorrectQuestions.has(originalNumber);
-                        break;
-                }
-
-                if (shouldShow) {
-                    card.style.display = 'block';
-                } else {
-                    card.style.display = 'none';
-                }
-            });
+            updateFocusCardView({ scroll: questionDisplayMode === 'focus' });
         }
 
         // File import functions

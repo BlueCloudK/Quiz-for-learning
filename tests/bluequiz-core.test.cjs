@@ -108,6 +108,28 @@ assert.equal(settingsElements.timerInputGroup.style.display, 'grid');
 
 assert.doesNotMatch(html, /id="practiceModeCheckbox"|id="examModeCheckbox"/);
 assert.equal((html.match(/<input type="radio" name="quizMode"/g) || []).length, 3);
+assert.equal((html.match(/<input type="radio" name="questionDisplayMode"/g) || []).length, 2);
+
+const focusApi = new Function(`
+    const quizData = [{ number: 1 }, { number: 2 }, { number: 3 }];
+    const questionMapping = { 0: 1, 1: 2, 2: 3 };
+    const pinnedQuestions = new Set([2]);
+    const incorrectQuestions = new Set([1, 3]);
+    let currentFilter = 'all';
+    ${extractFunction('questionMatchesCurrentFilter')}
+    ${extractFunction('getFocusableQuestionIndices')}
+    return {
+        getFocusableQuestionIndices,
+        setFilter: value => { currentFilter = value; }
+    };
+`)();
+
+assert.deepEqual(focusApi.getFocusableQuestionIndices(), [0, 1, 2]);
+focusApi.setFilter('pinned');
+assert.deepEqual(focusApi.getFocusableQuestionIndices(), [1]);
+focusApi.setFilter('incorrect');
+assert.deepEqual(focusApi.getFocusableQuestionIndices(), [0, 2]);
+assert.match(extractFunction('setupAnswerListeners'), /#quizContainer input\[type="radio"\]/);
 
 const timerElements = {
     pauseTimerBtn: { style: {} },
