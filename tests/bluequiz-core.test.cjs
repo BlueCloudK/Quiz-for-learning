@@ -3,21 +3,12 @@ const fs = require('node:fs');
 const path = require('node:path');
 
 const htmlPath = path.join(__dirname, '..', 'BlueQuiz.html');
-const appScriptFiles = [
-    'bluequiz-state.js',
-    'bluequiz-i18n.js',
-    'bluequiz-quiz.js',
-    'bluequiz-files.js'
-];
+const appScriptPath = path.join(__dirname, '..', 'assets', 'bluequiz.js');
 const html = fs.readFileSync(htmlPath, 'utf8');
-const appScript = appScriptFiles
-    .map(file => fs.readFileSync(path.join(__dirname, '..', 'assets', file), 'utf8'))
-    .join('\n');
+const appScript = fs.readFileSync(appScriptPath, 'utf8');
 
 assert.match(html, /<link rel="stylesheet" href="assets\/bluequiz\.css">/);
-for (const file of appScriptFiles) {
-    assert.match(html, new RegExp(`<script src="assets/${file.replace('.', '\\.')}"></script>`));
-}
+assert.match(html, /<script src="assets\/bluequiz\.js"><\/script>/);
 new Function(appScript);
 
 function extractFunction(name) {
