@@ -1454,25 +1454,47 @@
 
         .question-navigator {
             position: fixed;
-            left: 0;
-            top: 0;
-            width: 320px;
-            height: 100vh;
+            left: 16px;
+            top: 16px;
+            bottom: 16px;
+            width: 304px;
             background: var(--card-bg);
-            padding: 20px;
-            box-shadow: 5px 0 20px var(--shadow-color);
-            transition: transform 0.3s ease, background 0.3s ease;
-            overflow-y: auto;
-            z-index: 1000;
-            transform: translateX(-100%);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            box-shadow: 0 18px 48px rgba(0, 0, 0, 0.28);
+            transition: transform 0.22s ease, opacity 0.22s ease, background 0.3s ease;
+            overflow: hidden;
+            z-index: 1001;
+            transform: translateX(calc(-100% - 32px));
+            opacity: 0;
+            visibility: hidden;
+            display: flex;
+            flex-direction: column;
         }
 
         .question-navigator.active {
-            display: block;
+            display: flex;
         }
 
         .question-navigator.open {
             transform: translateX(0);
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .navigator-backdrop {
+            position: fixed;
+            inset: 0;
+            z-index: 1000;
+            background: rgba(7, 12, 31, 0.42);
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.2s ease;
+        }
+
+        .navigator-backdrop.open {
+            opacity: 1;
+            pointer-events: auto;
         }
 
         .quiz-main-content {
@@ -1481,46 +1503,124 @@
         }
 
         .navigator-header {
-            font-weight: 600;
-            font-size: 1.1em;
+            flex: 0 0 auto;
+            padding: 18px 18px 14px;
+            font-weight: 700;
+            font-size: 1.05em;
             color: var(--text-primary);
-            margin-bottom: 15px;
-            padding-bottom: 10px;
-            border-bottom: 2px solid var(--border-color);
+            border-bottom: 1px solid var(--border-color);
             display: flex;
             justify-content: space-between;
             align-items: center;
         }
 
         .navigator-close-btn {
-            font-size: 1.5em;
+            width: 34px;
+            height: 34px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0;
+            border: 1px solid var(--border-color);
+            border-radius: 9px;
+            background: var(--input-bg);
+            font-size: 1.15em;
             cursor: pointer;
             color: var(--text-primary);
-            transition: color 0.3s, transform 0.3s;
+            transition: color 0.2s, border-color 0.2s, background 0.2s;
             user-select: none;
         }
 
         .navigator-close-btn:hover {
             color: var(--accent-color);
-            transform: scale(1.2);
+            border-color: var(--accent-color);
+            background: var(--filter-bg);
         }
+
+        .navigator-summary {
+            flex: 0 0 auto;
+            padding: 14px 18px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .navigator-count {
+            display: flex;
+            align-items: baseline;
+            justify-content: space-between;
+            gap: 12px;
+            color: var(--text-secondary);
+            font-size: 0.88em;
+        }
+
+        .navigator-count strong {
+            color: var(--text-primary);
+            font-size: 1.15em;
+        }
+
+        .navigator-mini-progress {
+            height: 6px;
+            margin-top: 9px;
+            overflow: hidden;
+            border-radius: 999px;
+            background: var(--input-border);
+        }
+
+        .navigator-mini-progress-fill {
+            width: 0;
+            height: 100%;
+            border-radius: inherit;
+            background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+            transition: width 0.2s ease;
+        }
+
+        .navigator-legend {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 7px 12px;
+            margin-top: 12px;
+            color: var(--text-secondary);
+            font-size: 0.76em;
+        }
+
+        .navigator-legend span {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .navigator-legend i {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--input-bg);
+            border: 1px solid var(--border-color);
+        }
+
+        .navigator-legend .answered-dot { background: #3b82f6; border-color: #3b82f6; }
+        .navigator-legend .pinned-dot { background: #f59e0b; border-color: #f59e0b; }
+        .navigator-legend .correct-dot { background: #22c55e; border-color: #22c55e; }
+        .navigator-legend .incorrect-dot { background: #ef4444; border-color: #ef4444; }
 
         /* Sidebar Toggle Button */
         .sidebar-toggle-btn {
             position: fixed;
             left: 20px;
             top: 20px;
-            width: 50px;
-            height: 50px;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            border: none;
-            border-radius: 10px;
+            width: 44px;
+            height: 44px;
+            min-height: 44px;
+            padding: 0;
+            gap: 0;
+            background: var(--card-bg);
+            border: 1px solid var(--accent-color-light);
+            border-radius: 11px;
             color: white;
-            font-size: 1.5em;
+            font-size: 0.9em;
+            font-weight: 700;
             cursor: pointer;
             z-index: 999;
-            box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.2);
-            transition: all 0.3s ease;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+            transition: border-color 0.2s ease, background 0.2s ease, transform 0.2s ease;
             display: none;
         }
 
@@ -1531,18 +1631,50 @@
         }
 
         .sidebar-toggle-btn:hover {
-            background: linear-gradient(135deg, #764ba2 0%, #667eea 100%);
-            transform: scale(1.05);
+            background: var(--filter-bg);
+            border-color: var(--accent-color);
+            transform: translateY(-1px);
         }
 
         body.dark-mode .sidebar-toggle-btn {
-            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
-            border: 2px solid var(--accent-color-light);
+            background: #17182a;
+            color: var(--text-primary);
+        }
+
+        .sidebar-toggle-icon {
+            font-size: 1.2em;
+            line-height: 1;
+        }
+
+        .sidebar-toggle-label {
+            display: none;
+        }
+
+        .sidebar-toggle-count {
+            position: absolute;
+            top: -7px;
+            right: -7px;
+            min-width: 20px;
+            height: 20px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0 5px;
+            border: 2px solid var(--container-bg);
+            border-radius: 999px;
+            background: var(--accent-color);
+            color: white;
+            font-size: 0.68em;
         }
 
 
         .navigator-content {
-            overflow: hidden;
+            min-height: 0;
+            padding: 14px 14px 18px;
+            overflow-y: auto;
+            overflow-x: hidden;
+            scrollbar-width: thin;
+            scrollbar-color: var(--border-color) transparent;
         }
 
         /* Fixed Right Timer Panel */
@@ -1633,29 +1765,32 @@
         .question-nav-list {
             display: grid;
             grid-template-columns: repeat(5, 1fr);
-            gap: 8px;
+            gap: 7px;
         }
 
         .question-nav-item {
             aspect-ratio: 1;
+            width: 100%;
+            min-width: 0;
+            padding: 0;
             display: flex;
             align-items: center;
             justify-content: center;
             background: var(--input-bg);
-            border: 2px solid var(--border-color);
-            border-radius: 8px;
+            border: 1px solid var(--border-color);
+            border-radius: 9px;
             cursor: pointer;
             font-weight: 600;
-            font-size: 0.95em;
-            transition: all 0.3s;
+            font-size: 0.88em;
+            transition: border-color 0.16s, background 0.16s, color 0.16s, transform 0.16s;
             color: var(--text-primary);
         }
 
         .question-nav-item:hover {
-            transform: scale(1.05);
-            border-color: #667eea;
-            background: #667eea;
-            color: white;
+            transform: translateY(-1px);
+            border-color: var(--accent-color);
+            background: var(--filter-bg);
+            color: var(--accent-color);
         }
 
         .question-nav-item.answered {
@@ -1695,15 +1830,14 @@
         }
 
         .question-nav-item.current {
-            border-color: #667eea;
-            border-width: 3px;
-            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.3);
+            border-color: var(--accent-color);
+            box-shadow: inset 0 0 0 2px var(--accent-color);
         }
 
         .question-nav-item.pinned {
-            background: linear-gradient(135deg, #ffd700 0%, #ffed4e 100%);
-            border-color: #ffd700;
-            color: #1a1a2e;
+            background: #f59e0b;
+            border-color: #f59e0b;
+            color: #111827;
             font-weight: bold;
         }
 
@@ -1714,8 +1848,9 @@
         }
 
         .question-nav-item.pinned.answered {
-            background: linear-gradient(135deg, #ffd700 0%, #4ade80 100%);
-            color: #1a1a2e;
+            background: #d97706;
+            border-color: #f59e0b;
+            color: white;
         }
 
         body.dark-mode .question-nav-item.pinned.answered {
@@ -1866,7 +2001,7 @@
                 width: 85% !important;
                 max-width: 300px;
                 transform: translateX(-100%);
-                padding: 15px;
+                padding: 0;
             }
 
             .question-navigator.open {
@@ -1883,6 +2018,13 @@
                 min-height: 45px !important;
                 max-height: 45px !important;
                 font-size: 1.3em;
+                padding: 0;
+                gap: 0;
+            }
+
+            .sidebar-toggle-label,
+            .sidebar-toggle-count {
+                display: none;
             }
 
             .quiz-main-content {
@@ -1973,13 +2115,13 @@
                 gap: 12px;
             }
 
-            button:not(.pin-button):not(.filter-button):not(.language-button):not(.theme-toggle) {
+            button:not(.pin-button):not(.filter-button):not(.language-button):not(.theme-toggle):not(.sidebar-toggle-btn):not(.question-nav-item):not(.navigator-close-btn) {
                 min-height: 44px;
                 padding: 12px 20px;
                 font-size: 1em;
             }
 
-            button:not(.pin-button):not(.filter-button):not(.sidebar-toggle-btn):not(.scroll-to-top) {
+            button:not(.pin-button):not(.filter-button):not(.sidebar-toggle-btn):not(.scroll-to-top):not(.question-nav-item):not(.navigator-close-btn) {
                 width: 100%;
             }
 
@@ -2342,19 +2484,43 @@
 
             <!-- Quiz Section -->
             <div class="section hidden" id="quizSection">
+                <div class="navigator-backdrop" id="navigatorBackdrop" onclick="toggleSidebar(false)" aria-hidden="true"></div>
+
                 <!-- Sidebar Toggle Button -->
-                <button class="sidebar-toggle-btn" id="sidebarToggleBtn" onclick="toggleSidebar()">
-                    ☰
+                <button class="sidebar-toggle-btn" id="sidebarToggleBtn" type="button" onclick="toggleSidebar()"
+                        aria-controls="questionNavigator" aria-expanded="false" aria-label="Câu hỏi">
+                    <span class="sidebar-toggle-icon" aria-hidden="true">☷</span>
+                    <span class="sidebar-toggle-label" data-i18n="navigatorToggle">Câu hỏi</span>
+                    <span class="sidebar-toggle-count" id="sidebarToggleCount">0</span>
                 </button>
 
 
                 <!-- Quiz Layout with Navigator -->
                 <div class="quiz-layout">
                     <!-- Question Navigator Sidebar -->
-                    <div class="question-navigator" id="questionNavigator">
+                    <div class="question-navigator" id="questionNavigator" role="dialog" aria-modal="true"
+                         aria-labelledby="navigatorTitle" aria-hidden="true">
                         <div class="navigator-header">
-                            <span data-i18n="questionNavigator">Danh Sách Câu Hỏi</span>
-                            <span class="navigator-close-btn" onclick="toggleSidebar()">✕</span>
+                            <span id="navigatorTitle" data-i18n="questionNavigator">Danh Sách Câu Hỏi</span>
+                            <button class="navigator-close-btn" id="navigatorCloseBtn" type="button" onclick="toggleSidebar(false)"
+                                    data-i18n-title="navigatorClose" title="Đóng" aria-label="Đóng">✕</button>
+                        </div>
+
+                        <div class="navigator-summary">
+                            <div class="navigator-count">
+                                <span data-i18n="navigatorProgress">Tiến độ làm bài</span>
+                                <strong id="navigatorAnsweredCount">0/0</strong>
+                            </div>
+                            <div class="navigator-mini-progress" aria-hidden="true">
+                                <div class="navigator-mini-progress-fill" id="navigatorProgressFill"></div>
+                            </div>
+                            <div class="navigator-legend">
+                                <span><i></i><span data-i18n="navigatorUnanswered">Chưa làm</span></span>
+                                <span><i class="answered-dot"></i><span data-i18n="navigatorAnswered">Đã làm</span></span>
+                                <span><i class="pinned-dot"></i><span data-i18n="navigatorPinned">Đã ghim</span></span>
+                                <span><i class="correct-dot"></i><span data-i18n="correctAnswers">Đúng</span></span>
+                                <span><i class="incorrect-dot"></i><span data-i18n="incorrectAnswers">Sai</span></span>
+                            </div>
                         </div>
 
                         <!-- Question Navigation List -->
@@ -2485,6 +2651,7 @@
         let originalAnswersText = ''; // Lưu đáp án gốc
         let currentFilter = 'all'; // Bộ lọc hiện tại
         let currentLanguage = 'vi'; // Ngôn ngữ hiện tại
+        let currentQuestionIndex = 0; // Câu được chọn gần nhất trong navigator
         let quizHistory = []; // Lưu lịch sử làm bài
         let practiceModeEnabled = false; // Practice mode with instant feedback
 
@@ -3056,6 +3223,12 @@
                 retryIncorrectBtn: 'Làm Lại Câu Sai',
                 retryPinnedBtn: 'Làm Lại Câu Đã Pin',
                 questionNavigator: 'Danh Sách Câu Hỏi',
+                navigatorToggle: 'Câu hỏi',
+                navigatorClose: 'Đóng danh sách câu hỏi',
+                navigatorProgress: 'Tiến độ làm bài',
+                navigatorUnanswered: 'Chưa làm',
+                navigatorAnswered: 'Đã làm',
+                navigatorPinned: 'Đã ghim',
                 timeRemaining: 'Thời gian còn lại:',
                 pauseTimer: 'Tạm dừng',
                 resumeTimer: 'Tiếp tục',
@@ -3178,6 +3351,12 @@
                 retryIncorrectBtn: 'Retry Incorrect',
                 retryPinnedBtn: 'Retry Pinned',
                 questionNavigator: 'Question List',
+                navigatorToggle: 'Questions',
+                navigatorClose: 'Close question list',
+                navigatorProgress: 'Quiz progress',
+                navigatorUnanswered: 'Not answered',
+                navigatorAnswered: 'Answered',
+                navigatorPinned: 'Pinned',
                 timeRemaining: 'Time Remaining:',
                 pauseTimer: 'Pause',
                 resumeTimer: 'Resume',
@@ -3455,6 +3634,14 @@ DATA TO REVIEW:
                 }
             });
 
+            document.querySelectorAll('[data-i18n-title]').forEach(element => {
+                const key = element.getAttribute('data-i18n-title');
+                if (translations[lang][key]) {
+                    element.title = translations[lang][key];
+                    element.setAttribute('aria-label', translations[lang][key]);
+                }
+            });
+
             // Update pin button titles if quiz is displayed
             if (!document.getElementById('quizSection').classList.contains('hidden')) {
                 quizData.forEach((q, index) => {
@@ -3468,6 +3655,7 @@ DATA TO REVIEW:
                 });
 
                 updateProgressBar();
+                updateQuestionNavigator();
             }
 
             // Update result section if it exists
@@ -4323,7 +4511,11 @@ DATA TO REVIEW:
 
             navigator.classList.remove('active');
             navigator.classList.remove('open');
+            navigator.setAttribute('aria-hidden', 'true');
+            document.getElementById('navigatorBackdrop').classList.remove('open');
+            document.getElementById('navigatorBackdrop').setAttribute('aria-hidden', 'true');
             sidebarToggleBtn.classList.remove('active');
+            sidebarToggleBtn.setAttribute('aria-expanded', 'false');
             fixedControlPanel.classList.remove('active');
 
             // Ensure fixedControlPanel is completely hidden
@@ -4406,15 +4598,23 @@ DATA TO REVIEW:
         function generateQuestionNavigator() {
             const navList = document.getElementById('questionNavList');
             navList.innerHTML = '';
+            currentQuestionIndex = 0;
 
             quizData.forEach((q, index) => {
-                const navItem = document.createElement('div');
+                const navItem = document.createElement('button');
+                navItem.type = 'button';
                 navItem.className = 'question-nav-item';
                 navItem.id = `nav-q${index}`;
                 navItem.textContent = index + 1;
+                navItem.setAttribute('aria-label', `${translations[currentLanguage].question} ${index + 1}`);
                 navItem.onclick = () => navigateToQuestion(index);
                 navList.appendChild(navItem);
             });
+
+            document.getElementById('sidebarToggleCount').textContent = quizData.length;
+            document.getElementById('sidebarToggleBtn').setAttribute(
+                'aria-label', `${translations[currentLanguage].navigatorToggle}: ${quizData.length}`
+            );
 
             // Show navigator and toggle button
             document.getElementById('questionNavigator').classList.add('active');
@@ -4434,13 +4634,34 @@ DATA TO REVIEW:
             updateQuestionNavigator();
         }
 
-        function toggleSidebar() {
+        function toggleSidebar(forceOpen) {
             const sidebar = document.getElementById('questionNavigator');
-            sidebar.classList.toggle('open');
+            const backdrop = document.getElementById('navigatorBackdrop');
+            const toggleButton = document.getElementById('sidebarToggleBtn');
+            const shouldOpen = typeof forceOpen === 'boolean' ? forceOpen : !sidebar.classList.contains('open');
+
+            sidebar.classList.toggle('open', shouldOpen);
+            backdrop.classList.toggle('open', shouldOpen);
+            sidebar.setAttribute('aria-hidden', String(!shouldOpen));
+            toggleButton.setAttribute('aria-expanded', String(shouldOpen));
+            backdrop.setAttribute('aria-hidden', String(!shouldOpen));
+
+            if (shouldOpen) {
+                document.getElementById('navigatorCloseBtn').focus();
+            } else {
+                toggleButton.focus({ preventScroll: true });
+            }
         }
 
+        document.addEventListener('keydown', event => {
+            if (event.key === 'Escape' && document.getElementById('questionNavigator').classList.contains('open')) {
+                toggleSidebar(false);
+            }
+        });
 
         function updateQuestionNavigator() {
+            let answeredCount = 0;
+
             quizData.forEach((q, index) => {
                 const navItem = document.getElementById(`nav-q${index}`);
                 if (!navItem) return;
@@ -4469,6 +4690,7 @@ DATA TO REVIEW:
 
                 if (isAnswered) {
                     navItem.classList.add('answered');
+                    answeredCount++;
                 }
 
                 // If graded, show correct/incorrect
@@ -4481,32 +4703,34 @@ DATA TO REVIEW:
                         navItem.classList.add('correct');
                     }
                 }
+
+                if (index === currentQuestionIndex) {
+                    navItem.classList.add('current');
+                    navItem.setAttribute('aria-current', 'true');
+                } else {
+                    navItem.removeAttribute('aria-current');
+                }
             });
+
+            const total = quizData.length;
+            const percentage = total > 0 ? (answeredCount / total) * 100 : 0;
+            document.getElementById('navigatorAnsweredCount').textContent = `${answeredCount}/${total}`;
+            document.getElementById('navigatorProgressFill').style.width = `${percentage}%`;
+            document.getElementById('sidebarToggleCount').textContent = total;
+            document.getElementById('sidebarToggleBtn').setAttribute(
+                'aria-label', `${translations[currentLanguage].navigatorToggle}: ${total}`
+            );
         }
 
         function navigateToQuestion(index) {
             const questionCard = document.getElementById(`card${index}`);
             if (questionCard) {
-                // Remove current highlight from all nav items
-                document.querySelectorAll('.question-nav-item').forEach(item => {
-                    item.classList.remove('current');
-                });
-
-                // Add current highlight
-                const navItem = document.getElementById(`nav-q${index}`);
-                if (navItem) {
-                    navItem.classList.add('current');
-                }
+                currentQuestionIndex = index;
+                updateQuestionNavigator();
 
                 // Scroll to question
                 questionCard.scrollIntoView({ behavior: 'smooth', block: 'center' });
-
-                // Remove highlight after 2 seconds
-                setTimeout(() => {
-                    if (navItem) {
-                        navItem.classList.remove('current');
-                    }
-                }, 2000);
+                toggleSidebar(false);
             }
         }
 
