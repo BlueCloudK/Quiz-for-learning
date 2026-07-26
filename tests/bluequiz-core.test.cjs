@@ -104,7 +104,7 @@ assert.equal(settingsElements.timerInputGroup.style.display, 'none');
 settingsSelection.mode = 'exam';
 settingsApi.toggleQuizMode();
 assert.deepEqual(settingsApi.getModeState(), { practiceModeEnabled: false, examModeEnabled: true });
-assert.equal(settingsElements.timerInputGroup.style.display, 'flex');
+assert.equal(settingsElements.timerInputGroup.style.display, 'grid');
 
 assert.doesNotMatch(html, /id="practiceModeCheckbox"|id="examModeCheckbox"/);
 assert.equal((html.match(/<input type="radio" name="quizMode"/g) || []).length, 3);
