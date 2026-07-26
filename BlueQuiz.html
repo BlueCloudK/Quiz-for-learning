@@ -896,21 +896,6 @@
             transition: box-shadow 0.3s ease, background 0.3s ease;
         }
 
-        /* Fixed progress bar when scrolling */
-        .progress-container.fixed {
-            position: fixed;
-            top: 10px;
-            /* left and width will be set by JavaScript to match original size */
-            margin: 0;
-            z-index: 998;
-            box-shadow: 0 4px 12px var(--shadow-color);
-        }
-
-        /* Add padding to prevent content jump when progress bar becomes fixed */
-        .quiz-main-content.has-fixed-progress {
-            padding-top: 80px;
-        }
-
         .progress-info {
             display: flex;
             justify-content: space-between;
@@ -1759,9 +1744,14 @@
         }
 
         @media (min-width: 769px) {
+            body.quiz-active .container {
+                overflow: visible;
+            }
+
             body.quiz-active .header {
                 padding: 16px 24px;
                 text-align: left;
+                border-radius: 20px 20px 0 0;
             }
 
             body.quiz-active .header h1 {
@@ -1783,6 +1773,12 @@
                 grid-template-columns: minmax(0, 1fr) 280px;
                 gap: 20px;
                 align-items: start;
+            }
+
+            .quiz-main-content .progress-container {
+                position: sticky;
+                top: 10px;
+                z-index: 30;
             }
 
             .quiz-side-rail {
@@ -5282,59 +5278,18 @@ DATA TO REVIEW:
             });
         }
 
-        // Show/hide scroll to top button based on scroll position
+        // Keep the remaining scroll work to one DOM update per animation frame.
+        let scrollUpdatePending = false;
         window.addEventListener('scroll', function() {
-            const scrollToTopBtn = document.getElementById('scrollToTopBtn');
-            if (window.pageYOffset > 300) {
-                scrollToTopBtn.classList.add('show');
-            } else {
-                scrollToTopBtn.classList.remove('show');
-            }
+            if (scrollUpdatePending) return;
 
-            // Fixed progress bar on scroll
-            const progressContainer = document.getElementById('progressContainer');
-            const quizMainContent = document.querySelector('.quiz-main-content');
-
-            if (progressContainer && progressContainer.style.display !== 'none') {
-                const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
-
-                if (scrollTop > 100) {
-                    // Save original dimensions before making it fixed (only once)
-                    if (!progressContainer.classList.contains('fixed')) {
-                        const rect = progressContainer.getBoundingClientRect();
-
-                        // Store original width
-                        progressContainer.setAttribute('data-original-width', rect.width);
-                    }
-
-                    progressContainer.classList.add('fixed');
-
-                    // Apply original width and center it
-                    const originalWidth = progressContainer.getAttribute('data-original-width');
-
-                    if (originalWidth) {
-                        progressContainer.style.width = originalWidth + 'px';
-                        // Center horizontally
-                        progressContainer.style.left = '50%';
-                        progressContainer.style.transform = 'translateX(-50%)';
-                    }
-
-                    if (quizMainContent) {
-                        quizMainContent.classList.add('has-fixed-progress');
-                    }
-                } else {
-                    progressContainer.classList.remove('fixed');
-                    // Clear inline styles
-                    progressContainer.style.width = '';
-                    progressContainer.style.left = '';
-                    progressContainer.style.transform = '';
-
-                    if (quizMainContent) {
-                        quizMainContent.classList.remove('has-fixed-progress');
-                    }
-                }
-            }
-        });
+            scrollUpdatePending = true;
+            window.requestAnimationFrame(function() {
+                const scrollToTopBtn = document.getElementById('scrollToTopBtn');
+                scrollToTopBtn.classList.toggle('show', window.pageYOffset > 300);
+                scrollUpdatePending = false;
+            });
+        }, { passive: true });
     </script>
 </body>
 </html>
