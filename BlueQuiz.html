@@ -2049,70 +2049,7 @@
                     <span class="toggle-icon" id="toggleIcon">▼</span>
                 </div>
                 <div class="ai-prompts-content" id="aiPromptsContent">
-                    <p data-i18n="aiPromptsDesc">Copy các prompt sau và paste vào ChatGPT, Claude, hoặc AI chatbot khác để tự động tạo câu hỏi đúng format:</p>
-
-                    <!-- Quick Copy Templates -->
-                    <div class="quick-templates">
-                        <h4 class="quick-templates-title" data-i18n="quickTemplatesTitle">📋 Hoặc Copy Template Mẫu Để Paste Trực Tiếp:</h4>
-
-                        <div class="template-grid">
-                            <div class="template-item">
-                                <div class="template-label" data-i18n="templateQuestionsLabel">Mẫu Câu Hỏi:</div>
-                                <div class="template-box" id="questionsTemplate">1. Câu hỏi thứ nhất?
-a. Đáp án A
-b. Đáp án B
-c. Đáp án C
-d. Đáp án D
-
-2. Câu hỏi thứ hai?
-a. Đáp án A
-b. Đáp án B
-c. Đáp án C
-d. Đáp án D
-
-3. Câu hỏi thứ ba (nhiều đáp án đúng)?
-a. Lựa chọn A
-b. Lựa chọn B
-c. Lựa chọn C
-d. Lựa chọn D
-e. Lựa chọn E</div>
-                                <button class="copy-btn" onclick="copyTemplate('questions')" id="copyQuestionsBtn">
-                                    <span data-i18n="copyBtn">Copy</span>
-                                </button>
-                            </div>
-
-                            <div class="template-item">
-                                <div class="template-label" data-i18n="templateAnswersLabel">Mẫu Đáp Án:</div>
-                                <div class="template-box" id="answersTemplate">1. a
-2. b
-3. a,c,e</div>
-                                <button class="copy-btn" onclick="copyTemplate('answers')" id="copyAnswersBtn">
-                                    <span data-i18n="copyBtn">Copy</span>
-                                </button>
-                            </div>
-
-                            <div class="template-item">
-                                <div class="template-label" data-i18n="templateListItemsLabel">Mẫu List Items:</div>
-                                <div class="template-box" id="listItemsTemplate">Các hoạt động nào sau đây là chính trong quy trình review?
-- 1. Lập kế hoạch
-- 2. Review cá nhân
-- 3. Họp nhóm
-- 4. Sửa lỗi
-- 5. Tài liệu hóa
-- 6. Kiểm thử
-
-A. 1, 2, 4
-B. 2, 3, 5
-C. 1, 2, 3, 4
-D. Tất cả các mục</div>
-                                <button class="copy-btn" onclick="copyTemplate('listItems')" id="copyListItemsBtn">
-                                    <span data-i18n="copyBtn">Copy</span>
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-
-                    <hr style="margin: 25px 0; border: none; border-top: 1px solid #ddd;">
+                    <p data-i18n="aiPromptsDesc">Chọn một trong 3 prompt dưới đây. Mỗi prompt đều yêu cầu AI xuất sẵn hai phần CÂU HỎI và ĐÁP ÁN để nhập thẳng vào BlueQuiz.</p>
 
                     <div id="promptsContainer"></div>
                 </div>
@@ -2950,7 +2887,7 @@ D. Tất cả các mục</div>
                 alertNoPinned: 'Chưa có câu hỏi nào được pin!',
                 alertNoRetry: 'Không có câu hỏi nào để làm lại!',
                 aiPromptsTitle: 'Hướng Dẫn Tạo Câu Hỏi Với AI Chatbot',
-                aiPromptsDesc: 'Copy các prompt sau và paste vào ChatGPT, Claude, hoặc AI chatbot khác để tự động tạo câu hỏi đúng format:',
+                aiPromptsDesc: 'Chọn một trong 3 prompt dưới đây. Mỗi prompt đều yêu cầu AI xuất sẵn hai phần CÂU HỎI và ĐÁP ÁN để nhập thẳng vào BlueQuiz.',
                 quickTemplatesTitle: '📋 Hoặc Copy Template Mẫu Để Paste Trực Tiếp:',
                 templateQuestionsLabel: 'Mẫu Câu Hỏi:',
                 templateAnswersLabel: 'Mẫu Đáp Án:',
@@ -3066,7 +3003,7 @@ D. Tất cả các mục</div>
                 alertNoPinned: 'No questions have been pinned yet!',
                 alertNoRetry: 'No questions to retry!',
                 aiPromptsTitle: 'Generate Questions With AI Chatbot',
-                aiPromptsDesc: 'Copy these prompts and paste into ChatGPT, Claude, or other AI chatbots to automatically generate questions in the correct format:',
+                aiPromptsDesc: 'Choose one of the 3 prompts below. Each prompt asks the AI to produce separate QUESTIONS and ANSWERS sections ready for BlueQuiz.',
                 quickTemplatesTitle: '📋 Or Copy Sample Templates to Paste Directly:',
                 templateQuestionsLabel: 'Questions Template:',
                 templateAnswersLabel: 'Answers Template:',
@@ -3121,437 +3058,174 @@ D. Tất cả các mục</div>
             }
         };
 
-        // Template data for quick copy
-        const templates = {
-            vi: {
-                questions: `1. Câu hỏi thứ nhất?
-a. Đáp án A
-b. Đáp án B
-c. Đáp án C
-d. Đáp án D
-
-2. Câu hỏi thứ hai?
-a. Đáp án A
-b. Đáp án B
-c. Đáp án C
-d. Đáp án D
-
-3. Câu hỏi thứ ba (nhiều đáp án đúng)?
-a. Lựa chọn A
-b. Lựa chọn B
-c. Lựa chọn C
-d. Lựa chọn D
-e. Lựa chọn E`,
-                answers: `1. a
-2. b
-3. a,c,e`,
-                listItems: `Các hoạt động nào sau đây là chính trong quy trình review?
-- 1. Lập kế hoạch
-- 2. Review cá nhân
-- 3. Họp nhóm
-- 4. Sửa lỗi
-- 5. Tài liệu hóa
-- 6. Kiểm thử
-
-A. 1, 2, 4
-B. 2, 3, 5
-C. 1, 2, 3, 4
-D. Tất cả các mục`
-            },
-            en: {
-                questions: `1. First question?
-a. Answer A
-b. Answer B
-c. Answer C
-d. Answer D
-
-2. Second question?
-a. Answer A
-b. Answer B
-c. Answer C
-d. Answer D
-
-3. Third question (multiple correct answers)?
-a. Option A
-b. Option B
-c. Option C
-d. Option D
-e. Option E`,
-                answers: `1. a
-2. b
-3. a,c,e`,
-                listItems: `Which of the following are main activities in the review process?
-- 1. Planning
-- 2. Individual review
-- 3. Team meeting
-- 4. Code fixing
-- 5. Documentation
-- 6. Testing
-
-A. 1, 2, 4
-B. 2, 3, 5
-C. 1, 2, 3, 4
-D. All items`
-            }
-        };
-
-        // AI Prompts templates
+        // Three general-purpose prompts keep the AI workflow simple.
         const aiPrompts = {
             vi: [
-                {
-                    title: '📚 Tạo Bộ Câu Hỏi Về Chủ Đề Bất Kỳ',
-                    description: 'Tạo 10 câu hỏi trắc nghiệm về chủ đề bạn muốn học',
-                    prompt: `Hãy tạo 10 câu hỏi trắc nghiệm về [TOPIC] theo định dạng sau:
-
-1. [Câu hỏi]
-a. [Đáp án A]
-b. [Đáp án B]
-c. [Đáp án C]
-d. [Đáp án D]
-
-Sau đó, cung cấp đáp án đúng theo format:
-1. [đáp án đúng]
-
-Ví dụ:
-1. Python là ngôn ngữ lập trình gì?
-a. Compiled
-b. Interpreted
-c. Assembly
-d. Machine code
-
-Đáp án:
-1. b
-
-[Thay TOPIC bằng chủ đề của bạn, ví dụ: Lịch sử Việt Nam, Toán học lớp 10, JavaScript, etc.]`
-                },
-                {
-                    title: '🎓 Ôn Tập Kỳ Thi',
-                    description: 'Tạo câu hỏi ôn tập dựa trên nội dung cụ thể',
-                    prompt: `Dựa trên nội dung sau đây, tạo 10 câu hỏi trắc nghiệm:
-
-[PASTE CONTENT Ở ĐÂY]
-
-Định dạng câu hỏi:
-1. [Câu hỏi]
-a. [Đáp án A]
-b. [Đáp án B]
-c. [Đáp án C]
-d. [Đáp án D]
-
-Định dạng đáp án:
-1. [a/b/c/d]
-
-Lưu ý:
-- Câu hỏi phải kiểm tra sự hiểu biết, không chỉ ghi nhớ
-- Các đáp án sai phải hợp lý và gây nhầm lẫn
-- Đảm bảo chỉ có 1 đáp án đúng`
-                },
-                {
-                    title: '💡 Câu Hỏi Nhiều Đáp Án Đúng',
-                    description: 'Tạo câu hỏi có nhiều đáp án đúng (checkbox)',
-                    prompt: `Tạo 5 câu hỏi về [TOPIC] mà mỗi câu có NHIỀU đáp án đúng:
-
-Định dạng câu hỏi:
-1. [Câu hỏi] (chọn tất cả đáp án đúng)
-a. [Đáp án A]
-b. [Đáp án B]
-c. [Đáp án C]
-d. [Đáp án D]
-e. [Đáp án E]
-
-Định dạng đáp án (nhiều đáp án đúng):
-1. a,c,e
-hoặc
-1. ace
-
-Ví dụ:
-1. Ngôn ngữ nào sau đây hỗ trợ lập trình hướng đối tượng?
-a. Python
-b. Java
-c. C
-d. JavaScript
-e. Assembly
-
-Đáp án:
-1. a,b,d`
-                },
-                {
-                    title: '🌍 Học Ngoại Ngữ',
-                    description: 'Tạo bài tập từ vựng và ngữ pháp',
-                    prompt: `Tạo 10 câu hỏi trắc nghiệm học [NGÔN NGỮ]:
-
-5 câu đầu: Từ vựng (nghĩa của từ)
-5 câu sau: Ngữ pháp (điền từ đúng vào chỗ trống)
-
-Định dạng:
-1. [Câu hỏi]
-a. [Đáp án A]
-b. [Đáp án B]
-c. [Đáp án C]
-d. [Đáp án D]
-
-Đáp án:
-1. [a/b/c/d]
-
-Ví dụ về từ vựng:
-1. "Beautiful" có nghĩa là gì?
-a. Xấu
-b. Đẹp
-c. Tốt
-d. Cao
-
-Ví dụ về ngữ pháp:
-2. She ___ to school every day.
-a. go
-b. goes
-c. going
-d. went
-
-Đáp án:
-1. b
-2. b`
-                },
-                {
-                    title: '🧪 Khoa Học & Công Nghệ',
-                    description: 'Câu hỏi khoa học với nhiều lựa chọn',
-                    prompt: `Tạo 10 câu hỏi khoa học về [TOPIC] với 5-6 lựa chọn cho mỗi câu:
-
-Định dạng:
-1. [Câu hỏi]
-a. [Đáp án A]
-b. [Đáp án B]
-c. [Đáp án C]
-d. [Đáp án D]
-e. [Đáp án E]
-f. [Đáp án F] (nếu cần)
-
-Đáp án:
-1. [a/b/c/d/e/f]
+            {
+                title: '✨ Tạo Bộ Câu Hỏi Mới',
+                description: 'Tạo câu hỏi từ chủ đề, giáo trình hoặc nội dung bạn cung cấp',
+                prompt: `Bạn là người biên soạn câu hỏi trắc nghiệm. Hãy tạo [SỐ CÂU] câu hỏi từ chủ đề hoặc tài liệu tôi cung cấp bên dưới.
 
 Yêu cầu:
-- Độ khó: trung bình đến khó
-- Bao gồm cả câu hỏi lý thuyết và ứng dụng
-- Đáp án sai phải hợp lý về mặt khoa học`
-                },
-                {
-                    title: '📋 Câu Hỏi Với Danh Sách (List Items)',
-                    description: 'Tạo câu hỏi có danh sách mục liệt kê',
-                    prompt: `Tạo 5 câu hỏi về [TOPIC] với danh sách các mục được liệt kê:
+- Bám sát nội dung nguồn, không tự bịa kiến thức.
+- Mỗi câu có 4 lựa chọn a, b, c, d và chỉ 1 đáp án đúng, trừ khi nguồn yêu cầu nhiều đáp án.
+- Phân bố độ khó: 30% dễ, 50% trung bình, 20% khó.
+- Đáp án sai phải hợp lý; tránh câu mơ hồ, trùng ý hoặc lộ đáp án.
+- Nếu có nhiều đáp án đúng, ghi đáp án dạng a,c,d.
+- Không giải thích xen giữa các câu.
 
-Định dạng:
-[Câu hỏi]?
-- 1. [Mục thứ nhất]
-- 2. [Mục thứ hai]
-- 3. [Mục thứ ba]
-- 4. [Mục thứ tư]
-- 5. [Mục thứ năm]
-- 6. [Mục thứ sáu]
+Chỉ xuất đúng 2 khối sau:
 
-A. 1, 2, 4
-B. 2, 3, 5
-C. 1, 3, 4, 6
-D. Tất cả các mục
+CÂU HỎI
+1. [Nội dung câu hỏi]
+a. [Lựa chọn A]
+b. [Lựa chọn B]
+c. [Lựa chọn C]
+d. [Lựa chọn D]
 
-Lưu ý QUAN TRỌNG:
-- Sử dụng CHỮ HOA (A, B, C, D) cho các lựa chọn khi có danh sách liệt kê
-- Mỗi lựa chọn tham chiếu đến các số trong danh sách
-- Câu hỏi và danh sách liệt kê trước, sau đó mới đến các lựa chọn A, B, C, D
+ĐÁP ÁN
+1. a
 
-Ví dụ:
-Which of the following are main activities of code review?
-- 1. Planning
-- 2. Individual review
-- 3. Team meeting
-- 4. Code fixing
-- 5. Documentation
-- 6. Testing
+CHỦ ĐỀ / TÀI LIỆU NGUỒN:
+[DÁN NỘI DUNG VÀO ĐÂY]`
+            },
+            {
+                title: '🧾 Chuyển Đề Có Sẵn Sang BlueQuiz',
+                description: 'Chuẩn hóa đề từ ảnh, OCR, PDF hoặc văn bản đã chép',
+                prompt: `Hãy chuyển đề trắc nghiệm tôi cung cấp sang định dạng nhập của BlueQuiz.
 
-A. 1, 2, 4
-B. 2, 3, 5
-C. 1, 2, 3, 4
-D. All items
+Quy tắc:
+- Giữ nguyên nội dung, thứ tự câu và thứ tự lựa chọn.
+- Không tự sửa kiến thức hoặc đoán phần chữ bị thiếu.
+- Đánh số câu liên tục từ 1; lựa chọn dùng a, b, c, d... viết thường.
+- Nếu câu có nhiều đáp án đúng, ghi dạng a,c,e.
+- Nếu đáp án có sẵn, kiểm tra lại bằng kiến thức chuyên môn; nếu đáp án cũ có vẻ sai, dùng đáp án đúng và ghi ngắn gọn mục đã sửa ở cuối.
+- Phần nào không đọc rõ thì giữ chỗ [CẦN KIỂM TRA], không tự bịa.
 
-Đáp án:
-1. C`
-                }
+Chỉ xuất đúng 2 khối để tôi copy riêng:
+
+CÂU HỎI
+1. [Nội dung câu hỏi]
+a. [Lựa chọn A]
+b. [Lựa chọn B]
+c. [Lựa chọn C]
+d. [Lựa chọn D]
+
+ĐÁP ÁN
+1. a
+
+ĐỀ VÀ ĐÁP ÁN GỐC:
+[DÁN NỘI DUNG VÀO ĐÂY]`
+            },
+            {
+                title: '🔎 Rà Soát Và Sửa Bộ Câu Hỏi',
+                description: 'Kiểm tra nội dung, đáp án và định dạng trước khi nhập',
+                prompt: `Hãy rà soát bộ CÂU HỎI và ĐÁP ÁN BlueQuiz tôi cung cấp.
+
+Kiểm tra toàn bộ:
+- Số thứ tự liên tục và mỗi câu đều có đáp án.
+- Đáp án chỉ tham chiếu tới lựa chọn tồn tại.
+- Kiến thức và đáp án đúng; không có câu trùng ý, mơ hồ hoặc nhiều đáp án ngoài dự kiến.
+- Sửa lỗi OCR, chính tả và định dạng nhưng không làm đổi ý câu hỏi.
+- Giữ lựa chọn dạng a, b, c, d...; nhiều đáp án ghi dạng a,c,e.
+
+Sau khi kiểm tra, chỉ xuất lại 2 khối hoàn chỉnh đã sửa để tôi thay thế trực tiếp:
+
+CÂU HỎI
+[TOÀN BỘ CÂU HỎI ĐÃ SỬA]
+
+ĐÁP ÁN
+[TOÀN BỘ ĐÁP ÁN ĐÃ SỬA]
+
+Cuối cùng thêm tối đa 5 dòng "ĐÃ SỬA" nêu các lỗi quan trọng. Nếu không có lỗi, ghi "ĐÃ SỬA: Không có".
+
+DỮ LIỆU CẦN RÀ SOÁT:
+[DÁN CÂU HỎI VÀ ĐÁP ÁN VÀO ĐÂY]`
+            }
             ],
+
             en: [
-                {
-                    title: '📚 Create Quiz on Any Topic',
-                    description: 'Generate 10 multiple choice questions about any subject',
-                    prompt: `Create 10 multiple choice questions about [TOPIC] in this format:
-
-1. [Question]
-a. [Answer A]
-b. [Answer B]
-c. [Answer C]
-d. [Answer D]
-
-Then provide correct answers in this format:
-1. [correct answer]
-
-Example:
-1. What type of programming language is Python?
-a. Compiled
-b. Interpreted
-c. Assembly
-d. Machine code
-
-Answers:
-1. b
-
-[Replace TOPIC with your subject, e.g.: World History, Calculus, JavaScript, etc.]`
-                },
-                {
-                    title: '🎓 Exam Review',
-                    description: 'Create review questions based on specific content',
-                    prompt: `Based on the following content, create 10 multiple choice questions:
-
-[PASTE CONTENT HERE]
-
-Question format:
-1. [Question]
-a. [Answer A]
-b. [Answer B]
-c. [Answer C]
-d. [Answer D]
-
-Answer format:
-1. [a/b/c/d]
-
-Note:
-- Questions should test understanding, not just memorization
-- Wrong answers should be plausible and challenging
-- Ensure only one correct answer`
-                },
-                {
-                    title: '💡 Multiple Correct Answers',
-                    description: 'Create questions with multiple correct answers (checkbox)',
-                    prompt: `Create 5 questions about [TOPIC] where each has MULTIPLE correct answers:
-
-Question format:
-1. [Question] (select all that apply)
-a. [Answer A]
-b. [Answer B]
-c. [Answer C]
-d. [Answer D]
-e. [Answer E]
-
-Answer format (multiple correct):
-1. a,c,e
-or
-1. ace
-
-Example:
-1. Which languages support object-oriented programming?
-a. Python
-b. Java
-c. C
-d. JavaScript
-e. Assembly
-
-Answers:
-1. a,b,d`
-                },
-                {
-                    title: '🌍 Language Learning',
-                    description: 'Create vocabulary and grammar exercises',
-                    prompt: `Create 10 multiple choice questions for learning [LANGUAGE]:
-
-First 5: Vocabulary (word meanings)
-Last 5: Grammar (fill in the blank)
-
-Format:
-1. [Question]
-a. [Answer A]
-b. [Answer B]
-c. [Answer C]
-d. [Answer D]
-
-Answers:
-1. [a/b/c/d]
-
-Vocabulary example:
-1. What does "Beautiful" mean?
-a. Ugly
-b. Pretty
-c. Good
-d. Tall
-
-Grammar example:
-2. She ___ to school every day.
-a. go
-b. goes
-c. going
-d. went
-
-Answers:
-1. b
-2. b`
-                },
-                {
-                    title: '🧪 Science & Technology',
-                    description: 'Science questions with more options',
-                    prompt: `Create 10 science questions about [TOPIC] with 5-6 options each:
-
-Format:
-1. [Question]
-a. [Answer A]
-b. [Answer B]
-c. [Answer C]
-d. [Answer D]
-e. [Answer E]
-f. [Answer F] (if needed)
-
-Answers:
-1. [a/b/c/d/e/f]
+            {
+                title: '✨ Create a New Quiz',
+                description: 'Generate questions from a topic, notes, or source material',
+                prompt: `Act as a multiple-choice question writer. Create [NUMBER] questions from the topic or source material below.
 
 Requirements:
-- Difficulty: medium to hard
-- Include both theoretical and applied questions
-- Wrong answers should be scientifically plausible`
-                },
-                {
-                    title: '📋 Questions With List Items',
-                    description: 'Create questions with enumerated list items',
-                    prompt: `Create 5 questions about [TOPIC] with numbered list items:
+- Stay faithful to the source and do not invent facts.
+- Give each question 4 options: a, b, c, d, with exactly one correct answer unless the source requires multiple answers.
+- Use a balanced difficulty mix: 30% easy, 50% medium, 20% hard.
+- Make distractors plausible; avoid ambiguity, duplicates, and clues to the answer.
+- For multiple correct answers, use the format a,c,d.
+- Do not place explanations between questions.
 
-Format:
-[Question]?
-- 1. [First item]
-- 2. [Second item]
-- 3. [Third item]
-- 4. [Fourth item]
-- 5. [Fifth item]
-- 6. [Sixth item]
+Output exactly these 2 sections:
 
-A. 1, 2, 4
-B. 2, 3, 5
-C. 1, 3, 4, 6
-D. All items
+QUESTIONS
+1. [Question]
+a. [Option A]
+b. [Option B]
+c. [Option C]
+d. [Option D]
 
-IMPORTANT Notes:
-- Use UPPERCASE letters (A, B, C, D) for options when using list items
-- Each option references numbers from the list
-- Question and list items come first, then options A, B, C, D
+ANSWERS
+1. a
 
-Example:
-Which of the following are main activities of code review?
-- 1. Planning
-- 2. Individual review
-- 3. Team meeting
-- 4. Code fixing
-- 5. Documentation
-- 6. Testing
+TOPIC / SOURCE MATERIAL:
+[PASTE CONTENT HERE]`
+            },
+            {
+                title: '🧾 Convert an Existing Exam',
+                description: 'Normalize questions from images, OCR, PDFs, or copied text',
+                prompt: `Convert the exam below into the BlueQuiz import format.
 
-A. 1, 2, 4
-B. 2, 3, 5
-C. 1, 2, 3, 4
-D. All items
+Rules:
+- Preserve the wording, question order, and option order.
+- Do not invent missing text or silently change factual content.
+- Number questions continuously from 1 and use lowercase option labels a, b, c, d...
+- For multiple correct answers, use the format a,c,e.
+- If an answer key is provided, verify it; use the correct answer when the original appears wrong and briefly list that correction at the end.
+- Mark unreadable content as [CHECK NEEDED] instead of guessing.
 
-Answers:
-1. C`
-                }
+Output exactly these 2 separately copyable sections:
+
+QUESTIONS
+1. [Question]
+a. [Option A]
+b. [Option B]
+c. [Option C]
+d. [Option D]
+
+ANSWERS
+1. a
+
+ORIGINAL EXAM AND ANSWER KEY:
+[PASTE CONTENT HERE]`
+            },
+            {
+                title: '🔎 Review and Repair a Quiz',
+                description: 'Check content, answers, and formatting before import',
+                prompt: `Review the BlueQuiz QUESTIONS and ANSWERS provided below.
+
+Check everything:
+- Continuous numbering and an answer for every question.
+- Every answer refers to an existing option.
+- Factual correctness; no duplicates, ambiguity, or unintended multiple answers.
+- Repair OCR, spelling, and formatting errors without changing the intended meaning.
+- Keep option labels as a, b, c, d... and multiple answers as a,c,e.
+
+After reviewing, output only these 2 complete corrected sections so I can replace the originals directly:
+
+QUESTIONS
+[ALL CORRECTED QUESTIONS]
+
+ANSWERS
+[ALL CORRECTED ANSWERS]
+
+Finally, add at most 5 short "CHANGES" lines for important corrections. If none were needed, write "CHANGES: None".
+
+DATA TO REVIEW:
+[PASTE QUESTIONS AND ANSWERS HERE]`
+            }
             ]
         };
 
@@ -3608,26 +3282,8 @@ Answers:
             // Re-render AI prompts with new language
             renderAIPrompts();
 
-            // Update templates
-            updateTemplates();
-
             // Update saved quizzes display
             displaySavedQuizzes();
-        }
-
-        function updateTemplates() {
-            const questionsTemplate = document.getElementById('questionsTemplate');
-            const answersTemplate = document.getElementById('answersTemplate');
-            const listItemsTemplate = document.getElementById('listItemsTemplate');
-
-            if (questionsTemplate && answersTemplate) {
-                questionsTemplate.textContent = templates[currentLanguage].questions;
-                answersTemplate.textContent = templates[currentLanguage].answers;
-            }
-
-            if (listItemsTemplate) {
-                listItemsTemplate.textContent = templates[currentLanguage].listItems;
-            }
         }
 
         // Initialize language on page load
@@ -3700,25 +3356,6 @@ Answers:
                 setTimeout(() => {
                     button.classList.remove('copied');
                     button.innerHTML = `<span>${translations[currentLanguage].copyBtn}</span>`;
-                }, 2000);
-            }).catch(err => {
-                console.error('Failed to copy:', err);
-                alert('Không thể copy. Vui lòng copy thủ công.');
-            });
-        }
-
-        function copyTemplate(type) {
-            const templateText = templates[currentLanguage][type];
-            const button = document.getElementById(`copy${type.charAt(0).toUpperCase() + type.slice(1)}Btn`);
-
-            navigator.clipboard.writeText(templateText).then(() => {
-                const originalHTML = button.innerHTML;
-                button.classList.add('copied');
-                button.innerHTML = `<span>${translations[currentLanguage].copiedBtn}</span>`;
-
-                setTimeout(() => {
-                    button.classList.remove('copied');
-                    button.innerHTML = originalHTML;
                 }, 2000);
             }).catch(err => {
                 console.error('Failed to copy:', err);
