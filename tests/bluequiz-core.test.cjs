@@ -108,7 +108,27 @@ assert.equal(settingsElements.timerInputGroup.style.display, 'grid');
 
 assert.doesNotMatch(html, /id="practiceModeCheckbox"|id="examModeCheckbox"/);
 assert.equal((html.match(/<input type="radio" name="quizMode"/g) || []).length, 3);
-assert.equal((html.match(/<input type="radio" name="questionDisplayMode"/g) || []).length, 2);
+assert.equal((html.match(/<input type="radio" name="questionDisplayMode"/g) || []).length, 5);
+assert.match(html, /id="eliminationCheckbox"/);
+assert.match(html, /id="fullscreenExamBtn"/);
+for (const controlId of [
+    'flashcardPanel', 'flashcardRevealBtn', 'masteryPanel', 'masteryCheckBtn',
+    'sprintSettingsRow', 'sprintBreakPanel'
+]) {
+    assert.match(html, new RegExp(`id="${controlId}"`), `Missing study control: ${controlId}`);
+}
+assert.equal((html.match(/class="eliminate-option-btn"/g) || []).length, 2, 'Both quiz render paths must support answer elimination');
+
+const displayModeApi = new Function(`
+    let questionDisplayMode = 'list';
+    ${extractFunction('isSingleCardMode')}
+    return { isSingleCardMode, setMode: value => { questionDisplayMode = value; } };
+`)();
+assert.equal(displayModeApi.isSingleCardMode(), false);
+for (const mode of ['focus', 'flashcard', 'mastery', 'sprint']) {
+    displayModeApi.setMode(mode);
+    assert.equal(displayModeApi.isSingleCardMode(), true, `${mode} must use the single-card layout`);
+}
 
 const focusApi = new Function(`
     const quizData = [{ number: 1 }, { number: 2 }, { number: 3 }];

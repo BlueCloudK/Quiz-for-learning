@@ -1,6 +1,6 @@
 # 📝 Quiz Application for Learning | Ứng Dụng Quiz Học Tập
 
-![Version](https://img.shields.io/badge/version-1.3.2-586fd8)
+![Version](https://img.shields.io/badge/version-1.3.3-586fd8)
 
 **[English](#english)** | **[Tiếng Việt](#tiếng-việt)**
 
@@ -36,6 +36,9 @@ A powerful, interactive quiz application that helps you create, manage, and prac
 - **🤖 AI Prompt Templates**: Ready-to-use prompts for ChatGPT, Claude, and other AI chatbots
 - **🌙 Dark Mode**: Toggle between light and dark themes
 - **⏱️ Exam Mode**: Timed quiz mode with countdown timer, pause/resume functionality, and auto-submit when time expires
+- **🧠 Focus study modes**: Focus Card, Flashcard self-rating, practice-until-correct, and configurable Focus Sprints
+- **✕ Answer elimination**: Cross out and restore choices without changing the answer key
+- **⛶ Fullscreen exam**: Enter or leave a distraction-free exam view without restarting the timer
 - **📚 Quiz Management**: Save and load multiple quiz sets with custom names - continue interrupted quizzes
 - **🛡️ Data Validation**: Block missing, orphaned, duplicate, or invalid answers before saving or starting a quiz
 - **📂 Paired Import**: Select questions and answers files together; BlueQuiz identifies, validates, and names the set

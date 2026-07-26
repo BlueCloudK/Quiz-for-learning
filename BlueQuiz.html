@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="application-version" content="1.3.2">
+    <meta name="application-version" content="1.3.3">
     <title>BlueQuiz - Tạo và Chấm Điểm</title>
     <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='20' fill='%23667eea'/><text x='50' y='70' font-size='60' text-anchor='middle' fill='white' font-family='Arial, sans-serif' font-weight='bold'>Q</text></svg>">
     <!-- Libraries for file import -->
@@ -353,7 +353,7 @@
 
         .display-options {
             display: grid;
-            grid-template-columns: repeat(2, minmax(0, 1fr));
+            grid-template-columns: repeat(3, minmax(0, 1fr));
             gap: 8px;
         }
 
@@ -383,6 +383,25 @@
             color: var(--text-secondary);
             font-size: 0.78em;
             font-weight: 400;
+        }
+
+        .mode-detail-row {
+            display: none;
+            align-items: center;
+            gap: 10px;
+            margin-top: 12px;
+            padding-top: 12px;
+            border-top: 1px solid var(--border-color);
+        }
+
+        .mode-detail-row.visible { display: flex; }
+        .mode-detail-row select {
+            min-width: 110px;
+            padding: 8px 10px;
+            color: var(--text-primary);
+            background: var(--input-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 7px;
         }
 
         .quiz-settings-actions {
@@ -649,6 +668,71 @@
             color: var(--accent-color);
             transform: none;
         }
+
+        .study-mode-panel {
+            display: none;
+            gap: 10px;
+            margin-top: 14px;
+            padding: 14px;
+            color: var(--text-primary);
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+        }
+
+        .study-mode-panel.visible { display: grid; }
+        .study-mode-panel .study-status { color: var(--text-secondary); line-height: 1.45; }
+        .study-actions { display: flex; flex-wrap: wrap; gap: 8px; }
+        .study-actions button { min-height: 42px; padding: 9px 15px; text-transform: none; letter-spacing: 0; }
+        .flashcard-answer {
+            padding: 12px;
+            color: var(--correct-text);
+            background: var(--correct-bg);
+            border-left: 4px solid #28a745;
+            border-radius: 8px;
+        }
+        .flashcard-mode .question-card.focus-active .options { display: none; }
+        .flashcard-mode.flashcard-revealed .question-card.focus-active .options { display: block; }
+        .flashcard-mode .question-card.focus-active .question-result { display: none !important; }
+        .sprint-break-panel { text-align: center; }
+        .sprint-break-panel strong { font-size: 1.12em; }
+        .sprint-mode.sprint-break-active #quizContainer .question-card.focus-active { display: none !important; }
+
+        .option { position: relative; }
+        .eliminate-option-btn {
+            display: none;
+            flex: 0 0 34px;
+            align-items: center;
+            justify-content: center;
+            min-width: 34px;
+            min-height: 34px;
+            margin-left: auto;
+            padding: 0;
+            color: var(--text-secondary);
+            background: transparent;
+            border: 1px solid var(--border-color);
+            border-radius: 7px;
+            text-transform: none;
+        }
+        .elimination-enabled .eliminate-option-btn { display: inline-flex; }
+        .option.eliminated { opacity: 0.52; }
+        .option.eliminated label { text-decoration: line-through; }
+        .option.eliminated .eliminate-option-btn { opacity: 1; color: var(--accent-color); border-color: var(--accent-color); }
+
+        .fullscreen-exam-btn {
+            display: none;
+            width: 100%;
+            margin-top: 8px;
+            padding: 9px 12px;
+            color: var(--text-primary);
+            background: var(--input-bg);
+            border: 1px solid var(--border-color);
+            text-transform: none;
+        }
+        .fixed-right-timer.active .fullscreen-exam-btn { display: block; }
+        body.fullscreen-quiz { padding: 0; background: var(--body-bg); }
+        body.fullscreen-quiz .container { max-width: none; min-height: 100vh; border-radius: 0; }
+        body.fullscreen-quiz .footer { display: none; }
 
         .question-card {
             background: var(--card-bg);
@@ -2793,6 +2877,10 @@
                                     <input type="checkbox" id="shuffleChoicesCheckbox">
                                     <label for="shuffleChoicesCheckbox" data-i18n="shuffleChoicesLabel">Xáo trộn đáp án (a,b,c,d)</label>
                                 </div>
+                                <div class="checkbox-group">
+                                    <input type="checkbox" id="eliminationCheckbox">
+                                    <label for="eliminationCheckbox" data-i18n="eliminationLabel">Cho phép loại trừ đáp án</label>
+                                </div>
                             </fieldset>
 
                             <fieldset class="settings-card">
@@ -2827,19 +2915,49 @@
                                 <legend data-i18n="displayModeLabel">Cách hiển thị</legend>
                                 <div class="display-options">
                                     <label class="radio-label display-option">
-                                        <input type="radio" name="questionDisplayMode" value="list" checked>
+                                        <input type="radio" name="questionDisplayMode" value="list" checked onchange="toggleDisplayModeSettings()">
                                         <span class="display-option-copy">
                                             <strong data-i18n="displayModeList">Danh sách</strong>
                                             <small data-i18n="displayModeListHint">Hiện toàn bộ câu hỏi để cuộn và xem nhanh</small>
                                         </span>
                                     </label>
                                     <label class="radio-label display-option">
-                                        <input type="radio" name="questionDisplayMode" value="focus">
+                                        <input type="radio" name="questionDisplayMode" value="focus" onchange="toggleDisplayModeSettings()">
                                         <span class="display-option-copy">
                                             <strong data-i18n="displayModeFocus">Focus Card</strong>
                                             <small data-i18n="displayModeFocusHint">Chỉ hiện một câu để tập trung làm bài</small>
                                         </span>
                                     </label>
+                                    <label class="radio-label display-option">
+                                        <input type="radio" name="questionDisplayMode" value="flashcard" onchange="toggleDisplayModeSettings()">
+                                        <span class="display-option-copy">
+                                            <strong data-i18n="displayModeFlashcard">Flashcard</strong>
+                                            <small data-i18n="displayModeFlashcardHint">Lật đáp án rồi tự đánh giá mức độ nhớ</small>
+                                        </span>
+                                    </label>
+                                    <label class="radio-label display-option">
+                                        <input type="radio" name="questionDisplayMode" value="mastery" onchange="toggleDisplayModeSettings()">
+                                        <span class="display-option-copy">
+                                            <strong data-i18n="displayModeMastery">Luyện đến khi đúng</strong>
+                                            <small data-i18n="displayModeMasteryHint">Câu sai quay lại cho đến khi bạn làm đúng</small>
+                                        </span>
+                                    </label>
+                                    <label class="radio-label display-option">
+                                        <input type="radio" name="questionDisplayMode" value="sprint" onchange="toggleDisplayModeSettings()">
+                                        <span class="display-option-copy">
+                                            <strong data-i18n="displayModeSprint">Focus Sprint</strong>
+                                            <small data-i18n="displayModeSprintHint">Chia đề thành các chặng ngắn có điểm nghỉ</small>
+                                        </span>
+                                    </label>
+                                </div>
+                                <div class="mode-detail-row" id="sprintSettingsRow">
+                                    <label for="sprintSize" data-i18n="sprintSizeLabel">Số câu mỗi chặng:</label>
+                                    <select id="sprintSize">
+                                        <option value="5">5</option>
+                                        <option value="10" selected>10</option>
+                                        <option value="20">20</option>
+                                        <option value="30">30</option>
+                                    </select>
                                 </div>
                             </fieldset>
                         </div>
@@ -2952,6 +3070,30 @@
                                 <span data-i18n="focusNext">Câu tiếp</span> <span aria-hidden="true">→</span>
                             </button>
                         </nav>
+                        <section class="study-mode-panel" id="flashcardPanel" aria-live="polite">
+                            <div class="study-status" id="flashcardStatus"></div>
+                            <div class="flashcard-answer hidden" id="flashcardAnswer"></div>
+                            <div class="study-actions">
+                                <button class="btn-primary" id="flashcardRevealBtn" type="button" onclick="revealFlashcard()" data-i18n="flashcardReveal">Hiện đáp án</button>
+                                <button class="btn-secondary hidden" id="flashcardAgainBtn" type="button" onclick="rateFlashcard('again')" data-i18n="flashcardAgain">Chưa nhớ</button>
+                                <button class="btn-warning hidden" id="flashcardHardBtn" type="button" onclick="rateFlashcard('hard')" data-i18n="flashcardHard">Khó</button>
+                                <button class="btn-success hidden" id="flashcardRememberedBtn" type="button" onclick="rateFlashcard('remembered')" data-i18n="flashcardRemembered">Đã nhớ</button>
+                            </div>
+                        </section>
+                        <section class="study-mode-panel" id="masteryPanel" aria-live="polite">
+                            <div class="study-status" id="masteryStatus"></div>
+                            <div class="study-actions">
+                                <button class="btn-primary" id="masteryCheckBtn" type="button" onclick="checkMasteryAnswer()" data-i18n="masteryCheck">Kiểm tra đáp án</button>
+                                <button class="btn-success hidden" id="masteryNextBtn" type="button" onclick="continueMastery()" data-i18n="masteryNext">Tiếp tục</button>
+                            </div>
+                        </section>
+                        <section class="study-mode-panel sprint-break-panel" id="sprintBreakPanel" aria-live="polite">
+                            <strong id="sprintBreakTitle"></strong>
+                            <div class="study-status" id="sprintBreakStatus"></div>
+                            <div class="study-actions" style="justify-content: center;">
+                                <button class="btn-primary" type="button" onclick="continueSprint()" data-i18n="sprintContinue">Bắt đầu chặng tiếp</button>
+                            </div>
+                        </section>
                     </div>
 
                     <!-- Desktop side rail; becomes normal content below the quiz on mobile. -->
@@ -2964,6 +3106,9 @@
                             </div>
                             <button class="pause-timer-btn" id="pauseTimerBtn" onclick="togglePauseTimer()" style="display: none;">
                                 <span id="pauseIcon">⏸️</span> <span id="pauseText" data-i18n="pauseTimer">Tạm dừng</span>
+                            </button>
+                            <button class="fullscreen-exam-btn" id="fullscreenExamBtn" type="button" onclick="toggleFullscreenQuiz()">
+                                <span aria-hidden="true">⛶</span> <span id="fullscreenExamText" data-i18n="enterFullscreen">Toàn màn hình</span>
                             </button>
                         </div>
 
@@ -3019,7 +3164,7 @@
         <div class="footer-content">
             <p>
                 Made with ❤️ by <a href="https://github.com/BlueCloudK" target="_blank" rel="noopener noreferrer">BlueCloudK</a>
-                <span class="app-version">BlueQuiz v1.3.2</span>
+                <span class="app-version">BlueQuiz v1.3.3</span>
             </p>
             <p>
                 <a href="https://github.com/BlueCloudK/Quiz-for-learning" target="_blank" rel="noopener noreferrer">
@@ -3051,7 +3196,19 @@
         let currentQuestionIndex = 0; // Câu được chọn gần nhất trong navigator
         let quizHistory = []; // Lưu lịch sử làm bài
         let practiceModeEnabled = false; // Practice mode with instant feedback
-        let questionDisplayMode = 'list'; // List or single-question Focus Card
+        let questionDisplayMode = 'list';
+        let eliminationEnabled = false;
+        let flashcardQueue = [];
+        let flashcardQueuePosition = 0;
+        let flashcardRevealed = false;
+        let flashcardRatings = { again: 0, hard: 0, remembered: 0 };
+        let masteryQueue = [];
+        let masteryQueuePosition = 0;
+        let masteryCompleted = new Set();
+        let masteryChecked = false;
+        let sprintSize = 10;
+        let sprintBreakPending = false;
+        let sprintPendingIndex = null;
 
         // Exam Mode variables
         let examModeEnabled = false;
@@ -3275,6 +3432,23 @@
             return document.querySelector('input[name="questionDisplayMode"]:checked')?.value || 'list';
         }
 
+        function isSingleCardMode(mode = questionDisplayMode) {
+            return ['focus', 'flashcard', 'mastery', 'sprint'].includes(mode);
+        }
+
+        function toggleDisplayModeSettings() {
+            const mode = readQuestionDisplayMode();
+            document.getElementById('sprintSettingsRow')?.classList.toggle('visible', mode === 'sprint');
+            const selfStudyMode = ['flashcard', 'mastery'].includes(mode);
+            const examRadio = document.querySelector('input[name="quizMode"][value="exam"]');
+            if (examRadio) examRadio.disabled = selfStudyMode;
+            if (selfStudyMode && examRadio?.checked) {
+                const standardRadio = document.querySelector('input[name="quizMode"][value="standard"]');
+                if (standardRadio) standardRadio.checked = true;
+                toggleQuizMode();
+            }
+        }
+
         function questionMatchesCurrentFilter(index) {
             const originalNumber = questionMapping[index];
             if (currentFilter === 'pinned') return pinnedQuestions.has(originalNumber);
@@ -3293,8 +3467,35 @@
             const quizSection = document.getElementById('quizSection');
             if (!quizSection) return;
 
-            quizSection.classList.toggle('focus-card-mode', questionDisplayMode === 'focus');
+            quizSection.classList.toggle('focus-card-mode', isSingleCardMode());
+            quizSection.classList.toggle('flashcard-mode', questionDisplayMode === 'flashcard');
+            quizSection.classList.toggle('mastery-mode', questionDisplayMode === 'mastery');
+            quizSection.classList.toggle('sprint-mode', questionDisplayMode === 'sprint');
+            quizSection.classList.toggle('elimination-enabled', eliminationEnabled);
+            initializeStudyMode();
             updateFocusCardView();
+            updateRetryButtons();
+        }
+
+        function initializeStudyMode() {
+            const indices = getFocusableQuestionIndices();
+            if (questionDisplayMode === 'flashcard') {
+                flashcardQueue = [...indices];
+                flashcardQueuePosition = 0;
+                flashcardRevealed = false;
+                flashcardRatings = { again: 0, hard: 0, remembered: 0 };
+                currentQuestionIndex = flashcardQueue[0] ?? 0;
+            } else if (questionDisplayMode === 'mastery') {
+                masteryQueue = [...indices];
+                masteryQueuePosition = 0;
+                masteryCompleted = new Set();
+                masteryChecked = false;
+                currentQuestionIndex = masteryQueue[0] ?? 0;
+            } else if (questionDisplayMode === 'sprint') {
+                sprintSize = Math.max(1, Number(document.getElementById('sprintSize')?.value) || 10);
+                sprintBreakPending = false;
+                sprintPendingIndex = null;
+            }
         }
 
         function updateFocusCardView(options = {}) {
@@ -3303,9 +3504,13 @@
             const cards = document.querySelectorAll('#quizContainer .question-card');
             if (!controls) return;
 
-            if (questionDisplayMode !== 'focus') {
+            if (!isSingleCardMode()) {
                 controls.classList.add('hidden');
                 emptyState?.classList.add('hidden');
+                document.getElementById('flashcardPanel')?.classList.remove('visible');
+                document.getElementById('masteryPanel')?.classList.remove('visible');
+                document.getElementById('sprintBreakPanel')?.classList.remove('visible');
+                document.getElementById('quizSection')?.classList.remove('flashcard-revealed', 'sprint-break-active');
                 cards.forEach((card, index) => {
                     card.classList.remove('focus-active');
                     card.style.display = questionMatchesCurrentFilter(index) ? 'block' : 'none';
@@ -3313,9 +3518,14 @@
                 return;
             }
 
-            controls.classList.remove('hidden');
-            const availableIndices = getFocusableQuestionIndices();
-            emptyState?.classList.toggle('hidden', availableIndices.length > 0);
+            const availableIndices = questionDisplayMode === 'flashcard'
+                ? flashcardQueue.slice(flashcardQueuePosition)
+                : questionDisplayMode === 'mastery'
+                    ? masteryQueue.slice(masteryQueuePosition)
+                    : getFocusableQuestionIndices();
+            controls.classList.toggle('hidden', ['flashcard', 'mastery'].includes(questionDisplayMode) || sprintBreakPending);
+            const showEmptyState = availableIndices.length === 0 && !['flashcard', 'mastery'].includes(questionDisplayMode);
+            emptyState?.classList.toggle('hidden', !showEmptyState);
             if (!availableIndices.includes(currentQuestionIndex)) {
                 currentQuestionIndex = availableIndices[0] ?? 0;
             }
@@ -3335,6 +3545,7 @@
                 : `0 / 0`;
             previousButton.disabled = activePosition <= 0;
             nextButton.disabled = activePosition < 0 || activePosition >= availableIndices.length - 1;
+            updateStudyModePanels(availableIndices);
             updateQuestionNavigator();
 
             if (options.scroll) {
@@ -3343,14 +3554,161 @@
         }
 
         function moveFocusQuestion(offset) {
-            if (questionDisplayMode !== 'focus') return;
+            if (!['focus', 'sprint'].includes(questionDisplayMode) || sprintBreakPending) return;
             const availableIndices = getFocusableQuestionIndices();
             const currentPosition = availableIndices.indexOf(currentQuestionIndex);
             const nextPosition = Math.max(0, Math.min(availableIndices.length - 1, currentPosition + offset));
             if (availableIndices[nextPosition] === undefined || nextPosition === currentPosition) return;
 
+            if (questionDisplayMode === 'sprint' && offset > 0 && nextPosition > 0 && nextPosition % sprintSize === 0) {
+                sprintBreakPending = true;
+                sprintPendingIndex = availableIndices[nextPosition];
+                updateFocusCardView();
+                saveQuizState();
+                return;
+            }
+
             currentQuestionIndex = availableIndices[nextPosition];
             updateFocusCardView({ scroll: true });
+            saveQuizState();
+        }
+
+        function getQuestionAnswerState(index) {
+            const originalNumber = questionMapping[index];
+            const selected = Array.from(document.querySelectorAll(`input[name="question${index}"]:checked`)).map(input => input.value).sort();
+            const expectedValue = correctAnswers[originalNumber];
+            const expected = (Array.isArray(expectedValue) ? expectedValue : [expectedValue]).slice().sort();
+            return {
+                answered: selected.length > 0,
+                correct: selected.length === expected.length && selected.every((value, position) => value === expected[position]),
+                expected
+            };
+        }
+
+        function updateStudyModePanels(availableIndices = getFocusableQuestionIndices()) {
+            const flashcardPanel = document.getElementById('flashcardPanel');
+            const masteryPanel = document.getElementById('masteryPanel');
+            const sprintPanel = document.getElementById('sprintBreakPanel');
+            flashcardPanel?.classList.toggle('visible', questionDisplayMode === 'flashcard');
+            masteryPanel?.classList.toggle('visible', questionDisplayMode === 'mastery');
+            sprintPanel?.classList.toggle('visible', questionDisplayMode === 'sprint' && sprintBreakPending);
+            document.getElementById('quizSection')?.classList.toggle('sprint-break-active', questionDisplayMode === 'sprint' && sprintBreakPending);
+
+            if (questionDisplayMode === 'flashcard') {
+                const finished = flashcardQueuePosition >= flashcardQueue.length;
+                const status = document.getElementById('flashcardStatus');
+                status.textContent = finished
+                    ? translations[currentLanguage].flashcardComplete
+                        .replace('{remembered}', flashcardRatings.remembered)
+                        .replace('{hard}', flashcardRatings.hard)
+                        .replace('{again}', flashcardRatings.again)
+                    : translations[currentLanguage].flashcardProgress
+                        .replace('{current}', flashcardQueuePosition + 1)
+                        .replace('{total}', flashcardQueue.length);
+                document.getElementById('flashcardRevealBtn').classList.toggle('hidden', finished || flashcardRevealed);
+                ['Again', 'Hard', 'Remembered'].forEach(name => {
+                    document.getElementById(`flashcard${name}Btn`).classList.toggle('hidden', finished || !flashcardRevealed);
+                });
+                document.getElementById('flashcardAnswer').classList.toggle('hidden', !flashcardRevealed || finished);
+                document.getElementById('quizSection').classList.toggle('flashcard-revealed', flashcardRevealed && !finished);
+            }
+
+            if (questionDisplayMode === 'mastery') {
+                const finished = masteryQueuePosition >= masteryQueue.length;
+                document.getElementById('masteryStatus').textContent = finished
+                    ? translations[currentLanguage].masteryComplete.replace('{total}', masteryCompleted.size)
+                    : translations[currentLanguage].masteryProgress
+                        .replace('{mastered}', masteryCompleted.size)
+                        .replace('{total}', quizData.length);
+                document.getElementById('masteryCheckBtn').classList.toggle('hidden', finished || masteryChecked);
+                document.getElementById('masteryNextBtn').classList.toggle('hidden', finished || !masteryChecked);
+            }
+
+            if (questionDisplayMode === 'sprint' && sprintBreakPending) {
+                const completed = getFocusableQuestionIndices().indexOf(sprintPendingIndex);
+                const sprintNumber = Math.ceil(completed / sprintSize);
+                document.getElementById('sprintBreakTitle').textContent = translations[currentLanguage].sprintBreakTitle.replace('{number}', sprintNumber);
+                document.getElementById('sprintBreakStatus').textContent = translations[currentLanguage].sprintBreakStatus
+                    .replace('{completed}', completed)
+                    .replace('{total}', quizData.length);
+            }
+        }
+
+        function revealFlashcard() {
+            if (questionDisplayMode !== 'flashcard' || flashcardQueuePosition >= flashcardQueue.length) return;
+            flashcardRevealed = true;
+            const originalNumber = questionMapping[currentQuestionIndex];
+            const expected = Array.isArray(correctAnswers[originalNumber]) ? correctAnswers[originalNumber] : [correctAnswers[originalNumber]];
+            const optionText = quizData[currentQuestionIndex].options
+                .filter(option => expected.includes(option.letter))
+                .map(option => `${option.letter.toUpperCase()}. ${option.text}`)
+                .join(' · ');
+            document.getElementById('flashcardAnswer').textContent = `${translations[currentLanguage].flashcardAnswer}: ${optionText}`;
+            updateStudyModePanels();
+            saveQuizState();
+        }
+
+        function rateFlashcard(rating) {
+            if (!flashcardRevealed || flashcardQueuePosition >= flashcardQueue.length) return;
+            const current = flashcardQueue[flashcardQueuePosition];
+            flashcardRatings[rating]++;
+            if (rating === 'again') flashcardQueue.push(current);
+            if (rating === 'hard') flashcardQueue.splice(Math.min(flashcardQueue.length, flashcardQueuePosition + 3), 0, current);
+            flashcardQueuePosition++;
+            flashcardRevealed = false;
+            currentQuestionIndex = flashcardQueue[flashcardQueuePosition] ?? currentQuestionIndex;
+            updateFocusCardView({ scroll: true });
+            saveQuizState();
+        }
+
+        function checkMasteryAnswer() {
+            if (questionDisplayMode !== 'mastery' || masteryChecked) return;
+            const answer = getQuestionAnswerState(currentQuestionIndex);
+            if (!answer.answered) {
+                document.getElementById('masteryStatus').textContent = translations[currentLanguage].masterySelectAnswer;
+                return;
+            }
+            masteryChecked = true;
+            const originalNumber = questionMapping[currentQuestionIndex];
+            const result = document.getElementById(`result${currentQuestionIndex}`);
+            result.classList.remove('hidden');
+            if (answer.correct) {
+                masteryCompleted.add(originalNumber);
+                result.className = 'question-result correct';
+                result.textContent = translations[currentLanguage].correct;
+            } else {
+                masteryQueue.push(currentQuestionIndex);
+                result.className = 'question-result incorrect';
+                result.textContent = `${translations[currentLanguage].incorrect} ${answer.expected.map(value => value.toUpperCase()).join(', ')}`;
+            }
+            document.querySelectorAll(`input[name="question${currentQuestionIndex}"]`).forEach(input => input.disabled = true);
+            updateStudyModePanels();
+            saveQuizState();
+        }
+
+        function continueMastery() {
+            if (!masteryChecked) return;
+            masteryQueuePosition++;
+            masteryChecked = false;
+            currentQuestionIndex = masteryQueue[masteryQueuePosition] ?? currentQuestionIndex;
+            if (masteryQueuePosition < masteryQueue.length) {
+                document.querySelectorAll(`input[name="question${currentQuestionIndex}"]`).forEach(input => {
+                    input.disabled = false;
+                    input.checked = false;
+                });
+                document.getElementById(`result${currentQuestionIndex}`)?.classList.add('hidden');
+            }
+            updateFocusCardView({ scroll: true });
+            saveQuizState();
+        }
+
+        function continueSprint() {
+            if (!sprintBreakPending || sprintPendingIndex === null) return;
+            currentQuestionIndex = sprintPendingIndex;
+            sprintBreakPending = false;
+            sprintPendingIndex = null;
+            updateFocusCardView({ scroll: true });
+            saveQuizState();
         }
 
         function selectFocusOption(optionIndex) {
@@ -3363,8 +3721,29 @@
             input.focus({ preventScroll: true });
         }
 
+        function toggleOptionElimination(event, questionIndex, optionLetter) {
+            event.preventDefault();
+            event.stopPropagation();
+            const input = document.getElementById(`q${questionIndex}_${optionLetter}`);
+            const option = input?.closest('.option');
+            const button = event.currentTarget;
+            if (!input || !option || input.disabled) return;
+
+            const eliminated = !option.classList.contains('eliminated');
+            option.classList.toggle('eliminated', eliminated);
+            button.setAttribute('aria-pressed', String(eliminated));
+            button.setAttribute('aria-label', eliminated
+                ? translations[currentLanguage].restoreOption
+                : translations[currentLanguage].eliminateOption);
+            if (eliminated && input.checked) {
+                input.checked = false;
+                input.dispatchEvent(new Event('change', { bubbles: true }));
+            }
+            saveQuizState();
+        }
+
         function handleFocusCardKeyboard(event) {
-            if (questionDisplayMode !== 'focus' || document.getElementById('quizSection')?.classList.contains('hidden')) return;
+            if (!isSingleCardMode() || questionDisplayMode === 'flashcard' || sprintBreakPending || document.getElementById('quizSection')?.classList.contains('hidden')) return;
             if (document.getElementById('questionNavigator')?.classList.contains('open')) return;
             if (event.altKey || event.ctrlKey || event.metaKey) return;
 
@@ -3385,12 +3764,40 @@
                 moveFocusQuestion(-1);
             } else if (event.key === 'ArrowRight' || event.key === 'Enter') {
                 event.preventDefault();
-                moveFocusQuestion(1);
+                if (questionDisplayMode === 'mastery') {
+                    if (masteryChecked) continueMastery();
+                    else checkMasteryAnswer();
+                } else {
+                    moveFocusQuestion(1);
+                }
             } else if (key === 'p') {
                 event.preventDefault();
                 togglePin(currentQuestionIndex);
             }
         }
+
+        async function toggleFullscreenQuiz() {
+            try {
+                if (!document.fullscreenElement) {
+                    await document.getElementById('quizSection')?.requestFullscreen();
+                } else {
+                    await document.exitFullscreen();
+                }
+            } catch (error) {
+                console.warn('Fullscreen is not available:', error);
+            }
+        }
+
+        function updateFullscreenQuizControl() {
+            const active = Boolean(document.fullscreenElement);
+            document.body.classList.toggle('fullscreen-quiz', active);
+            const text = document.getElementById('fullscreenExamText');
+            if (text) text.textContent = active
+                ? translations[currentLanguage].exitFullscreen
+                : translations[currentLanguage].enterFullscreen;
+        }
+
+        document.addEventListener('fullscreenchange', updateFullscreenQuizControl);
 
         // Pause/resume state must be reset between exam attempts.
         let timerPaused = false;
@@ -3738,6 +4145,7 @@
                 orderRandom: 'Ngẫu nhiên',
                 shuffleLabel: 'Xáo trộn thứ tự các câu đã chọn',
                 shuffleChoicesLabel: 'Xáo trộn đáp án (a,b,c,d)',
+                eliminationLabel: 'Cho phép loại trừ đáp án',
                 quizOptionsLabel: 'Tùy chọn',
                 quizModeLabel: 'Chế độ làm bài',
                 quizModeStandard: 'Kiểm tra',
@@ -3748,11 +4156,37 @@
                 displayModeListHint: 'Hiện toàn bộ câu hỏi để cuộn và xem nhanh',
                 displayModeFocus: 'Focus Card',
                 displayModeFocusHint: 'Chỉ hiện một câu để tập trung làm bài',
+                displayModeFlashcard: 'Flashcard',
+                displayModeFlashcardHint: 'Lật đáp án rồi tự đánh giá mức độ nhớ',
+                displayModeMastery: 'Luyện đến khi đúng',
+                displayModeMasteryHint: 'Câu sai quay lại cho đến khi bạn làm đúng',
+                displayModeSprint: 'Focus Sprint',
+                displayModeSprintHint: 'Chia đề thành các chặng ngắn có điểm nghỉ',
+                sprintSizeLabel: 'Số câu mỗi chặng:',
                 focusPrevious: 'Câu trước',
                 focusNext: 'Câu tiếp',
                 focusNavigation: 'Điều hướng Focus Card',
                 focusShortcuts: 'A–F chọn đáp án · ← → chuyển câu · P để pin',
                 focusEmpty: 'Không có câu hỏi phù hợp với bộ lọc này.',
+                flashcardReveal: 'Hiện đáp án',
+                flashcardAgain: 'Chưa nhớ',
+                flashcardHard: 'Khó',
+                flashcardRemembered: 'Đã nhớ',
+                flashcardAnswer: 'Đáp án',
+                flashcardProgress: 'Thẻ {current}/{total} · Hãy tự trả lời trước khi lật thẻ.',
+                flashcardComplete: 'Hoàn tất · Đã nhớ {remembered} · Khó {hard} · Chưa nhớ {again}',
+                masteryCheck: 'Kiểm tra đáp án',
+                masteryNext: 'Tiếp tục',
+                masterySelectAnswer: 'Hãy chọn ít nhất một đáp án trước khi kiểm tra.',
+                masteryProgress: 'Đã làm chủ {mastered}/{total} câu. Câu sai sẽ quay lại.',
+                masteryComplete: 'Hoàn tất! Bạn đã làm đúng toàn bộ {total} câu.',
+                sprintBreakTitle: 'Hoàn thành chặng {number}',
+                sprintBreakStatus: 'Đã đi qua {completed}/{total} câu. Nghỉ ngắn rồi tiếp tục khi sẵn sàng.',
+                sprintContinue: 'Bắt đầu chặng tiếp',
+                eliminateOption: 'Loại trừ đáp án này',
+                restoreOption: 'Khôi phục đáp án này',
+                enterFullscreen: 'Toàn màn hình',
+                exitFullscreen: 'Thoát toàn màn hình',
                 createQuizBtn: 'Tạo Quiz',
                 continueQuizBtn: '⏩ Tiếp tục Quiz đã lưu',
                 filterLabel: 'Lọc câu hỏi:',
@@ -3876,6 +4310,7 @@
                 orderRandom: 'Random',
                 shuffleLabel: 'Shuffle the selected questions',
                 shuffleChoicesLabel: 'Shuffle answer choices (a,b,c,d)',
+                eliminationLabel: 'Allow answer elimination',
                 quizOptionsLabel: 'Options',
                 quizModeLabel: 'Quiz mode',
                 quizModeStandard: 'Test',
@@ -3886,11 +4321,37 @@
                 displayModeListHint: 'Show every question for scrolling and quick review',
                 displayModeFocus: 'Focus Card',
                 displayModeFocusHint: 'Show one question at a time for focused study',
+                displayModeFlashcard: 'Flashcard',
+                displayModeFlashcardHint: 'Reveal the answer, then rate how well you remembered it',
+                displayModeMastery: 'Practice until correct',
+                displayModeMasteryHint: 'Missed questions return until you answer correctly',
+                displayModeSprint: 'Focus Sprint',
+                displayModeSprintHint: 'Split the quiz into short blocks with pause points',
+                sprintSizeLabel: 'Questions per sprint:',
                 focusPrevious: 'Previous',
                 focusNext: 'Next',
                 focusNavigation: 'Focus Card navigation',
                 focusShortcuts: 'A–F answer · ← → navigate · P to pin',
                 focusEmpty: 'No questions match this filter.',
+                flashcardReveal: 'Reveal answer',
+                flashcardAgain: 'Again',
+                flashcardHard: 'Hard',
+                flashcardRemembered: 'Remembered',
+                flashcardAnswer: 'Answer',
+                flashcardProgress: 'Card {current}/{total} · Recall it before revealing the answer.',
+                flashcardComplete: 'Complete · Remembered {remembered} · Hard {hard} · Again {again}',
+                masteryCheck: 'Check answer',
+                masteryNext: 'Continue',
+                masterySelectAnswer: 'Select at least one answer before checking.',
+                masteryProgress: 'Mastered {mastered}/{total}. Missed questions will return.',
+                masteryComplete: 'Complete! You answered all {total} questions correctly.',
+                sprintBreakTitle: 'Sprint {number} complete',
+                sprintBreakStatus: 'You covered {completed}/{total} questions. Take a short break, then continue.',
+                sprintContinue: 'Start next sprint',
+                eliminateOption: 'Eliminate this answer',
+                restoreOption: 'Restore this answer',
+                enterFullscreen: 'Fullscreen',
+                exitFullscreen: 'Exit fullscreen',
                 createQuizBtn: 'Create Quiz',
                 continueQuizBtn: '⏩ Continue Saved Quiz',
                 filterLabel: 'Filter questions:',
@@ -4241,6 +4702,7 @@ DATA TO REVIEW:
             changeLanguage(currentLanguage); // Use saved language or default
             renderAIPrompts();
             displaySavedQuizzes(); // Display saved quiz sets
+            toggleDisplayModeSettings();
 
             // Check if there's saved progress and show continue button
             checkAndShowContinueButton();
@@ -4554,6 +5016,7 @@ DATA TO REVIEW:
             }
 
             const shouldShuffle = document.getElementById('shuffleCheckbox').checked;
+            eliminationEnabled = document.getElementById('eliminationCheckbox').checked;
 
             if (!questionsText.trim() || !answersText.trim()) {
                 alert(translations[currentLanguage].alertNoData);
@@ -4645,6 +5108,7 @@ DATA TO REVIEW:
             currentFilter = 'all';
             currentQuestionIndex = 0;
             questionDisplayMode = readQuestionDisplayMode();
+            sprintSize = Math.max(1, Number(document.getElementById('sprintSize')?.value) || 10);
             document.querySelectorAll('.filter-button').forEach((button, index) => {
                 button.classList.toggle('active', index === 0);
             });
@@ -4786,7 +5250,7 @@ DATA TO REVIEW:
 
                 q.options.forEach(option => {
                     html += `
-                        <div class="option">
+                        <div class="option" data-option-letter="${option.letter}">
                             <input type="${inputType}"
                                    name="question${index}"
                                    value="${option.letter}"
@@ -4794,6 +5258,9 @@ DATA TO REVIEW:
                             <label for="q${index}_${option.letter}">
                                 ${option.letter.toUpperCase()}. ${option.text}
                             </label>
+                            <button class="eliminate-option-btn" type="button"
+                                    onclick="toggleOptionElimination(event, ${index}, '${option.letter}')"
+                                    aria-label="${translations[currentLanguage].eliminateOption}" aria-pressed="false">×</button>
                         </div>
                     `;
                 });
@@ -4857,7 +5324,7 @@ DATA TO REVIEW:
 
             // Update button visibility
             updateRetryButtons();
-            if (questionDisplayMode === 'focus') {
+            if (isSingleCardMode()) {
                 updateFocusCardView();
             }
         }
@@ -5006,12 +5473,14 @@ DATA TO REVIEW:
             const retryIncorrectBtn = document.getElementById('retryIncorrectBtn');
             const retryPinnedBtn = document.getElementById('retryPinnedBtn');
 
+            const selfStudyMode = ['flashcard', 'mastery'].includes(questionDisplayMode);
+
             if (submitQuizBtn) {
-                submitQuizBtn.classList.toggle('hidden', isGraded);
+                submitQuizBtn.classList.toggle('hidden', isGraded || selfStudyMode);
             }
 
             if (restartQuizBtn) {
-                restartQuizBtn.classList.toggle('hidden', isGraded);
+                restartQuizBtn.classList.toggle('hidden', isGraded || questionDisplayMode === 'flashcard');
             }
 
             // Only show retry buttons after quiz is graded
@@ -5086,6 +5555,8 @@ DATA TO REVIEW:
             if (!confirm(translations[currentLanguage].confirmBackToEdit)) {
                 return;
             }
+
+            if (document.fullscreenElement) document.exitFullscreen().catch(() => {});
 
             // Stop timer if running
             if (examModeEnabled) {
@@ -5168,11 +5639,14 @@ DATA TO REVIEW:
             answeredQuestions.clear();
             currentFilter = 'all';
             currentQuestionIndex = 0;
+            sprintBreakPending = false;
+            sprintPendingIndex = null;
 
             // Clear all answer selections and enable inputs
             document.querySelectorAll('#quizContainer input[type="radio"], #quizContainer input[type="checkbox"]').forEach(input => {
                 input.checked = false;
             });
+            document.querySelectorAll('#quizContainer .option.eliminated').forEach(option => option.classList.remove('eliminated'));
             enableQuizInputs();
 
             // Clear result displays
@@ -5192,6 +5666,7 @@ DATA TO REVIEW:
 
             // Update navigator
             updateQuestionNavigator();
+            initializeStudyMode();
             updateFocusCardView();
 
             // Scroll to top of quiz
@@ -5336,7 +5811,7 @@ DATA TO REVIEW:
                 currentQuestionIndex = index;
                 toggleSidebar(false);
 
-                if (questionDisplayMode === 'focus') {
+                if (isSingleCardMode()) {
                     updateFocusCardView({ scroll: true });
                 } else {
                     updateQuestionNavigator();
@@ -5411,17 +5886,23 @@ DATA TO REVIEW:
             const continueBtn = document.getElementById('continueQuizBtn');
             const continueInfo = document.getElementById('continueQuizInfo');
 
-            if (savedProgress && Object.keys(savedProgress).length > 0 && savedState) {
+            const answeredCount = savedProgress ? Object.keys(savedProgress).filter(key => savedProgress[key].length > 0).length : 0;
+            const studyState = savedState?.studyModeState || {};
+            const hasStudyProgress = Boolean(savedState && (
+                (savedState.questionDisplayMode === 'flashcard' && (studyState.flashcardQueuePosition > 0 || studyState.flashcardRevealed)) ||
+                (savedState.questionDisplayMode === 'mastery' && (studyState.masteryQueuePosition > 0 || studyState.masteryChecked)) ||
+                (savedState.questionDisplayMode === 'sprint' && (savedState.currentQuestionIndex > 0 || studyState.sprintBreakPending))
+            ));
+
+            if (savedState && (answeredCount > 0 || hasStudyProgress)) {
                 // Show continue button
                 continueBtn.style.display = 'block';
 
                 // Show info about saved progress
-                const answeredCount = Object.keys(savedProgress).filter(key => savedProgress[key].length > 0).length;
-
                 if (currentLanguage === 'vi') {
-                    continueInfo.textContent = `Đã làm ${answeredCount} câu`;
+                    continueInfo.textContent = hasStudyProgress && answeredCount === 0 ? 'Có phiên học đang dở' : `Đã làm ${answeredCount} câu`;
                 } else {
-                    continueInfo.textContent = `${answeredCount} questions answered`;
+                    continueInfo.textContent = hasStudyProgress && answeredCount === 0 ? 'Study session in progress' : `${answeredCount} questions answered`;
                 }
 
                 return;
@@ -5441,9 +5922,67 @@ DATA TO REVIEW:
                 examModeEnabled: examModeEnabled,
                 practiceModeEnabled: practiceModeEnabled,
                 questionDisplayMode: questionDisplayMode,
+                eliminationEnabled: eliminationEnabled,
+                sprintSize: sprintSize,
+                currentQuestionIndex: currentQuestionIndex,
+                eliminatedOptions: Array.from(document.querySelectorAll('#quizContainer .option.eliminated input')).map(input => input.id),
+                studyModeState: {
+                    flashcardQueue: flashcardQueue,
+                    flashcardQueuePosition: flashcardQueuePosition,
+                    flashcardRevealed: flashcardRevealed,
+                    flashcardRatings: flashcardRatings,
+                    masteryQueue: masteryQueue,
+                    masteryQueuePosition: masteryQueuePosition,
+                    masteryCompleted: Array.from(masteryCompleted),
+                    masteryChecked: masteryChecked,
+                    sprintBreakPending: sprintBreakPending,
+                    sprintPendingIndex: sprintPendingIndex
+                },
                 timeRemaining: timeRemaining
             };
             saveToStorage(STORAGE_KEYS.QUIZ_STATE, state);
+        }
+
+        function restoreStudyModeState(savedState) {
+            const state = savedState.studyModeState || {};
+            currentQuestionIndex = Number.isInteger(savedState.currentQuestionIndex) ? savedState.currentQuestionIndex : currentQuestionIndex;
+            if (questionDisplayMode === 'flashcard' && Array.isArray(state.flashcardQueue)) {
+                flashcardQueue = state.flashcardQueue;
+                flashcardQueuePosition = Math.min(Number(state.flashcardQueuePosition) || 0, flashcardQueue.length);
+                flashcardRevealed = Boolean(state.flashcardRevealed);
+                flashcardRatings = { again: 0, hard: 0, remembered: 0, ...(state.flashcardRatings || {}) };
+                currentQuestionIndex = flashcardQueue[flashcardQueuePosition] ?? currentQuestionIndex;
+            } else if (questionDisplayMode === 'mastery' && Array.isArray(state.masteryQueue)) {
+                masteryQueue = state.masteryQueue;
+                masteryQueuePosition = Math.min(Number(state.masteryQueuePosition) || 0, masteryQueue.length);
+                masteryCompleted = new Set(state.masteryCompleted || []);
+                masteryChecked = Boolean(state.masteryChecked);
+                currentQuestionIndex = masteryQueue[masteryQueuePosition] ?? currentQuestionIndex;
+            } else if (questionDisplayMode === 'sprint') {
+                sprintBreakPending = Boolean(state.sprintBreakPending);
+                sprintPendingIndex = Number.isInteger(state.sprintPendingIndex) ? state.sprintPendingIndex : null;
+            }
+
+            (savedState.eliminatedOptions || []).forEach(inputId => {
+                const input = document.getElementById(inputId);
+                const option = input?.closest('.option');
+                const button = option?.querySelector('.eliminate-option-btn');
+                option?.classList.add('eliminated');
+                button?.setAttribute('aria-pressed', 'true');
+                button?.setAttribute('aria-label', translations[currentLanguage].restoreOption);
+            });
+            if (questionDisplayMode === 'mastery' && masteryChecked) {
+                const answer = getQuestionAnswerState(currentQuestionIndex);
+                const result = document.getElementById(`result${currentQuestionIndex}`);
+                if (result && answer.answered) {
+                    result.className = `question-result ${answer.correct ? 'correct' : 'incorrect'}`;
+                    result.textContent = answer.correct
+                        ? translations[currentLanguage].correct
+                        : `${translations[currentLanguage].incorrect} ${answer.expected.map(value => value.toUpperCase()).join(', ')}`;
+                    document.querySelectorAll(`input[name="question${currentQuestionIndex}"]`).forEach(input => input.disabled = true);
+                }
+            }
+            updateFocusCardView();
         }
 
         function continueQuiz() {
@@ -5464,6 +6003,8 @@ DATA TO REVIEW:
             examModeEnabled = savedState.examModeEnabled;
             practiceModeEnabled = savedState.practiceModeEnabled;
             questionDisplayMode = savedState.questionDisplayMode || 'list';
+            eliminationEnabled = Boolean(savedState.eliminationEnabled);
+            sprintSize = Math.max(1, Number(savedState.sprintSize) || 10);
             timeRemaining = savedState.timeRemaining;
             currentFilter = 'all';
             currentQuestionIndex = 0;
@@ -5472,6 +6013,9 @@ DATA TO REVIEW:
                 `input[name="questionDisplayMode"][value="${questionDisplayMode}"]`
             );
             if (savedDisplayModeInput) savedDisplayModeInput.checked = true;
+            document.getElementById('eliminationCheckbox').checked = eliminationEnabled;
+            document.getElementById('sprintSize').value = String(sprintSize);
+            toggleDisplayModeSettings();
 
             // Show quiz section, hide input section
             const inputSection = document.getElementById('inputSection');
@@ -5553,7 +6097,7 @@ DATA TO REVIEW:
 
                 q.options.forEach(option => {
                     html += `
-                        <div class="option">
+                        <div class="option" data-option-letter="${option.letter}">
                             <input type="${inputType}"
                                    name="question${index}"
                                    value="${option.letter}"
@@ -5561,6 +6105,9 @@ DATA TO REVIEW:
                             <label for="q${index}_${option.letter}">
                                 ${option.letter.toUpperCase()}. ${option.text}
                             </label>
+                            <button class="eliminate-option-btn" type="button"
+                                    onclick="toggleOptionElimination(event, ${index}, '${option.letter}')"
+                                    aria-label="${translations[currentLanguage].eliminateOption}" aria-pressed="false">×</button>
                         </div>
                     `;
                 });
@@ -5617,6 +6164,7 @@ DATA TO REVIEW:
             // Enable inputs when displaying quiz
             enableQuizInputs();
             syncQuestionDisplayMode();
+            restoreStudyModeState(savedState);
 
             // Scroll to quiz section
             const quizSectionElement = document.getElementById('quizSection');
@@ -5755,7 +6303,7 @@ DATA TO REVIEW:
                 btn.classList.remove('active');
             });
             triggerButton.classList.add('active');
-            updateFocusCardView({ scroll: questionDisplayMode === 'focus' });
+            updateFocusCardView({ scroll: isSingleCardMode() });
         }
 
         // File import functions
