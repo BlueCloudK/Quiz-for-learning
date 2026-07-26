@@ -61,6 +61,54 @@ assert.match(api.validateQuizData(questions, invalidChoice).errors.join('\n'), /
 const orphanAnswer = { 1: 'b', 2: 'a', 3: 'c' };
 assert.match(api.validateQuizData(questions, orphanAnswer).errors.join('\n'), /Đáp án câu 3: không có câu hỏi/);
 
+const settingsElements = {
+    startQuestionRow: { style: {} },
+    shuffleQuestionsGroup: { style: {} },
+    timerInputGroup: { style: {} }
+};
+const settingsSelection = { order: 'sequential', mode: 'standard' };
+const settingsDocument = {
+    querySelector: selector => {
+        if (selector === 'input[name="questionOrder"]:checked') return { value: settingsSelection.order };
+        if (selector === 'input[name="quizMode"]:checked') return { value: settingsSelection.mode };
+        return null;
+    },
+    getElementById: id => settingsElements[id]
+};
+const settingsApi = new Function('document', `
+    let practiceModeEnabled = false;
+    let examModeEnabled = false;
+    let timerInterval = null;
+    function stopTimer() {}
+    ${extractFunction('toggleStartQuestionInput')}
+    ${extractFunction('toggleQuizMode')}
+    return {
+        toggleStartQuestionInput,
+        toggleQuizMode,
+        getModeState: () => ({ practiceModeEnabled, examModeEnabled })
+    };
+`)(settingsDocument);
+
+settingsApi.toggleStartQuestionInput();
+assert.equal(settingsElements.startQuestionRow.style.display, 'flex');
+assert.equal(settingsElements.shuffleQuestionsGroup.style.display, 'flex');
+settingsSelection.order = 'random';
+settingsApi.toggleStartQuestionInput();
+assert.equal(settingsElements.startQuestionRow.style.display, 'none');
+assert.equal(settingsElements.shuffleQuestionsGroup.style.display, 'none');
+
+settingsSelection.mode = 'practice';
+settingsApi.toggleQuizMode();
+assert.deepEqual(settingsApi.getModeState(), { practiceModeEnabled: true, examModeEnabled: false });
+assert.equal(settingsElements.timerInputGroup.style.display, 'none');
+settingsSelection.mode = 'exam';
+settingsApi.toggleQuizMode();
+assert.deepEqual(settingsApi.getModeState(), { practiceModeEnabled: false, examModeEnabled: true });
+assert.equal(settingsElements.timerInputGroup.style.display, 'flex');
+
+assert.doesNotMatch(html, /id="practiceModeCheckbox"|id="examModeCheckbox"/);
+assert.equal((html.match(/<input type="radio" name="quizMode"/g) || []).length, 3);
+
 const pairElements = {
     quizPairStatus: { textContent: '', style: {} },
     questionsInput: { value: '' },

@@ -290,6 +290,26 @@
             cursor: pointer;
         }
 
+        .quiz-mode-group {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        .quiz-mode-label {
+            color: var(--text-primary);
+            font-weight: 600;
+        }
+
+        button:focus-visible,
+        input:focus-visible,
+        textarea:focus-visible,
+        select:focus-visible {
+            outline: 3px solid var(--accent-color-light);
+            outline-offset: 2px;
+        }
+
         /* File upload styles */
         .upload-container {
             display: flex;
@@ -1257,7 +1277,7 @@
             font-weight: 600;
             cursor: pointer;
             transition: all 0.3s;
-            margin: 20px 0;
+            margin: 0;
         }
 
         .stats-button:hover {
@@ -1866,6 +1886,11 @@
                 flex-wrap: wrap;
                 gap: 12px;
             }
+
+            .quiz-mode-group {
+                align-items: flex-start;
+                flex-direction: column;
+            }
         }
 
         @media (max-width: 768px) {
@@ -2134,21 +2159,21 @@
                     <div class="quiz-settings-group">
                         <div class="setting-row">
                             <label for="questionCount" data-i18n="questionCountLabel">Số câu hỏi:</label>
-                            <input type="number" id="questionCount" min="1" placeholder="Tất cả" style="width: 100px; padding: 8px; border-radius: 6px; border: 1px solid #ddd;">
-                            <span class="hint-text" data-i18n="questionCountHint">(Để trống = tất cả)</span>
+                            <input type="number" id="questionCount" min="1" placeholder="Tất cả" data-i18n-placeholder="questionCountPlaceholder" style="width: 100px; padding: 8px; border-radius: 6px; border: 1px solid #ddd;">
                         </div>
                         <div class="setting-row">
-                            <label data-i18n="questionOrderLabel">Thứ tự câu hỏi:</label>
+                            <label data-i18n="questionOrderLabel">Cách chọn câu:</label>
                             <div class="radio-group">
                                 <label class="radio-label">
                                     <input type="radio" name="questionOrder" value="sequential" checked onchange="toggleStartQuestionInput()">
-                                    <span data-i18n="orderSequential">Trình tự</span>
+                                    <span data-i18n="orderSequential">Liên tiếp</span>
                                 </label>
                                 <label class="radio-label">
                                     <input type="radio" name="questionOrder" value="random" onchange="toggleStartQuestionInput()">
                                     <span data-i18n="orderRandom">Ngẫu nhiên</span>
                                 </label>
                             </div>
+                            <span class="hint-text" data-i18n="questionOrderHint">Liên tiếp lấy từ câu bắt đầu; Ngẫu nhiên lấy trong toàn bộ đề</span>
                         </div>
                         <div class="setting-row" id="startQuestionRow" style="display: flex;">
                             <label for="startQuestion" data-i18n="startQuestionLabel">Bắt đầu từ câu:</label>
@@ -2156,21 +2181,30 @@
                             <span class="hint-text" data-i18n="startQuestionHint">(Chỉ với Trình tự)</span>
                         </div>
                     </div>
-                    <div class="checkbox-group">
+                    <div class="checkbox-group" id="shuffleQuestionsGroup">
                         <input type="checkbox" id="shuffleCheckbox">
-                        <label for="shuffleCheckbox" data-i18n="shuffleLabel">Xáo trộn câu hỏi</label>
+                        <label for="shuffleCheckbox" data-i18n="shuffleLabel">Xáo trộn thứ tự các câu đã chọn</label>
                     </div>
                     <div class="checkbox-group">
                         <input type="checkbox" id="shuffleChoicesCheckbox">
                         <label for="shuffleChoicesCheckbox" data-i18n="shuffleChoicesLabel">Xáo trộn đáp án (a,b,c,d)</label>
                     </div>
-                    <div class="checkbox-group">
-                        <input type="checkbox" id="practiceModeCheckbox">
-                        <label for="practiceModeCheckbox" data-i18n="practiceModeLabel">🎯 Chế độ ôn tập (Hiện đáp án ngay)</label>
-                    </div>
-                    <div class="checkbox-group">
-                        <input type="checkbox" id="examModeCheckbox" onchange="toggleExamMode()">
-                        <label for="examModeCheckbox" data-i18n="enableExamMode">⏱️ Bật chế độ thi</label>
+                    <div class="quiz-mode-group">
+                        <span class="quiz-mode-label" data-i18n="quizModeLabel">Chế độ làm bài:</span>
+                        <div class="radio-group">
+                            <label class="radio-label">
+                                <input type="radio" name="quizMode" value="standard" checked onchange="toggleQuizMode()">
+                                <span data-i18n="quizModeStandard">Kiểm tra</span>
+                            </label>
+                            <label class="radio-label">
+                                <input type="radio" name="quizMode" value="practice" onchange="toggleQuizMode()">
+                                <span data-i18n="quizModePractice">Ôn tập — hiện đáp án ngay</span>
+                            </label>
+                            <label class="radio-label">
+                                <input type="radio" name="quizMode" value="exam" onchange="toggleQuizMode()">
+                                <span data-i18n="quizModeExam">Thi có giờ</span>
+                            </label>
+                        </div>
                     </div>
                     <div class="timer-input-group" id="timerInputGroup" style="display: none;">
                         <label for="timerHours" data-i18n="hours">Giờ:</label>
@@ -2491,10 +2525,12 @@
             themeToggle.title = isDark ? 'Switch to light mode' : 'Switch to dark mode';
         }
 
-        // Exam Mode functions
-        function toggleExamMode() {
-            examModeEnabled = document.getElementById('examModeCheckbox').checked;
+        // Quiz mode functions
+        function toggleQuizMode() {
+            const selectedMode = document.querySelector('input[name="quizMode"]:checked')?.value || 'standard';
             const timerInputGroup = document.getElementById('timerInputGroup');
+            practiceModeEnabled = selectedMode === 'practice';
+            examModeEnabled = selectedMode === 'exam';
 
             if (examModeEnabled) {
                 // Show timer input fields
@@ -2511,13 +2547,16 @@
         function toggleStartQuestionInput() {
             const questionOrder = document.querySelector('input[name="questionOrder"]:checked')?.value;
             const startQuestionRow = document.getElementById('startQuestionRow');
+            const shuffleQuestionsGroup = document.getElementById('shuffleQuestionsGroup');
 
             if (questionOrder === 'sequential') {
-                // Show start question input for sequential mode
+                // Sequential mode can start at a specific question and shuffle the selected range.
                 startQuestionRow.style.display = 'flex';
+                shuffleQuestionsGroup.style.display = 'flex';
             } else {
-                // Hide for random mode
+                // Random mode already samples questions across the entire set.
                 startQuestionRow.style.display = 'none';
+                shuffleQuestionsGroup.style.display = 'none';
             }
         }
 
@@ -2842,15 +2881,20 @@
                 answersPlaceholder: 'Nhập đáp án theo định dạng:\n\n1. a\n2. b\n3. c\n4. d\n\nNhiều đáp án đúng:\n5. a,b,c\n6. abc',
                 answersHint: 'Nhập đáp án đúng cho mỗi câu. Nhiều đáp án: dùng dấu phẩy (a,b,c) hoặc viết liền (abc)',
                 questionCountLabel: 'Số câu hỏi:',
+                questionCountPlaceholder: 'Tất cả',
                 questionCountHint: '(Để trống = tất cả)',
                 startQuestionLabel: 'Bắt đầu từ câu:',
                 startQuestionHint: '(Chỉ với Trình tự)',
-                questionOrderLabel: 'Thứ tự câu hỏi:',
-                orderSequential: 'Trình tự',
+                questionOrderLabel: 'Cách chọn câu:',
+                questionOrderHint: 'Liên tiếp lấy từ câu bắt đầu; Ngẫu nhiên lấy trong toàn bộ đề',
+                orderSequential: 'Liên tiếp',
                 orderRandom: 'Ngẫu nhiên',
-                shuffleLabel: 'Xáo trộn câu hỏi',
+                shuffleLabel: 'Xáo trộn thứ tự các câu đã chọn',
                 shuffleChoicesLabel: 'Xáo trộn đáp án (a,b,c,d)',
-                practiceModeLabel: '🎯 Chế độ ôn tập (Hiện đáp án ngay)',
+                quizModeLabel: 'Chế độ làm bài:',
+                quizModeStandard: 'Kiểm tra',
+                quizModePractice: 'Ôn tập — hiện đáp án ngay',
+                quizModeExam: 'Thi có giờ',
                 createQuizBtn: 'Tạo Quiz',
                 continueQuizBtn: '⏩ Tiếp tục Quiz đã lưu',
                 filterLabel: 'Lọc câu hỏi:',
@@ -2958,15 +3002,20 @@
                 answersPlaceholder: 'Enter answers in this format:\n\n1. a\n2. b\n3. c\n4. d\n\nMultiple correct answers:\n5. a,b,c\n6. abc',
                 answersHint: 'Enter correct answers for each question. Multiple answers: use comma (a,b,c) or write together (abc)',
                 questionCountLabel: 'Number of questions:',
+                questionCountPlaceholder: 'All',
                 questionCountHint: '(Leave empty = all)',
                 startQuestionLabel: 'Start from question:',
                 startQuestionHint: '(Sequential only)',
-                questionOrderLabel: 'Question order:',
+                questionOrderLabel: 'Question selection:',
+                questionOrderHint: 'Sequential starts from a chosen question; Random samples the entire set',
                 orderSequential: 'Sequential',
                 orderRandom: 'Random',
-                shuffleLabel: 'Shuffle questions',
+                shuffleLabel: 'Shuffle the selected questions',
                 shuffleChoicesLabel: 'Shuffle answer choices (a,b,c,d)',
-                practiceModeLabel: '🎯 Practice Mode (Instant feedback)',
+                quizModeLabel: 'Quiz mode:',
+                quizModeStandard: 'Test',
+                quizModePractice: 'Practice — instant feedback',
+                quizModeExam: 'Timed exam',
                 createQuizBtn: 'Create Quiz',
                 continueQuizBtn: '⏩ Continue Saved Quiz',
                 filterLabel: 'Filter questions:',
@@ -3697,6 +3746,9 @@ DATA TO REVIEW:
             document.getElementById('retryPinnedBtn').classList.add('hidden');
             document.getElementById('filterSection').style.display = 'none';
 
+            // Sync the selected mode before starting the quiz.
+            toggleQuizMode();
+
             // Start timer if exam mode is enabled
             if (examModeEnabled) {
                 // Stop any existing timer first to prevent multiple intervals
@@ -3718,9 +3770,6 @@ DATA TO REVIEW:
                 // Show and reset progress bar
                 document.getElementById('progressContainer').style.display = 'block';
                 resetProgressBar();
-
-                // Check if practice mode is enabled
-                practiceModeEnabled = document.getElementById('practiceModeCheckbox').checked;
 
                 // Ẩn AI prompts section khi vào quiz mode
                 const aiPromptsSection = document.querySelector('.ai-prompts-section');
@@ -4100,7 +4149,9 @@ DATA TO REVIEW:
             if (examModeEnabled) {
                 stopTimer();
                 examModeEnabled = false;
-                document.getElementById('examModeCheckbox').checked = false;
+                const standardMode = document.querySelector('input[name="quizMode"][value="standard"]');
+                if (standardMode) standardMode.checked = true;
+                toggleQuizMode();
                 document.getElementById('fixedRightTimer').classList.remove('active');
                 document.getElementById('timerHours').disabled = false;
                 document.getElementById('timerMinutes').disabled = false;
