@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="application-version" content="1.3.5">
+    <meta name="application-version" content="1.4.0">
     <title>BlueQuiz - Tạo và Chấm Điểm</title>
     <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='20' fill='%23667eea'/><text x='50' y='70' font-size='60' text-anchor='middle' fill='white' font-family='Arial, sans-serif' font-weight='bold'>Q</text></svg>">
     <!-- Libraries for file import -->
@@ -2952,7 +2952,7 @@
                                 </div>
                                 <div class="mode-detail-row" id="sprintSettingsRow">
                                     <label for="sprintSize" data-i18n="sprintSizeLabel">Số câu mỗi chặng:</label>
-                                    <input type="number" id="sprintSize" min="1" max="9999" step="1" value="10" inputmode="numeric">
+                                    <input type="number" id="sprintSize" min="1" step="1" value="10" inputmode="numeric">
                                 </div>
                             </fieldset>
                         </div>
@@ -3159,7 +3159,7 @@
         <div class="footer-content">
             <p>
                 Made with ❤️ by <a href="https://github.com/BlueCloudK" target="_blank" rel="noopener noreferrer">BlueCloudK</a>
-                <span class="app-version">BlueQuiz v1.3.5</span>
+                <span class="app-version">BlueQuiz v1.4.0</span>
             </p>
             <p>
                 <a href="https://github.com/BlueCloudK/Quiz-for-learning" target="_blank" rel="noopener noreferrer">
@@ -3427,9 +3427,39 @@
             return document.querySelector('input[name="questionDisplayMode"]:checked')?.value || 'list';
         }
 
-        function normalizeSprintSize(value) {
+        function normalizeSprintSize(value, maximum = 1) {
             const parsed = Math.floor(Number(value));
-            return Number.isFinite(parsed) && parsed > 0 ? Math.min(parsed, 9999) : 10;
+            const maxSize = Math.max(1, Math.floor(Number(maximum)) || 1);
+            return Number.isFinite(parsed) && parsed > 0
+                ? Math.min(parsed, maxSize)
+                : Math.min(10, maxSize);
+        }
+
+        function getConfiguredQuestionTotal() {
+            const available = parseQuestions(document.getElementById('questionsInput')?.value || '').length;
+            if (available === 0) return 0;
+
+            const requested = Math.floor(Number(document.getElementById('questionCount')?.value));
+            const order = document.querySelector('input[name="questionOrder"]:checked')?.value || 'sequential';
+            const start = order === 'sequential'
+                ? Math.max(1, Math.floor(Number(document.getElementById('startQuestion')?.value)) || 1)
+                : 1;
+            const remaining = Math.max(1, available - start + 1);
+            return Number.isFinite(requested) && requested > 0
+                ? Math.min(requested, remaining)
+                : remaining;
+        }
+
+        function updateSprintSizeLimit(maximum = getConfiguredQuestionTotal()) {
+            const input = document.getElementById('sprintSize');
+            if (!input) return;
+            if (Number(maximum) <= 0) {
+                input.removeAttribute('max');
+                return;
+            }
+            const maxSize = Math.max(1, Math.floor(Number(maximum)) || 1);
+            input.max = String(maxSize);
+            input.value = String(normalizeSprintSize(input.value, maxSize));
         }
 
         function isSingleCardMode(mode = questionDisplayMode) {
@@ -3439,6 +3469,7 @@
         function toggleDisplayModeSettings() {
             const mode = readQuestionDisplayMode();
             document.getElementById('sprintSettingsRow')?.classList.toggle('visible', mode === 'sprint');
+            if (mode === 'sprint') updateSprintSizeLimit();
             const selfStudyMode = ['flashcard', 'mastery'].includes(mode);
             const examRadio = document.querySelector('input[name="quizMode"][value="exam"]');
             if (examRadio) examRadio.disabled = selfStudyMode;
@@ -3498,7 +3529,7 @@
                 masteryChecked = false;
                 currentQuestionIndex = masteryQueue[0] ?? 0;
             } else if (questionDisplayMode === 'sprint') {
-                sprintSize = normalizeSprintSize(document.getElementById('sprintSize')?.value);
+                sprintSize = normalizeSprintSize(document.getElementById('sprintSize')?.value, quizData.length);
                 sprintBreakPending = false;
                 sprintPendingIndex = null;
             }
@@ -4753,6 +4784,7 @@ DATA TO REVIEW:
 
             questionsInput.addEventListener('input', function() {
                 clearValidationSummary();
+                updateSprintSizeLimit();
                 clearTimeout(questionsSaveTimer);
                 questionsSaveTimer = setTimeout(autoSaveQuestions, 1000);
             });
@@ -4766,6 +4798,14 @@ DATA TO REVIEW:
             // Also save on blur (when user clicks away)
             questionsInput.addEventListener('blur', autoSaveQuestions);
             answersInput.addEventListener('blur', autoSaveAnswers);
+
+            ['questionCount', 'startQuestion'].forEach(id => {
+                document.getElementById(id)?.addEventListener('input', () => updateSprintSizeLimit());
+            });
+            document.querySelectorAll('input[name="questionOrder"]').forEach(input => {
+                input.addEventListener('change', () => updateSprintSizeLimit());
+            });
+            updateSprintSizeLimit();
         });
 
         function toggleAIPrompts() {
@@ -5144,7 +5184,8 @@ DATA TO REVIEW:
             currentFilter = 'all';
             currentQuestionIndex = 0;
             questionDisplayMode = readQuestionDisplayMode();
-            sprintSize = normalizeSprintSize(document.getElementById('sprintSize')?.value);
+            updateSprintSizeLimit(quizData.length);
+            sprintSize = normalizeSprintSize(document.getElementById('sprintSize')?.value, quizData.length);
             document.querySelectorAll('.filter-button').forEach((button, index) => {
                 button.classList.toggle('active', index === 0);
             });
@@ -6047,7 +6088,7 @@ DATA TO REVIEW:
             practiceModeEnabled = savedState.practiceModeEnabled;
             questionDisplayMode = savedState.questionDisplayMode || 'list';
             eliminationEnabled = Boolean(savedState.eliminationEnabled);
-            sprintSize = normalizeSprintSize(savedState.sprintSize);
+            sprintSize = normalizeSprintSize(savedState.sprintSize, savedState.quizData?.length || 1);
             timeRemaining = savedState.timeRemaining;
             currentFilter = 'all';
             currentQuestionIndex = 0;
@@ -6059,6 +6100,7 @@ DATA TO REVIEW:
             document.getElementById('eliminationCheckbox').checked = eliminationEnabled;
             document.getElementById('sprintSize').value = String(sprintSize);
             toggleDisplayModeSettings();
+            if (questionDisplayMode === 'sprint') updateSprintSizeLimit(quizData.length);
 
             // Show quiz section, hide input section
             const inputSection = document.getElementById('inputSection');

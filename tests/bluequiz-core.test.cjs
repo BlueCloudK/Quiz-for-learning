@@ -127,6 +127,7 @@ assert.ok(
     'Card navigation must render below the study actions'
 );
 assert.match(html, /<input type="number" id="sprintSize"[^>]*min="1"/);
+assert.doesNotMatch(html, /id="sprintSize"[^>]*max="9999"/);
 assert.doesNotMatch(html, /\.flashcard-mode \.question-card\.focus-active \.options\s*\{\s*display:\s*none/);
 
 const displayModeApi = new Function(`
@@ -156,9 +157,36 @@ const flashcardNavigationApi = new Function(`
 assert.deepEqual(flashcardNavigationApi.getFlashcardNavigationState([2, 4, 6], 0, 1), { position: 1, questionIndex: 4 });
 assert.deepEqual(flashcardNavigationApi.getFlashcardNavigationState([2, 4, 6], 1, -1), { position: 0, questionIndex: 2 });
 assert.deepEqual(flashcardNavigationApi.getFlashcardNavigationState([2, 4, 6], 2, 1), { position: 2, questionIndex: 6 });
-assert.equal(flashcardNavigationApi.normalizeSprintSize('17'), 17);
-assert.equal(flashcardNavigationApi.normalizeSprintSize('4.9'), 4);
-assert.equal(flashcardNavigationApi.normalizeSprintSize('0'), 10);
+assert.equal(flashcardNavigationApi.normalizeSprintSize('17', 217), 17);
+assert.equal(flashcardNavigationApi.normalizeSprintSize('400', 217), 217);
+assert.equal(flashcardNavigationApi.normalizeSprintSize('4.9', 217), 4);
+assert.equal(flashcardNavigationApi.normalizeSprintSize('0', 7), 7);
+
+const sprintConfig = { questionCount: '', startQuestion: '2', order: 'sequential' };
+const sprintConfigApi = new Function('document', 'parseQuestions', `
+    ${extractFunction('getConfiguredQuestionTotal')}
+    return { getConfiguredQuestionTotal };
+`)(
+    {
+        getElementById: id => {
+            if (id === 'questionsInput') return { value: questionsText };
+            if (id === 'questionCount') return { value: sprintConfig.questionCount };
+            if (id === 'startQuestion') return { value: sprintConfig.startQuestion };
+            return null;
+        },
+        querySelector: selector => selector === 'input[name="questionOrder"]:checked'
+            ? { value: sprintConfig.order }
+            : null
+    },
+    api.parseQuestions
+);
+assert.equal(sprintConfigApi.getConfiguredQuestionTotal(), 1, 'Sequential limit must respect the start question');
+sprintConfig.startQuestion = '1';
+sprintConfig.questionCount = '1';
+assert.equal(sprintConfigApi.getConfiguredQuestionTotal(), 1, 'Sprint limit must respect selected question count');
+sprintConfig.order = 'random';
+sprintConfig.questionCount = '';
+assert.equal(sprintConfigApi.getConfiguredQuestionTotal(), 2, 'Random mode may use the full question set');
 
 const focusApi = new Function(`
     const quizData = [{ number: 1 }, { number: 2 }, { number: 3 }];
