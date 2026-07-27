@@ -64,7 +64,9 @@ assert.match(api.validateQuizData(questions, orphanAnswer).errors.join('\n'), /Ä
 const settingsElements = {
     startQuestionRow: { style: {} },
     shuffleQuestionsGroup: { style: {} },
-    timerInputGroup: { style: {} }
+    timerInputGroup: { style: {} },
+    displayModeCard: { classList: { hidden: false, toggle(name, active) { if (name === 'hidden') this.hidden = active; } } },
+    sprintSettingsRow: { classList: { visible: false, toggle(name, active) { if (name === 'visible') this.visible = active; } } }
 };
 const settingsSelection = { order: 'sequential', mode: 'standard' };
 const settingsDocument = {
@@ -78,6 +80,7 @@ const settingsDocument = {
 const settingsApi = new Function('document', `
     let practiceModeEnabled = false;
     let examModeEnabled = false;
+    let quizSessionMode = 'standard';
     let timerInterval = null;
     function stopTimer() {}
     ${extractFunction('toggleStartQuestionInput')}
@@ -85,7 +88,7 @@ const settingsApi = new Function('document', `
     return {
         toggleStartQuestionInput,
         toggleQuizMode,
-        getModeState: () => ({ practiceModeEnabled, examModeEnabled })
+        getModeState: () => ({ practiceModeEnabled, examModeEnabled, quizSessionMode })
     };
 `)(settingsDocument);
 
@@ -99,16 +102,34 @@ assert.equal(settingsElements.shuffleQuestionsGroup.style.display, 'none');
 
 settingsSelection.mode = 'practice';
 settingsApi.toggleQuizMode();
-assert.deepEqual(settingsApi.getModeState(), { practiceModeEnabled: true, examModeEnabled: false });
+assert.deepEqual(settingsApi.getModeState(), { practiceModeEnabled: true, examModeEnabled: false, quizSessionMode: 'practice' });
 assert.equal(settingsElements.timerInputGroup.style.display, 'none');
 settingsSelection.mode = 'exam';
 settingsApi.toggleQuizMode();
-assert.deepEqual(settingsApi.getModeState(), { practiceModeEnabled: false, examModeEnabled: true });
+assert.deepEqual(settingsApi.getModeState(), { practiceModeEnabled: false, examModeEnabled: true, quizSessionMode: 'exam' });
 assert.equal(settingsElements.timerInputGroup.style.display, 'grid');
+settingsSelection.mode = 'flashcard';
+settingsApi.toggleQuizMode();
+assert.deepEqual(settingsApi.getModeState(), { practiceModeEnabled: false, examModeEnabled: false, quizSessionMode: 'flashcard' });
+assert.equal(settingsElements.displayModeCard.classList.hidden, true);
 
 assert.doesNotMatch(html, /id="practiceModeCheckbox"|id="examModeCheckbox"/);
-assert.equal((html.match(/<input type="radio" name="quizMode"/g) || []).length, 3);
-assert.equal((html.match(/<input type="radio" name="questionDisplayMode"/g) || []).length, 5);
+assert.equal((html.match(/<input type="radio" name="quizMode"/g) || []).length, 6);
+assert.equal((html.match(/<input type="radio" name="questionDisplayMode"/g) || []).length, 2);
+
+const displaySelection = { session: 'standard', display: 'focus' };
+const displaySelectionApi = new Function('document', `
+    let quizSessionMode = 'standard';
+    ${extractFunction('readQuestionDisplayMode')}
+    return { readQuestionDisplayMode };
+`)(
+    { querySelector: selector => selector === 'input[name="quizMode"]:checked'
+        ? { value: displaySelection.session }
+        : selector === 'input[name="questionDisplayMode"]:checked' ? { value: displaySelection.display } : null }
+);
+assert.equal(displaySelectionApi.readQuestionDisplayMode(), 'focus');
+displaySelection.session = 'mastery';
+assert.equal(displaySelectionApi.readQuestionDisplayMode(), 'mastery');
 assert.match(html, /id="eliminationCheckbox"/);
 assert.match(html, /id="fullscreenExamBtn"/);
 for (const controlId of [

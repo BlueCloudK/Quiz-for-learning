@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="application-version" content="1.4.0">
+    <meta name="application-version" content="1.4.1">
     <title>BlueQuiz - Tạo và Chấm Điểm</title>
     <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='20' fill='%23667eea'/><text x='50' y='70' font-size='60' text-anchor='middle' fill='white' font-family='Arial, sans-serif' font-weight='bold'>Q</text></svg>">
     <!-- Libraries for file import -->
@@ -329,6 +329,22 @@
             display: grid;
             grid-template-columns: repeat(3, minmax(0, 1fr));
             gap: 8px;
+        }
+
+        .mode-group-label {
+            display: block;
+            margin: 2px 0 8px;
+            color: var(--text-secondary);
+            font-size: 0.78em;
+            font-weight: 700;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+        }
+
+        .mode-options + .mode-group-label {
+            margin-top: 16px;
+            padding-top: 14px;
+            border-top: 1px solid var(--border-color);
         }
 
         .mode-option {
@@ -2883,8 +2899,9 @@
                                 </div>
                             </fieldset>
 
-                            <fieldset class="settings-card">
-                                <legend data-i18n="quizModeLabel">Chế độ làm bài</legend>
+                            <fieldset class="settings-card" id="quizModeCard">
+                                <legend data-i18n="quizModeLabel">Kiểu phiên học</legend>
+                                <span class="mode-group-label" data-i18n="quizModeQuizGroup">Làm bài</span>
                                 <div class="mode-options">
                                     <label class="radio-label mode-option">
                                         <input type="radio" name="quizMode" value="standard" checked onchange="toggleQuizMode()">
@@ -2899,6 +2916,21 @@
                                         <span data-i18n="quizModeExam">Thi có giờ</span>
                                     </label>
                                 </div>
+                                <span class="mode-group-label" data-i18n="quizModeStudyGroup">Học tập trung</span>
+                                <div class="mode-options">
+                                    <label class="radio-label mode-option">
+                                        <input type="radio" name="quizMode" value="flashcard" onchange="toggleQuizMode()">
+                                        <span data-i18n="quizModeFlashcard">Flashcard — lật thẻ ghi nhớ</span>
+                                    </label>
+                                    <label class="radio-label mode-option">
+                                        <input type="radio" name="quizMode" value="mastery" onchange="toggleQuizMode()">
+                                        <span data-i18n="quizModeMastery">Luyện đến khi đúng</span>
+                                    </label>
+                                    <label class="radio-label mode-option">
+                                        <input type="radio" name="quizMode" value="sprint" onchange="toggleQuizMode()">
+                                        <span data-i18n="quizModeSprint">Focus Sprint — chia chặng</span>
+                                    </label>
+                                </div>
                                 <div class="timer-input-group" id="timerInputGroup" style="display: none;">
                                     <label class="timer-field" for="timerHours">
                                         <span data-i18n="hours">Giờ:</span>
@@ -2909,9 +2941,13 @@
                                         <input type="number" id="timerMinutes" min="0" max="59" value="30" />
                                     </label>
                                 </div>
+                                <div class="mode-detail-row" id="sprintSettingsRow">
+                                    <label for="sprintSize" data-i18n="sprintSizeLabel">Số câu mỗi chặng:</label>
+                                    <input type="number" id="sprintSize" min="1" step="1" value="10" inputmode="numeric">
+                                </div>
                             </fieldset>
 
-                            <fieldset class="settings-card display-mode-card">
+                            <fieldset class="settings-card display-mode-card" id="displayModeCard">
                                 <legend data-i18n="displayModeLabel">Cách hiển thị</legend>
                                 <div class="display-options">
                                     <label class="radio-label display-option">
@@ -2928,37 +2964,12 @@
                                             <small data-i18n="displayModeFocusHint">Chỉ hiện một câu để tập trung làm bài</small>
                                         </span>
                                     </label>
-                                    <label class="radio-label display-option">
-                                        <input type="radio" name="questionDisplayMode" value="flashcard" onchange="toggleDisplayModeSettings()">
-                                        <span class="display-option-copy">
-                                            <strong data-i18n="displayModeFlashcard">Flashcard</strong>
-                                            <small data-i18n="displayModeFlashcardHint">Lật đáp án rồi tự đánh giá mức độ nhớ</small>
-                                        </span>
-                                    </label>
-                                    <label class="radio-label display-option">
-                                        <input type="radio" name="questionDisplayMode" value="mastery" onchange="toggleDisplayModeSettings()">
-                                        <span class="display-option-copy">
-                                            <strong data-i18n="displayModeMastery">Luyện đến khi đúng</strong>
-                                            <small data-i18n="displayModeMasteryHint">Câu sai quay lại cho đến khi bạn làm đúng</small>
-                                        </span>
-                                    </label>
-                                    <label class="radio-label display-option">
-                                        <input type="radio" name="questionDisplayMode" value="sprint" onchange="toggleDisplayModeSettings()">
-                                        <span class="display-option-copy">
-                                            <strong data-i18n="displayModeSprint">Focus Sprint</strong>
-                                            <small data-i18n="displayModeSprintHint">Chia đề thành các chặng ngắn có điểm nghỉ</small>
-                                        </span>
-                                    </label>
-                                </div>
-                                <div class="mode-detail-row" id="sprintSettingsRow">
-                                    <label for="sprintSize" data-i18n="sprintSizeLabel">Số câu mỗi chặng:</label>
-                                    <input type="number" id="sprintSize" min="1" step="1" value="10" inputmode="numeric">
                                 </div>
                             </fieldset>
                         </div>
 
                         <div class="quiz-settings-actions">
-                            <button class="btn-primary" onclick="generateQuiz()" data-i18n="createQuizBtn">Tạo Quiz</button>
+                            <button class="btn-primary" id="createQuizBtn" onclick="generateQuiz()" data-i18n="createQuizBtn">Bắt đầu kiểm tra</button>
                         </div>
                     </div>
                     <button class="btn-continue" id="continueQuizBtn" onclick="continueQuiz()" style="display: none;">
@@ -3159,7 +3170,7 @@
         <div class="footer-content">
             <p>
                 Made with ❤️ by <a href="https://github.com/BlueCloudK" target="_blank" rel="noopener noreferrer">BlueCloudK</a>
-                <span class="app-version">BlueQuiz v1.4.0</span>
+                <span class="app-version">BlueQuiz v1.4.1</span>
             </p>
             <p>
                 <a href="https://github.com/BlueCloudK/Quiz-for-learning" target="_blank" rel="noopener noreferrer">
@@ -3191,6 +3202,7 @@
         let currentQuestionIndex = 0; // Câu được chọn gần nhất trong navigator
         let quizHistory = []; // Lưu lịch sử làm bài
         let practiceModeEnabled = false; // Practice mode with instant feedback
+        let quizSessionMode = 'standard';
         let questionDisplayMode = 'list';
         let eliminationEnabled = false;
         let flashcardQueue = [];
@@ -3392,8 +3404,17 @@
         function toggleQuizMode() {
             const selectedMode = document.querySelector('input[name="quizMode"]:checked')?.value || 'standard';
             const timerInputGroup = document.getElementById('timerInputGroup');
+            const displayModeCard = document.getElementById('displayModeCard');
+            const sprintSettingsRow = document.getElementById('sprintSettingsRow');
+            const focusedStudyMode = ['flashcard', 'mastery', 'sprint'].includes(selectedMode);
+            quizSessionMode = selectedMode;
             practiceModeEnabled = selectedMode === 'practice';
             examModeEnabled = selectedMode === 'exam';
+
+            displayModeCard?.classList.toggle('hidden', focusedStudyMode);
+            sprintSettingsRow?.classList.toggle('visible', selectedMode === 'sprint');
+            if (selectedMode === 'sprint') updateSprintSizeLimit();
+            if (typeof updateCreateQuizButton === 'function') updateCreateQuizButton();
 
             if (examModeEnabled) {
                 // Show timer input fields
@@ -3424,7 +3445,25 @@
         }
 
         function readQuestionDisplayMode() {
+            const selectedMode = document.querySelector('input[name="quizMode"]:checked')?.value || quizSessionMode;
+            if (['flashcard', 'mastery', 'sprint'].includes(selectedMode)) return selectedMode;
             return document.querySelector('input[name="questionDisplayMode"]:checked')?.value || 'list';
+        }
+
+        function updateCreateQuizButton() {
+            const button = document.getElementById('createQuizBtn');
+            if (!button) return;
+            const keyByMode = {
+                standard: 'startStandardBtn',
+                practice: 'startPracticeBtn',
+                exam: 'startExamBtn',
+                flashcard: 'startFlashcardBtn',
+                mastery: 'startMasteryBtn',
+                sprint: 'startSprintBtn'
+            };
+            const key = keyByMode[quizSessionMode] || 'startStandardBtn';
+            button.textContent = translations[currentLanguage][key];
+            button.dataset.i18n = key;
         }
 
         function normalizeSprintSize(value, maximum = 1) {
@@ -3467,17 +3506,7 @@
         }
 
         function toggleDisplayModeSettings() {
-            const mode = readQuestionDisplayMode();
-            document.getElementById('sprintSettingsRow')?.classList.toggle('visible', mode === 'sprint');
-            if (mode === 'sprint') updateSprintSizeLimit();
-            const selfStudyMode = ['flashcard', 'mastery'].includes(mode);
-            const examRadio = document.querySelector('input[name="quizMode"][value="exam"]');
-            if (examRadio) examRadio.disabled = selfStudyMode;
-            if (selfStudyMode && examRadio?.checked) {
-                const standardRadio = document.querySelector('input[name="quizMode"][value="standard"]');
-                if (standardRadio) standardRadio.checked = true;
-                toggleQuizMode();
-            }
+            questionDisplayMode = readQuestionDisplayMode();
         }
 
         function questionMatchesCurrentFilter(index) {
@@ -4214,10 +4243,15 @@
                 shuffleChoicesLabel: 'Xáo trộn đáp án (a,b,c,d)',
                 eliminationLabel: 'Cho phép loại trừ đáp án',
                 quizOptionsLabel: 'Tùy chọn',
-                quizModeLabel: 'Chế độ làm bài',
+                quizModeLabel: 'Kiểu phiên học',
+                quizModeQuizGroup: 'Làm bài',
+                quizModeStudyGroup: 'Học tập trung',
                 quizModeStandard: 'Kiểm tra',
                 quizModePractice: 'Ôn tập — hiện đáp án ngay',
                 quizModeExam: 'Thi có giờ',
+                quizModeFlashcard: 'Flashcard — lật thẻ ghi nhớ',
+                quizModeMastery: 'Luyện đến khi đúng',
+                quizModeSprint: 'Focus Sprint — chia chặng',
                 displayModeLabel: 'Cách hiển thị',
                 displayModeList: 'Danh sách',
                 displayModeListHint: 'Hiện toàn bộ câu hỏi để cuộn và xem nhanh',
@@ -4255,6 +4289,12 @@
                 enterFullscreen: 'Toàn màn hình',
                 exitFullscreen: 'Thoát toàn màn hình',
                 createQuizBtn: 'Tạo Quiz',
+                startStandardBtn: 'Bắt đầu kiểm tra',
+                startPracticeBtn: 'Bắt đầu ôn tập',
+                startExamBtn: 'Bắt đầu thi',
+                startFlashcardBtn: 'Bắt đầu học thẻ',
+                startMasteryBtn: 'Bắt đầu luyện',
+                startSprintBtn: 'Bắt đầu Sprint',
                 continueQuizBtn: '⏩ Tiếp tục Quiz đã lưu',
                 filterLabel: 'Lọc câu hỏi:',
                 filterAll: 'Tất cả',
@@ -4379,10 +4419,15 @@
                 shuffleChoicesLabel: 'Shuffle answer choices (a,b,c,d)',
                 eliminationLabel: 'Allow answer elimination',
                 quizOptionsLabel: 'Options',
-                quizModeLabel: 'Quiz mode',
+                quizModeLabel: 'Study session',
+                quizModeQuizGroup: 'Quiz modes',
+                quizModeStudyGroup: 'Focused study',
                 quizModeStandard: 'Test',
                 quizModePractice: 'Practice — instant feedback',
                 quizModeExam: 'Timed exam',
+                quizModeFlashcard: 'Flashcard — recall and reveal',
+                quizModeMastery: 'Practice until correct',
+                quizModeSprint: 'Focus Sprint — study in blocks',
                 displayModeLabel: 'Question display',
                 displayModeList: 'List',
                 displayModeListHint: 'Show every question for scrolling and quick review',
@@ -4420,6 +4465,12 @@
                 enterFullscreen: 'Fullscreen',
                 exitFullscreen: 'Exit fullscreen',
                 createQuizBtn: 'Create Quiz',
+                startStandardBtn: 'Start test',
+                startPracticeBtn: 'Start practice',
+                startExamBtn: 'Start exam',
+                startFlashcardBtn: 'Start flashcards',
+                startMasteryBtn: 'Start mastery practice',
+                startSprintBtn: 'Start Sprint',
                 continueQuizBtn: '⏩ Continue Saved Quiz',
                 filterLabel: 'Filter questions:',
                 filterAll: 'All',
@@ -4761,12 +4812,14 @@ DATA TO REVIEW:
 
             // Update saved quizzes display
             displaySavedQuizzes();
+            updateCreateQuizButton();
         }
 
         // Initialize language on page load
         document.addEventListener('DOMContentLoaded', function() {
             loadSavedData(); // Load saved data from localStorage
             changeLanguage(currentLanguage); // Use saved language or default
+            toggleQuizMode();
             renderAIPrompts();
             displaySavedQuizzes(); // Display saved quiz sets
             toggleDisplayModeSettings();
@@ -6005,6 +6058,7 @@ DATA TO REVIEW:
                 originalAnswersText: originalAnswersText,
                 examModeEnabled: examModeEnabled,
                 practiceModeEnabled: practiceModeEnabled,
+                quizSessionMode: quizSessionMode,
                 questionDisplayMode: questionDisplayMode,
                 eliminationEnabled: eliminationEnabled,
                 sprintSize: sprintSize,
@@ -6084,22 +6138,29 @@ DATA TO REVIEW:
             correctAnswers = savedState.correctAnswers;
             originalQuestionsText = savedState.originalQuestionsText;
             originalAnswersText = savedState.originalAnswersText;
-            examModeEnabled = savedState.examModeEnabled;
-            practiceModeEnabled = savedState.practiceModeEnabled;
             questionDisplayMode = savedState.questionDisplayMode || 'list';
+            quizSessionMode = savedState.quizSessionMode || (
+                ['flashcard', 'mastery', 'sprint'].includes(questionDisplayMode)
+                    ? questionDisplayMode
+                    : savedState.examModeEnabled
+                        ? 'exam'
+                        : savedState.practiceModeEnabled ? 'practice' : 'standard'
+            );
             eliminationEnabled = Boolean(savedState.eliminationEnabled);
             sprintSize = normalizeSprintSize(savedState.sprintSize, savedState.quizData?.length || 1);
             timeRemaining = savedState.timeRemaining;
             currentFilter = 'all';
             currentQuestionIndex = 0;
 
-            const savedDisplayModeInput = document.querySelector(
-                `input[name="questionDisplayMode"][value="${questionDisplayMode}"]`
-            );
+            const savedSessionModeInput = document.querySelector(`input[name="quizMode"][value="${quizSessionMode}"]`);
+            if (savedSessionModeInput) savedSessionModeInput.checked = true;
+            const savedDisplayModeInput = ['list', 'focus'].includes(questionDisplayMode)
+                ? document.querySelector(`input[name="questionDisplayMode"][value="${questionDisplayMode}"]`)
+                : null;
             if (savedDisplayModeInput) savedDisplayModeInput.checked = true;
             document.getElementById('eliminationCheckbox').checked = eliminationEnabled;
             document.getElementById('sprintSize').value = String(sprintSize);
-            toggleDisplayModeSettings();
+            toggleQuizMode();
             if (questionDisplayMode === 'sprint') updateSprintSizeLimit(quizData.length);
 
             // Show quiz section, hide input section
