@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="application-version" content="1.3.3">
+    <meta name="application-version" content="1.3.4">
     <title>BlueQuiz - Tạo và Chấm Điểm</title>
     <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='20' fill='%23667eea'/><text x='50' y='70' font-size='60' text-anchor='middle' fill='white' font-family='Arial, sans-serif' font-weight='bold'>Q</text></svg>">
     <!-- Libraries for file import -->
@@ -685,6 +685,7 @@
         .study-actions { display: flex; flex-wrap: wrap; gap: 8px; }
         .study-actions button { min-height: 42px; padding: 9px 15px; text-transform: none; letter-spacing: 0; }
         .flashcard-answer {
+            margin-top: 12px;
             padding: 12px;
             color: var(--correct-text);
             background: var(--correct-bg);
@@ -3056,6 +3057,7 @@
                         <div class="focus-card-empty hidden" id="focusCardEmpty" data-i18n="focusEmpty">
                             Không có câu hỏi phù hợp với bộ lọc này.
                         </div>
+                        <div class="flashcard-answer hidden" id="flashcardAnswer" aria-live="polite"></div>
 
                         <nav class="focus-card-controls hidden" id="focusCardControls" aria-label="Điều hướng Focus Card"
                              data-i18n-aria-label="focusNavigation">
@@ -3072,7 +3074,6 @@
                         </nav>
                         <section class="study-mode-panel" id="flashcardPanel" aria-live="polite">
                             <div class="study-status" id="flashcardStatus"></div>
-                            <div class="flashcard-answer hidden" id="flashcardAnswer"></div>
                             <div class="study-actions">
                                 <button class="btn-primary" id="flashcardRevealBtn" type="button" onclick="revealFlashcard()" data-i18n="flashcardReveal">Hiện đáp án</button>
                                 <button class="btn-secondary hidden" id="flashcardAgainBtn" type="button" onclick="rateFlashcard('again')" data-i18n="flashcardAgain">Chưa nhớ</button>
@@ -3084,7 +3085,7 @@
                             <div class="study-status" id="masteryStatus"></div>
                             <div class="study-actions">
                                 <button class="btn-primary" id="masteryCheckBtn" type="button" onclick="checkMasteryAnswer()" data-i18n="masteryCheck">Kiểm tra đáp án</button>
-                                <button class="btn-success hidden" id="masteryNextBtn" type="button" onclick="continueMastery()" data-i18n="masteryNext">Tiếp tục</button>
+                                <button class="btn-success hidden" id="masteryNextBtn" type="button" onclick="continueMastery()" data-i18n="masteryNext">Câu tiếp</button>
                             </div>
                         </section>
                         <section class="study-mode-panel sprint-break-panel" id="sprintBreakPanel" aria-live="polite">
@@ -3164,7 +3165,7 @@
         <div class="footer-content">
             <p>
                 Made with ❤️ by <a href="https://github.com/BlueCloudK" target="_blank" rel="noopener noreferrer">BlueCloudK</a>
-                <span class="app-version">BlueQuiz v1.3.3</span>
+                <span class="app-version">BlueQuiz v1.3.4</span>
             </p>
             <p>
                 <a href="https://github.com/BlueCloudK/Quiz-for-learning" target="_blank" rel="noopener noreferrer">
@@ -3686,12 +3687,26 @@
             saveQuizState();
         }
 
+        function getNextMasteryQueueState(queue, currentPosition) {
+            const position = Math.min(Math.max(0, currentPosition + 1), queue.length);
+            return {
+                position,
+                questionIndex: position < queue.length ? queue[position] : null
+            };
+        }
+
         function continueMastery() {
-            if (!masteryChecked) return;
-            masteryQueuePosition++;
+            if (questionDisplayMode !== 'mastery') return;
+            if (!masteryChecked) {
+                checkMasteryAnswer();
+                return;
+            }
+
+            const nextState = getNextMasteryQueueState(masteryQueue, masteryQueuePosition);
+            masteryQueuePosition = nextState.position;
             masteryChecked = false;
-            currentQuestionIndex = masteryQueue[masteryQueuePosition] ?? currentQuestionIndex;
-            if (masteryQueuePosition < masteryQueue.length) {
+            if (nextState.questionIndex !== null) {
+                currentQuestionIndex = nextState.questionIndex;
                 document.querySelectorAll(`input[name="question${currentQuestionIndex}"]`).forEach(input => {
                     input.disabled = false;
                     input.checked = false;
@@ -4176,7 +4191,7 @@
                 flashcardProgress: 'Thẻ {current}/{total} · Hãy tự trả lời trước khi lật thẻ.',
                 flashcardComplete: 'Hoàn tất · Đã nhớ {remembered} · Khó {hard} · Chưa nhớ {again}',
                 masteryCheck: 'Kiểm tra đáp án',
-                masteryNext: 'Tiếp tục',
+                masteryNext: 'Câu tiếp',
                 masterySelectAnswer: 'Hãy chọn ít nhất một đáp án trước khi kiểm tra.',
                 masteryProgress: 'Đã làm chủ {mastered}/{total} câu. Câu sai sẽ quay lại.',
                 masteryComplete: 'Hoàn tất! Bạn đã làm đúng toàn bộ {total} câu.',
@@ -4341,7 +4356,7 @@
                 flashcardProgress: 'Card {current}/{total} · Recall it before revealing the answer.',
                 flashcardComplete: 'Complete · Remembered {remembered} · Hard {hard} · Again {again}',
                 masteryCheck: 'Check answer',
-                masteryNext: 'Continue',
+                masteryNext: 'Next question',
                 masterySelectAnswer: 'Select at least one answer before checking.',
                 masteryProgress: 'Mastered {mastered}/{total}. Missed questions will return.',
                 masteryComplete: 'Complete! You answered all {total} questions correctly.',

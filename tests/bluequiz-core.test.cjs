@@ -118,6 +118,10 @@ for (const controlId of [
     assert.match(html, new RegExp(`id="${controlId}"`), `Missing study control: ${controlId}`);
 }
 assert.equal((html.match(/class="eliminate-option-btn"/g) || []).length, 2, 'Both quiz render paths must support answer elimination');
+assert.ok(
+    html.indexOf('id="flashcardAnswer"') < html.indexOf('id="flashcardPanel"'),
+    'Revealed flashcard answer must render above the rating/navigation buttons'
+);
 
 const displayModeApi = new Function(`
     let questionDisplayMode = 'list';
@@ -129,6 +133,14 @@ for (const mode of ['focus', 'flashcard', 'mastery', 'sprint']) {
     displayModeApi.setMode(mode);
     assert.equal(displayModeApi.isSingleCardMode(), true, `${mode} must use the single-card layout`);
 }
+
+const masteryQueueApi = new Function(`
+    ${extractFunction('getNextMasteryQueueState')}
+    return { getNextMasteryQueueState };
+`)();
+assert.deepEqual(masteryQueueApi.getNextMasteryQueueState([0, 1, 2], 0), { position: 1, questionIndex: 1 });
+assert.deepEqual(masteryQueueApi.getNextMasteryQueueState([0, 1, 0], 1), { position: 2, questionIndex: 0 });
+assert.deepEqual(masteryQueueApi.getNextMasteryQueueState([0], 0), { position: 1, questionIndex: null });
 
 const focusApi = new Function(`
     const quizData = [{ number: 1 }, { number: 2 }, { number: 3 }];
