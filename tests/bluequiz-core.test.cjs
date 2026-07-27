@@ -162,6 +162,28 @@ for (const mode of ['focus', 'flashcard', 'mastery', 'sprint']) {
     assert.equal(displayModeApi.isSingleCardMode(), true, `${mode} must use the single-card layout`);
 }
 
+function createClassList(...initialValues) {
+    const values = new Set(initialValues);
+    return {
+        add: value => values.add(value),
+        remove: value => values.delete(value),
+        contains: value => values.has(value)
+    };
+}
+
+const staleFlashcardAnswer = { textContent: 'Stale answer', classList: createClassList() };
+const staleQuizSection = { classList: createClassList('flashcard-revealed') };
+const flashcardResetApi = new Function('document', `
+    ${extractFunction('resetFlashcardArtifacts')}
+    return { resetFlashcardArtifacts };
+`)(
+    { getElementById: id => id === 'flashcardAnswer' ? staleFlashcardAnswer : id === 'quizSection' ? staleQuizSection : null }
+);
+flashcardResetApi.resetFlashcardArtifacts();
+assert.equal(staleFlashcardAnswer.textContent, '');
+assert.equal(staleFlashcardAnswer.classList.contains('hidden'), true);
+assert.equal(staleQuizSection.classList.contains('flashcard-revealed'), false);
+
 const masteryQueueApi = new Function(`
     ${extractFunction('getNextMasteryQueueState')}
     return { getNextMasteryQueueState };

@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="application-version" content="1.4.1">
+    <meta name="application-version" content="1.4.2">
     <title>BlueQuiz - Tạo và Chấm Điểm</title>
     <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='20' fill='%23667eea'/><text x='50' y='70' font-size='60' text-anchor='middle' fill='white' font-family='Arial, sans-serif' font-weight='bold'>Q</text></svg>">
     <!-- Libraries for file import -->
@@ -3170,7 +3170,7 @@
         <div class="footer-content">
             <p>
                 Made with ❤️ by <a href="https://github.com/BlueCloudK" target="_blank" rel="noopener noreferrer">BlueCloudK</a>
-                <span class="app-version">BlueQuiz v1.4.1</span>
+                <span class="app-version">BlueQuiz v1.4.2</span>
             </p>
             <p>
                 <a href="https://github.com/BlueCloudK/Quiz-for-learning" target="_blank" rel="noopener noreferrer">
@@ -3528,10 +3528,19 @@
             return { position, questionIndex: queue[position] };
         }
 
+        function resetFlashcardArtifacts() {
+            const flashcardAnswer = document.getElementById('flashcardAnswer');
+            flashcardAnswer?.classList.add('hidden');
+            if (flashcardAnswer) flashcardAnswer.textContent = '';
+            document.getElementById('quizSection')?.classList.remove('flashcard-revealed');
+        }
+
         function syncQuestionDisplayMode() {
             questionDisplayMode = readQuestionDisplayMode();
             const quizSection = document.getElementById('quizSection');
             if (!quizSection) return;
+
+            if (questionDisplayMode !== 'flashcard') resetFlashcardArtifacts();
 
             quizSection.classList.toggle('focus-card-mode', isSingleCardMode());
             quizSection.classList.toggle('flashcard-mode', questionDisplayMode === 'flashcard');
