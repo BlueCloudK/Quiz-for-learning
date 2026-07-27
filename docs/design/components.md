@@ -10,3 +10,4 @@
 - Answer elimination is reversible, clears a selected answer when eliminated, and never changes the correct-answer data.
 - Fullscreen is an explicit exam action because browsers require a user gesture; leaving fullscreen must not stop or duplicate the timer.
 - Session type is one exclusive choice across Test, Practice, Exam, Flashcard, Mastery, and Focus Sprint. List/Focus Card is a secondary display choice shown only for Test, Practice, and Exam.
+- Post-grading highlights are optional, scoped by original question and target (`1.q`, `1.b`), validated against exact source text, and rendered only after feedback is revealed. Option highlights may target correct answers only and must follow answer-choice shuffling.

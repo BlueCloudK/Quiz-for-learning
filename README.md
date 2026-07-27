@@ -1,6 +1,6 @@
 # 📝 Quiz Application for Learning | Ứng Dụng Quiz Học Tập
 
-![Version](https://img.shields.io/badge/version-1.4.2-586fd8)
+![Version](https://img.shields.io/badge/version-1.4.3-586fd8)
 
 **[English](#english)** | **[Tiếng Việt](#tiếng-việt)**
 
@@ -28,6 +28,7 @@ A powerful, interactive quiz application that helps you create, manage, and prac
 - **🔍 Filter Questions**: View all, pinned, or incorrect questions with Navigator sidebar
 - **📊 Progress Bar**: Real-time progress tracking showing answered/total questions and completion percentage
 - **🎯 Practice Mode**: Instant feedback when selecting answers (immediate grading) - perfect for self-study and learning
+- **🖍️ Post-grading Keyword Highlights**: Highlight exact phrases in questions and correct answers using scoped entries such as `1.q` and `1.b`
 - **💾 Auto-save Progress**: Automatically saves your answers and quiz state as you go - never lose progress if page refreshes
 - **📋 Question Navigator Sidebar**: Visual navigator showing all questions with status indicators (answered/correct/incorrect/pinned)
 - **🔀 Shuffle Answer Choices**: Randomize the order of answer options (a,b,c,d) to prevent memorization

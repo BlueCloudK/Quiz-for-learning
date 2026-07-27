@@ -30,8 +30,10 @@ function extractFunction(name) {
 const api = new Function(`
     ${extractFunction('parseQuestions')}
     ${extractFunction('parseAnswers')}
+    ${extractFunction('parseKeywordHighlights')}
+    ${extractFunction('textContainsKeyword')}
     ${extractFunction('validateQuizData')}
-    return { parseQuestions, parseAnswers, validateQuizData };
+    return { parseQuestions, parseAnswers, parseKeywordHighlights, validateQuizData };
 `)();
 
 const questionsText = `
@@ -60,6 +62,55 @@ assert.match(api.validateQuizData(questions, invalidChoice).errors.join('\n'), /
 
 const orphanAnswer = { 1: 'b', 2: 'a', 3: 'c' };
 assert.match(api.validateQuizData(questions, orphanAnswer).errors.join('\n'), /Đáp án câu 3: không có câu hỏi/);
+
+const keywordText = `KEYWORDS\n\`\`\`text\n1.q: First question; First\n1.b: Two\n\`\`\``;
+const keywordHighlights = api.parseKeywordHighlights(keywordText);
+assert.deepEqual(keywordHighlights, { 1: { q: ['First question', 'First'], b: ['Two'] } });
+assert.equal(api.validateQuizData(questions, answers, keywordHighlights).valid, true);
+assert.match(
+    api.validateQuizData(questions, answers, api.parseKeywordHighlights('1.a: One')).errors.join('\n'),
+    /chỉ được tô trong đáp án đúng/
+);
+assert.match(
+    api.validateQuizData(questions, answers, api.parseKeywordHighlights('1.b: Missing phrase')).errors.join('\n'),
+    /không tìm thấy/
+);
+assert.match(
+    api.validateQuizData(questions, answers, api.parseKeywordHighlights('1-b: Two')).errors.join('\n'),
+    /sai định dạng/
+);
+
+const shuffleHighlightApi = new Function('shuffleArray', `
+    ${extractFunction('shuffleQuestionChoices')}
+    return { shuffleQuestionChoices };
+`)(items => [...items].reverse());
+const shuffledQuestions = JSON.parse(JSON.stringify([questions[0]]));
+const shuffledAnswers = { 1: 'b' };
+const shuffledHighlights = { 1: { q: ['First question'], b: ['Two'] } };
+shuffleHighlightApi.shuffleQuestionChoices(shuffledQuestions, shuffledAnswers, shuffledHighlights);
+assert.equal(shuffledAnswers[1], 'a');
+assert.deepEqual(shuffledHighlights[1], { q: ['First question'], a: ['Two'] });
+
+const keywordExportInput = { value: '1.q: First question' };
+let keywordExport = null;
+let keywordExportAlert = null;
+const keywordExportApi = new Function(
+    'document', 'alert', 'translations', 'currentLanguage', 'downloadTextFile', 'downloadExcelFile',
+    `${extractFunction('exportKeywords')}; return exportKeywords;`
+)(
+    { getElementById: id => id === 'keywordsInput' ? keywordExportInput : null },
+    message => { keywordExportAlert = message; },
+    { vi: { alertNoKeywords: 'no keywords' } }, 'vi',
+    (text, filename) => { keywordExport = { format: 'txt', text, filename }; },
+    (text, filename) => { keywordExport = { format: 'xlsx', text, filename }; }
+);
+keywordExportApi('txt');
+assert.deepEqual(keywordExport, { format: 'txt', text: keywordExportInput.value, filename: 'tu-khoa.txt' });
+keywordExportApi('xlsx');
+assert.deepEqual(keywordExport, { format: 'xlsx', text: keywordExportInput.value, filename: 'tu-khoa.xlsx' });
+keywordExportInput.value = '';
+keywordExportApi('txt');
+assert.equal(keywordExportAlert, 'no keywords');
 
 const settingsElements = {
     startQuestionRow: { style: {} },
@@ -132,6 +183,17 @@ displaySelection.session = 'mastery';
 assert.equal(displaySelectionApi.readQuestionDisplayMode(), 'mastery');
 assert.match(html, /id="eliminationCheckbox"/);
 assert.match(html, /id="fullscreenExamBtn"/);
+assert.match(html, /id="keywordsInput"/);
+assert.match(html, /id="keywordsFileInput"/);
+assert.match(html, /id="keywordsFileInfo"/);
+assert.match(html, /mark\.keyword-highlight/);
+assert.match(html, /Trích Từ Khóa Tô Sáng/);
+assert.match(html, /name="application-version" content="1\.4\.3"/);
+assert.match(extractFunction('submitQuiz'), /applyAllKeywordHighlights\(\)/);
+assert.match(extractFunction('checkMasteryAnswer'), /applyQuestionKeywordHighlights\(currentQuestionIndex\)/);
+assert.match(extractFunction('restartQuiz'), /clearKeywordHighlightsInCard/);
+assert.match(extractFunction('saveQuizSet'), /keywords:\s*keywordsText/);
+assert.match(extractFunction('loadQuizSet'), /quiz\.keywords\s*\|\|\s*''/);
 for (const controlId of [
     'flashcardPanel', 'flashcardRevealBtn', 'masteryPanel', 'masteryCheckBtn',
     'sprintSettingsRow', 'sprintBreakPanel'
@@ -314,6 +376,7 @@ const pairElements = {
     quizPairStatus: { textContent: '', style: {} },
     questionsInput: { value: '' },
     answersInput: { value: '' },
+    keywordsInput: { value: 'old keywords' },
     quizNameInput: { value: '' }
 };
 let pairValidation = null;
@@ -321,6 +384,7 @@ let pairAutosaves = 0;
 const pairImport = new Function(
     'document', 'readFile', 'translations', 'currentLanguage', 'parseQuestions', 'parseAnswers',
     'validateQuizData', 'renderValidationSummary', 'autoSaveQuestions', 'autoSaveAnswers',
+    'autoSaveKeywords',
     `${extractFunction('handleQuizPairUpload')}; return handleQuizPairUpload;`
 )(
     { getElementById: id => pairElements[id] },
@@ -332,7 +396,7 @@ const pairImport = new Function(
     } },
     'vi', api.parseQuestions, api.parseAnswers, api.validateQuizData,
     validation => { pairValidation = validation; },
-    () => { pairAutosaves++; }, () => { pairAutosaves++; }
+    () => { pairAutosaves++; }, () => { pairAutosaves++; }, () => { pairAutosaves++; }
 );
 
 const pairEvent = { target: { files: [
@@ -340,17 +404,38 @@ const pairEvent = { target: { files: [
     { name: 'PRN222_MASTER_DAP_AN.txt', text: answersText }
 ], value: 'selected' } };
 
+const keywordImportElements = {
+    keywordsInput: { value: '' },
+    keywordsFileInfo: { textContent: '', style: {} }
+};
+let keywordImportSaved = false;
+let keywordValidationCleared = false;
+const keywordImport = new Function(
+    'document', 'readFile', 'clearValidationSummary', 'autoSaveKeywords',
+    `${extractFunction('handleKeywordsFileUpload')}; return handleKeywordsFileUpload;`
+)(
+    { getElementById: id => keywordImportElements[id] },
+    async file => file.text,
+    () => { keywordValidationCleared = true; },
+    () => { keywordImportSaved = true; }
+);
+const keywordImportEvent = {
+    target: { files: [{ name: 'keywords.txt', text: '1.q: First question' }], value: 'selected' }
+};
+
 assert.match(html, /vendor\/xlsx\.full\.min\.js/);
 assert.match(html, /vendor\/mammoth\.browser\.min\.js/);
 
 const storageKeys = {
     QUESTIONS: 'quiz_questions',
     ANSWERS: 'quiz_answers',
+    KEYWORDS: 'quiz_keywords',
     SAVED_QUIZZES: 'quiz_saved_sets'
 };
 const storageValues = new Map([
     ['quiz_questions', JSON.stringify('saved questions')],
     ['quiz_answers', JSON.stringify('saved answers')],
+    ['quiz_keywords', JSON.stringify('1.q: saved')],
     ['quiz_saved_sets', JSON.stringify([{ id: 1, name: 'Sample' }])]
 ]);
 const localStorage = {
@@ -369,6 +454,7 @@ assert.ok(downloadedBackup.filename.startsWith('bluequiz-backup-'));
 const backup = JSON.parse(downloadedBackup.text);
 assert.equal(backup.app, 'BlueQuiz');
 assert.equal(backup.data.quiz_questions, JSON.stringify('saved questions'));
+assert.equal(backup.data.quiz_keywords, JSON.stringify('1.q: saved'));
 
 let reloadCalled = false;
 const importData = new Function(
@@ -386,15 +472,22 @@ const importData = new Function(
 backup.data.quiz_questions = JSON.stringify('restored questions');
 Promise.all([
     pairImport(pairEvent),
+    keywordImport(keywordImportEvent),
     importData({ target: { files: [{ text: JSON.stringify(backup) }], value: 'selected' } })
 ]).then(() => {
     assert.equal(pairElements.quizNameInput.value, 'PRN222 MASTER');
     assert.equal(pairElements.questionsInput.value, questionsText);
     assert.equal(pairElements.answersInput.value, answersText);
+    assert.equal(pairElements.keywordsInput.value, '');
     assert.equal(pairValidation.valid, true);
-    assert.equal(pairAutosaves, 2);
+    assert.equal(pairAutosaves, 3);
     assert.match(pairElements.quizPairStatus.textContent, /Imported 2 — PRN222 MASTER/);
     assert.equal(pairEvent.target.value, '');
+    assert.equal(keywordImportElements.keywordsInput.value, '1.q: First question');
+    assert.match(keywordImportElements.keywordsFileInfo.textContent, /keywords\.txt/);
+    assert.equal(keywordImportSaved, true);
+    assert.equal(keywordValidationCleared, true);
+    assert.equal(keywordImportEvent.target.value, '');
     assert.equal(storageValues.get('quiz_questions'), JSON.stringify('restored questions'));
     assert.equal(reloadCalled, true);
     console.log('BlueQuiz core tests passed');

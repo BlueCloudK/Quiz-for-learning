@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="application-version" content="1.4.2">
+    <meta name="application-version" content="1.4.3">
     <title>BlueQuiz - Tạo và Chấm Điểm</title>
     <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='20' fill='%23667eea'/><text x='50' y='70' font-size='60' text-anchor='middle' fill='white' font-family='Arial, sans-serif' font-weight='bold'>Q</text></svg>">
     <!-- Libraries for file import -->
@@ -994,6 +994,22 @@
         .question-result.incorrect {
             background: var(--incorrect-bg);
             color: var(--incorrect-text);
+        }
+
+        mark.keyword-highlight {
+            padding: 0.08em 0.2em;
+            border-radius: 0.25em;
+            background: #fff176;
+            color: #172033;
+            box-decoration-break: clone;
+            -webkit-box-decoration-break: clone;
+            box-shadow: inset 0 -0.08em 0 rgba(230, 154, 0, 0.28);
+        }
+
+        body.dark-mode mark.keyword-highlight {
+            background: #ffd54f;
+            color: #111827;
+            box-shadow: inset 0 -0.08em 0 rgba(255, 143, 0, 0.45);
         }
 
         .hidden {
@@ -2776,7 +2792,7 @@
                     <span class="toggle-icon" id="toggleIcon">▼</span>
                 </div>
                 <div class="ai-prompts-content" id="aiPromptsContent">
-                    <p data-i18n="aiPromptsDesc">Chọn một trong 3 prompt dưới đây. Mỗi prompt đều yêu cầu AI xuất sẵn hai phần CÂU HỎI và ĐÁP ÁN để nhập thẳng vào BlueQuiz.</p>
+                    <p data-i18n="aiPromptsDesc">Chọn một trong 4 prompt dưới đây, gồm prompt riêng để trích từ khóa tô sáng sau khi chấm.</p>
 
                     <div id="promptsContainer"></div>
                 </div>
@@ -2852,6 +2868,26 @@
                         <span class="file-info" id="answersFileInfo"></span>
                     </div>
                     <p class="hint" data-i18n="answersHint">Nhập đáp án đúng cho mỗi câu theo số thứ tự</p>
+                    <p class="upload-hint" data-i18n="uploadHint">Hỗ trợ: Excel (.xlsx, .xls), Word (.docx), Text (.txt)</p>
+                </div>
+
+                <div class="input-group">
+                    <label for="keywordsInput" data-i18n="keywordsLabel">Từ khóa sau khi chấm (không bắt buộc):</label>
+                    <textarea id="keywordsInput" rows="6" spellcheck="false" data-i18n-placeholder="keywordsPlaceholder"></textarea>
+                    <div class="upload-container">
+                        <label class="file-upload-btn">
+                            📁 <span data-i18n="importFileBtn">Import từ file</span>
+                            <input type="file" id="keywordsFileInput" accept=".xlsx,.xls,.docx,.txt" onchange="handleKeywordsFileUpload(event)">
+                        </label>
+                        <button class="file-upload-btn" onclick="exportKeywords('txt')" style="background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);">
+                            💾 <span data-i18n="exportTxtBtn">Export TXT</span>
+                        </button>
+                        <button class="file-upload-btn" onclick="exportKeywords('xlsx')" style="background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);">
+                            💾 <span data-i18n="exportExcelBtn">Export Excel</span>
+                        </button>
+                        <span class="file-info" id="keywordsFileInfo"></span>
+                    </div>
+                    <p class="hint" data-i18n="keywordsHint">Dùng 1.q cho câu hỏi hoặc 1.b cho lựa chọn B; nhiều cụm từ cách nhau bằng dấu chấm phẩy.</p>
                     <p class="upload-hint" data-i18n="uploadHint">Hỗ trợ: Excel (.xlsx, .xls), Word (.docx), Text (.txt)</p>
                 </div>
 
@@ -3170,7 +3206,7 @@
         <div class="footer-content">
             <p>
                 Made with ❤️ by <a href="https://github.com/BlueCloudK" target="_blank" rel="noopener noreferrer">BlueCloudK</a>
-                <span class="app-version">BlueQuiz v1.4.2</span>
+                <span class="app-version">BlueQuiz v1.4.3</span>
             </p>
             <p>
                 <a href="https://github.com/BlueCloudK/Quiz-for-learning" target="_blank" rel="noopener noreferrer">
@@ -3190,6 +3226,7 @@
     <script>
         let quizData = [];
         let correctAnswers = {};
+        let keywordHighlights = {};
         let questionMapping = {}; // Lưu mapping giữa vị trí hiện tại và số thứ tự gốc
         let pinnedQuestions = new Set(); // Lưu index các câu được pin
         let incorrectQuestions = new Set(); // Lưu index các câu sai
@@ -3197,6 +3234,7 @@
         let isGraded = false; // Track xem đã chấm điểm chưa
         let originalQuestionsText = ''; // Lưu câu hỏi gốc
         let originalAnswersText = ''; // Lưu đáp án gốc
+        let originalKeywordsText = ''; // Lưu khai báo từ khóa gốc
         let currentFilter = 'all'; // Bộ lọc hiện tại
         let currentLanguage = 'vi'; // Ngôn ngữ hiện tại
         let currentQuestionIndex = 0; // Câu được chọn gần nhất trong navigator
@@ -3226,6 +3264,7 @@
         const STORAGE_KEYS = {
             QUESTIONS: 'quiz_questions',
             ANSWERS: 'quiz_answers',
+            KEYWORDS: 'quiz_keywords',
             PINNED: 'quiz_pinned',
             LANGUAGE: 'quiz_language',
             HISTORY: 'quiz_history',
@@ -3325,6 +3364,11 @@
             }
         }
 
+        function autoSaveKeywords() {
+            const keywordsText = document.getElementById('keywordsInput').value;
+            saveToStorage(STORAGE_KEYS.KEYWORDS, keywordsText);
+        }
+
         function savePinnedQuestions() {
             saveToStorage(STORAGE_KEYS.PINNED, Array.from(pinnedQuestions));
         }
@@ -3361,6 +3405,7 @@
             // Load questions and answers
             const savedQuestions = loadFromStorage(STORAGE_KEYS.QUESTIONS, '');
             const savedAnswers = loadFromStorage(STORAGE_KEYS.ANSWERS, '');
+            const savedKeywords = loadFromStorage(STORAGE_KEYS.KEYWORDS, '');
 
             if (savedQuestions) {
                 document.getElementById('questionsInput').value = savedQuestions;
@@ -3368,6 +3413,10 @@
 
             if (savedAnswers) {
                 document.getElementById('answersInput').value = savedAnswers;
+            }
+
+            if (savedKeywords) {
+                document.getElementById('keywordsInput').value = savedKeywords;
             }
 
             // Load pinned questions
@@ -3772,6 +3821,7 @@
                 result.className = 'question-result incorrect';
                 result.textContent = `${translations[currentLanguage].incorrect} ${answer.expected.map(value => value.toUpperCase()).join(', ')}`;
             }
+            applyQuestionKeywordHighlights(currentQuestionIndex);
             document.querySelectorAll(`input[name="question${currentQuestionIndex}"]`).forEach(input => input.disabled = true);
             updateStudyModePanels();
             saveQuizState();
@@ -3797,6 +3847,7 @@
             masteryChecked = false;
             if (nextState.questionIndex !== null) {
                 currentQuestionIndex = nextState.questionIndex;
+                clearKeywordHighlightsInCard(currentQuestionIndex);
                 document.querySelectorAll(`input[name="question${currentQuestionIndex}"]`).forEach(input => {
                     input.disabled = false;
                     input.checked = false;
@@ -4000,6 +4051,7 @@
             const quizName = document.getElementById('quizNameInput').value.trim();
             const questionsText = document.getElementById('questionsInput').value.trim();
             const answersText = document.getElementById('answersInput').value.trim();
+            const keywordsText = document.getElementById('keywordsInput').value.trim();
 
             if (!quizName) {
                 alert(translations[currentLanguage].alertNoQuizName);
@@ -4011,7 +4063,11 @@
                 return;
             }
 
-            const validation = validateQuizData(parseQuestions(questionsText), parseAnswers(answersText));
+            const validation = validateQuizData(
+                parseQuestions(questionsText),
+                parseAnswers(answersText),
+                parseKeywordHighlights(keywordsText)
+            );
             renderValidationSummary(validation);
             if (!validation.valid) {
                 document.getElementById('validationSummary')?.scrollIntoView({ behavior: 'smooth', block: 'center' });
@@ -4027,6 +4083,7 @@
                 name: quizName,
                 questions: questionsText,
                 answers: answersText,
+                keywords: keywordsText,
                 questionCount: parseQuestions(questionsText).length,
                 savedDate: new Date().toISOString()
             };
@@ -4053,10 +4110,12 @@
             if (quiz) {
                 document.getElementById('questionsInput').value = quiz.questions;
                 document.getElementById('answersInput').value = quiz.answers;
+                document.getElementById('keywordsInput').value = quiz.keywords || '';
 
                 // Auto-save to current storage
                 autoSaveQuestions();
                 autoSaveAnswers();
+                autoSaveKeywords();
 
                 // Scroll to input section
                 document.getElementById('inputSection').scrollIntoView({ behavior: 'smooth' });
@@ -4239,6 +4298,9 @@
                 answersLabel: 'Đáp án đúng:',
                 answersPlaceholder: 'Nhập đáp án theo định dạng:\n\n1. a\n2. b\n3. c\n4. d\n\nNhiều đáp án đúng:\n5. a,b,c\n6. abc',
                 answersHint: 'Nhập đáp án đúng cho mỗi câu. Nhiều đáp án: dùng dấu phẩy (a,b,c) hoặc viết liền (abc)',
+                keywordsLabel: 'Từ khóa sau khi chấm (không bắt buộc):',
+                keywordsPlaceholder: 'Ví dụ:\n\n1.q: software modeling\n1.b: designing; before coding\n2.q: collaborative behavior\n2.c: interaction diagram',
+                keywordsHint: 'Dùng 1.q cho câu hỏi hoặc 1.b cho lựa chọn B; nhiều cụm từ cách nhau bằng dấu chấm phẩy.',
                 questionCountLabel: 'Số câu hỏi:',
                 questionCountPlaceholder: 'Tất cả',
                 questionCountHint: '(Để trống = tất cả)',
@@ -4340,12 +4402,13 @@
                 incorrectAnswers: 'Sai',
                 unansweredQuestions: 'Chưa trả lời',
                 alertNoData: 'Vui lòng nhập đầy đủ câu hỏi và đáp án!',
+                alertNoKeywords: 'Không có dữ liệu từ khóa để export!',
                 alertNoQuestions: 'Không tìm thấy câu hỏi hợp lệ! Vui lòng kiểm tra định dạng.',
                 alertNoIncorrect: 'Không có câu sai nào để làm lại!',
                 alertNoPinned: 'Chưa có câu hỏi nào được pin!',
                 alertNoRetry: 'Không có câu hỏi nào để làm lại!',
                 aiPromptsTitle: 'Hướng Dẫn Tạo Câu Hỏi Với AI Chatbot',
-                aiPromptsDesc: 'Chọn một trong 3 prompt dưới đây. Mỗi prompt đều yêu cầu AI xuất sẵn hai phần CÂU HỎI và ĐÁP ÁN để nhập thẳng vào BlueQuiz.',
+                aiPromptsDesc: 'Chọn một trong 4 prompt dưới đây, gồm prompt riêng để trích từ khóa tô sáng sau khi chấm.',
                 quickTemplatesTitle: '📋 Hoặc Copy Template Mẫu Để Paste Trực Tiếp:',
                 templateQuestionsLabel: 'Mẫu Câu Hỏi:',
                 templateAnswersLabel: 'Mẫu Đáp Án:',
@@ -4415,6 +4478,9 @@
                 answersLabel: 'Correct Answers:',
                 answersPlaceholder: 'Enter answers in this format:\n\n1. a\n2. b\n3. c\n4. d\n\nMultiple correct answers:\n5. a,b,c\n6. abc',
                 answersHint: 'Enter correct answers for each question. Multiple answers: use comma (a,b,c) or write together (abc)',
+                keywordsLabel: 'Post-grading highlights (optional):',
+                keywordsPlaceholder: 'Example:\n\n1.q: software modeling\n1.b: designing; before coding\n2.q: collaborative behavior\n2.c: interaction diagram',
+                keywordsHint: 'Use 1.q for the question or 1.b for option B; separate multiple phrases with semicolons.',
                 questionCountLabel: 'Number of questions:',
                 questionCountPlaceholder: 'All',
                 questionCountHint: '(Leave empty = all)',
@@ -4516,12 +4582,13 @@
                 incorrectAnswers: 'Incorrect',
                 unansweredQuestions: 'Not Answered',
                 alertNoData: 'Please enter both questions and answers!',
+                alertNoKeywords: 'There are no keyword highlights to export!',
                 alertNoQuestions: 'No valid questions found! Please check the format.',
                 alertNoIncorrect: 'No incorrect questions to retry!',
                 alertNoPinned: 'No questions have been pinned yet!',
                 alertNoRetry: 'No questions to retry!',
                 aiPromptsTitle: 'Generate Questions With AI Chatbot',
-                aiPromptsDesc: 'Choose one of the 3 prompts below. Each prompt asks the AI to produce separate QUESTIONS and ANSWERS sections ready for BlueQuiz.',
+                aiPromptsDesc: 'Choose one of the 4 prompts below, including a dedicated prompt for post-grading keyword highlights.',
                 quickTemplatesTitle: '📋 Or Copy Sample Templates to Paste Directly:',
                 templateQuestionsLabel: 'Questions Template:',
                 templateAnswersLabel: 'Answers Template:',
@@ -4659,6 +4726,31 @@ Cuối cùng thêm tối đa 5 dòng "ĐÃ SỬA" nêu các lỗi quan trọng. 
 
 DỮ LIỆU CẦN RÀ SOÁT:
 [DÁN CÂU HỎI VÀ ĐÁP ÁN VÀO ĐÂY]`
+            },
+            {
+                title: '🖍️ Trích Từ Khóa Tô Sáng',
+                description: 'Tạo khối từ khóa chính xác cho câu hỏi và đáp án đúng',
+                prompt: `Hãy trích các cụm từ khóa quan trọng từ bộ CÂU HỎI và ĐÁP ÁN BlueQuiz tôi cung cấp để tô sáng sau khi chấm.
+
+Quy tắc bắt buộc:
+- Mỗi từ khóa phải được chép NGUYÊN VĂN từ đúng vùng chứa nó; không diễn giải hoặc đổi từ.
+- Dùng "số-câu.q" cho từ khóa trong câu hỏi, ví dụ 1.q.
+- Dùng "số-câu.lựa-chọn" cho từ khóa trong đáp án đúng, ví dụ 1.b.
+- Chỉ tạo từ khóa cho lựa chọn đúng được nêu trong khối ĐÁP ÁN; không đánh dấu đáp án nhiễu.
+- Ưu tiên 1–3 cụm ngắn mang kiến thức cốt lõi hoặc giúp phân biệt ý đúng; bỏ các từ chung chung.
+- Nếu một câu có nhiều đáp án đúng, tạo dòng riêng cho từng lựa chọn đúng.
+- Nhiều cụm trong cùng vùng được ngăn bằng dấu chấm phẩy.
+- Nếu không có cụm thực sự hữu ích trong một vùng thì bỏ qua vùng đó.
+
+Chỉ xuất đúng một khối, không giải thích thêm:
+
+TỪ KHÓA
+1.q: [cụm trong câu hỏi]; [cụm khác]
+1.b: [cụm trong đáp án đúng B]
+2.c: [cụm trong đáp án đúng C]
+
+DỮ LIỆU NGUỒN:
+[DÁN CÂU HỎI VÀ ĐÁP ÁN VÀO ĐÂY]`
             }
             ],
 
@@ -4742,6 +4834,31 @@ ANSWERS
 Finally, add at most 5 short "CHANGES" lines for important corrections. If none were needed, write "CHANGES: None".
 
 DATA TO REVIEW:
+[PASTE QUESTIONS AND ANSWERS HERE]`
+            },
+            {
+                title: '🖍️ Extract Highlight Keywords',
+                description: 'Create exact highlight data for questions and correct answers',
+                prompt: `Extract important keyword phrases from the BlueQuiz QUESTIONS and ANSWERS below for post-grading highlighting.
+
+Mandatory rules:
+- Copy every keyword phrase VERBATIM from the exact region that contains it; do not paraphrase or change words.
+- Use "question-number.q" for phrases in the question, such as 1.q.
+- Use "question-number.option" for phrases in a correct option, such as 1.b.
+- Create option highlights only for correct choices listed in ANSWERS; never mark distractors.
+- Prefer 1–3 short phrases that capture the core knowledge or distinguish the correct idea; omit generic words.
+- For multiple correct answers, create a separate line for each correct option.
+- Separate multiple phrases in the same region with semicolons.
+- Omit a region when it has no genuinely useful phrase.
+
+Output exactly one block with no explanation:
+
+KEYWORDS
+1.q: [phrase from question]; [another phrase]
+1.b: [phrase from correct option B]
+2.c: [phrase from correct option C]
+
+SOURCE DATA:
 [PASTE QUESTIONS AND ANSWERS HERE]`
             }
             ]
@@ -4839,10 +4956,12 @@ DATA TO REVIEW:
             // Add auto-save event listeners
             const questionsInput = document.getElementById('questionsInput');
             const answersInput = document.getElementById('answersInput');
+            const keywordsInput = document.getElementById('keywordsInput');
 
             // Auto-save on input with debounce
             let questionsSaveTimer;
             let answersSaveTimer;
+            let keywordsSaveTimer;
 
             questionsInput.addEventListener('input', function() {
                 clearValidationSummary();
@@ -4857,9 +4976,16 @@ DATA TO REVIEW:
                 answersSaveTimer = setTimeout(autoSaveAnswers, 1000);
             });
 
+            keywordsInput.addEventListener('input', function() {
+                clearValidationSummary();
+                clearTimeout(keywordsSaveTimer);
+                keywordsSaveTimer = setTimeout(autoSaveKeywords, 1000);
+            });
+
             // Also save on blur (when user clicks away)
             questionsInput.addEventListener('blur', autoSaveQuestions);
             answersInput.addEventListener('blur', autoSaveAnswers);
+            keywordsInput.addEventListener('blur', autoSaveKeywords);
 
             ['questionCount', 'startQuestion'].forEach(id => {
                 document.getElementById(id)?.addEventListener('input', () => updateSprintSizeLimit());
@@ -5008,8 +5134,47 @@ DATA TO REVIEW:
             return answers;
         }
 
-        function validateQuizData(questions, answers) {
-            const errors = [];
+        function parseKeywordHighlights(text) {
+            const highlights = {};
+            const lines = String(text || '').split(/\r?\n/);
+
+            lines.forEach((rawLine, index) => {
+                const line = rawLine.trim();
+                if (!line) return;
+                if (/^(TỪ KHÓA|TU KHOA|KEYWORDS)\s*:?s*$/i.test(line) || /^```/.test(line)) return;
+
+                const match = line.match(/^(\d+)\.([qQ]|[a-zA-Z])\s*:\s*(.+)$/);
+                if (!match) {
+                    highlights.__errors = highlights.__errors || [];
+                    highlights.__errors.push(`Dòng từ khóa ${index + 1}: sai định dạng, hãy dùng 1.q: ... hoặc 1.b: ...`);
+                    return;
+                }
+
+                const questionNumber = Number(match[1]);
+                const target = match[2].toLowerCase();
+                const phrases = match[3]
+                    .split(';')
+                    .map(phrase => phrase.trim())
+                    .filter(Boolean);
+
+                if (!phrases.length) return;
+                highlights[questionNumber] = highlights[questionNumber] || {};
+                highlights[questionNumber][target] = Array.from(new Set([
+                    ...(highlights[questionNumber][target] || []),
+                    ...phrases
+                ]));
+            });
+
+            return highlights;
+        }
+
+        function textContainsKeyword(text, phrase) {
+            return String(text || '').toLocaleLowerCase().includes(String(phrase || '').toLocaleLowerCase());
+        }
+
+        function validateQuizData(questions, answers, highlights) {
+            highlights = highlights || {};
+            const errors = [...(highlights.__errors || [])];
             const questionNumbers = new Set();
 
             questions.forEach(question => {
@@ -5049,11 +5214,48 @@ DATA TO REVIEW:
                 }
             });
 
+            Object.entries(highlights).forEach(([number, targets]) => {
+                if (number === '__errors') return;
+                const questionNumber = Number(number);
+                const question = questions.find(item => item.number === questionNumber);
+                if (!question) {
+                    errors.push(`Từ khóa câu ${questionNumber}: không có câu hỏi tương ứng.`);
+                    return;
+                }
+
+                const correct = Array.isArray(answers[questionNumber])
+                    ? answers[questionNumber]
+                    : [answers[questionNumber]].filter(Boolean);
+
+                Object.entries(targets).forEach(([target, phrases]) => {
+                    const source = target === 'q'
+                        ? question.question
+                        : question.options.find(option => option.letter === target)?.text;
+
+                    if (target !== 'q' && !question.options.some(option => option.letter === target)) {
+                        errors.push(`Từ khóa câu ${questionNumber}.${target}: lựa chọn ${target.toUpperCase()} không tồn tại.`);
+                        return;
+                    }
+                    if (target !== 'q' && !correct.includes(target)) {
+                        errors.push(`Từ khóa câu ${questionNumber}.${target}: chỉ được tô trong đáp án đúng.`);
+                    }
+
+                    phrases.forEach(phrase => {
+                        if (!textContainsKeyword(source, phrase)) {
+                            errors.push(`Từ khóa câu ${questionNumber}.${target}: không tìm thấy “${phrase}” trong nội dung được chỉ định.`);
+                        }
+                    });
+                });
+            });
+
             return {
                 valid: errors.length === 0,
                 errors,
                 questionCount: questions.length,
-                answerCount: Object.keys(answers).length
+                answerCount: Object.keys(answers).length,
+                keywordCount: Object.entries(highlights)
+                    .filter(([number]) => number !== '__errors')
+                    .reduce((total, [, targets]) => total + Object.values(targets).reduce((sum, phrases) => sum + phrases.length, 0), 0)
             };
         }
 
@@ -5063,7 +5265,10 @@ DATA TO REVIEW:
 
             container.className = `validation-summary visible ${validation.valid ? 'success' : 'error'}`;
             if (validation.valid) {
-                container.innerHTML = `<strong>✓ Dữ liệu hợp lệ</strong><span>${validation.questionCount} câu hỏi và ${validation.answerCount} đáp án đã khớp.</span>`;
+                const keywordStatus = validation.keywordCount
+                    ? ` và ${validation.keywordCount} cụm từ khóa hợp lệ`
+                    : '';
+                container.innerHTML = `<strong>✓ Dữ liệu hợp lệ</strong><span>${validation.questionCount} câu hỏi và ${validation.answerCount} đáp án đã khớp${keywordStatus}.</span>`;
                 return;
             }
 
@@ -5088,6 +5293,69 @@ DATA TO REVIEW:
             return Array.isArray(answer);
         }
 
+        function clearKeywordHighlightsInCard(index) {
+            const card = document.getElementById(`card${index}`);
+            if (!card) return;
+            card.querySelectorAll('mark.keyword-highlight').forEach(mark => {
+                mark.replaceWith(document.createTextNode(mark.textContent));
+            });
+            card.normalize();
+        }
+
+        function highlightKeywordsInElement(element, phrases) {
+            if (!element || !Array.isArray(phrases) || !phrases.length) return;
+            const escapedPhrases = Array.from(new Set(phrases.map(phrase => phrase.trim()).filter(Boolean)))
+                .sort((a, b) => b.length - a.length)
+                .map(phrase => phrase.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'));
+            if (!escapedPhrases.length) return;
+
+            const matcher = new RegExp(`(${escapedPhrases.join('|')})`, 'gi');
+            const walker = document.createTreeWalker(element, NodeFilter.SHOW_TEXT);
+            const textNodes = [];
+            while (walker.nextNode()) textNodes.push(walker.currentNode);
+
+            textNodes.forEach(node => {
+                if (!node.nodeValue || node.parentElement?.closest('mark.keyword-highlight')) return;
+                matcher.lastIndex = 0;
+                if (!matcher.test(node.nodeValue)) return;
+                matcher.lastIndex = 0;
+
+                const fragment = document.createDocumentFragment();
+                let cursor = 0;
+                for (const match of node.nodeValue.matchAll(matcher)) {
+                    if (match.index > cursor) fragment.appendChild(document.createTextNode(node.nodeValue.slice(cursor, match.index)));
+                    const mark = document.createElement('mark');
+                    mark.className = 'keyword-highlight';
+                    mark.textContent = match[0];
+                    fragment.appendChild(mark);
+                    cursor = match.index + match[0].length;
+                }
+                if (cursor < node.nodeValue.length) fragment.appendChild(document.createTextNode(node.nodeValue.slice(cursor)));
+                node.replaceWith(fragment);
+            });
+        }
+
+        function applyQuestionKeywordHighlights(index) {
+            clearKeywordHighlightsInCard(index);
+            const originalNumber = questionMapping[index];
+            const definitions = keywordHighlights[originalNumber];
+            const card = document.getElementById(`card${index}`);
+            if (!definitions || !card) return;
+
+            highlightKeywordsInElement(card.querySelector('.question-text'), definitions.q || []);
+            Object.entries(definitions).forEach(([target, phrases]) => {
+                if (target === 'q') return;
+                highlightKeywordsInElement(
+                    card.querySelector(`.option[data-option-letter="${target}"] label`),
+                    phrases
+                );
+            });
+        }
+
+        function applyAllKeywordHighlights() {
+            quizData.forEach((_, index) => applyQuestionKeywordHighlights(index));
+        }
+
         function shuffleArray(array) {
             const newArray = [...array];
             for (let i = newArray.length - 1; i > 0; i--) {
@@ -5097,7 +5365,8 @@ DATA TO REVIEW:
             return newArray;
         }
 
-        function shuffleQuestionChoices(questions, answers) {
+        function shuffleQuestionChoices(questions, answers, highlights) {
+            highlights = highlights || {};
             // Shuffle choices for each question and update correct answers
             const letters = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h'];
 
@@ -5130,23 +5399,35 @@ DATA TO REVIEW:
                             answers[q.number] = letterMapping[correctAnswer] || correctAnswer;
                         }
                     }
+
+                    const questionHighlights = highlights[q.number];
+                    if (questionHighlights) {
+                        const remappedHighlights = {};
+                        Object.entries(questionHighlights).forEach(([target, phrases]) => {
+                            remappedHighlights[target === 'q' ? 'q' : (letterMapping[target] || target)] = phrases;
+                        });
+                        highlights[q.number] = remappedHighlights;
+                    }
                 }
             });
         }
 
         function generateQuiz(specificQuestions = null) {
-            let questionsText, answersText;
+            let questionsText, answersText, keywordsText;
 
             if (specificQuestions) {
                 // Tạo quiz từ câu hỏi cụ thể (pin hoặc sai)
                 questionsText = originalQuestionsText;
                 answersText = originalAnswersText;
+                keywordsText = originalKeywordsText;
             } else {
                 // Tạo quiz mới từ input
                 questionsText = document.getElementById('questionsInput').value;
                 answersText = document.getElementById('answersInput').value;
+                keywordsText = document.getElementById('keywordsInput').value;
                 originalQuestionsText = questionsText;
                 originalAnswersText = answersText;
+                originalKeywordsText = keywordsText;
                 pinnedQuestions.clear();
                 incorrectQuestions.clear();
                 isGraded = false;
@@ -5164,13 +5445,14 @@ DATA TO REVIEW:
             // Parse dữ liệu
             let allQuestions = parseQuestions(questionsText);
             correctAnswers = parseAnswers(answersText);
+            keywordHighlights = parseKeywordHighlights(keywordsText);
 
             if (allQuestions.length === 0) {
                 alert(translations[currentLanguage].alertNoQuestions);
                 return;
             }
 
-            const validation = validateQuizData(allQuestions, correctAnswers);
+            const validation = validateQuizData(allQuestions, correctAnswers, keywordHighlights);
             renderValidationSummary(validation);
             if (!validation.valid) {
                 document.getElementById('validationSummary')?.scrollIntoView({ behavior: 'smooth', block: 'center' });
@@ -5232,7 +5514,7 @@ DATA TO REVIEW:
             // Shuffle choices if enabled
             const shouldShuffleChoices = document.getElementById('shuffleChoicesCheckbox').checked;
             if (shouldShuffleChoices) {
-                shuffleQuestionChoices(quizData, correctAnswers);
+                shuffleQuestionChoices(quizData, correctAnswers, keywordHighlights);
             }
 
             // Tạo mapping
@@ -5540,6 +5822,7 @@ DATA TO REVIEW:
             });
 
             isGraded = true;
+            applyAllKeywordHighlights();
             displayResults(correctCount, incorrectCount, unanswered);
             updateRetryButtons();
             updateQuestionNavigator(); // Update navigator with results
@@ -5792,6 +6075,7 @@ DATA TO REVIEW:
             document.querySelectorAll('.question-result').forEach(result => {
                 result.classList.add('hidden');
             });
+            quizData.forEach((_, index) => clearKeywordHighlightsInCard(index));
 
             // Hide result section and retry buttons
             document.getElementById('resultSection').classList.add('hidden');
@@ -6063,8 +6347,10 @@ DATA TO REVIEW:
                 quizData: quizData,
                 questionMapping: questionMapping,
                 correctAnswers: correctAnswers,
+                keywordHighlights: keywordHighlights,
                 originalQuestionsText: originalQuestionsText,
                 originalAnswersText: originalAnswersText,
+                originalKeywordsText: originalKeywordsText,
                 examModeEnabled: examModeEnabled,
                 practiceModeEnabled: practiceModeEnabled,
                 quizSessionMode: quizSessionMode,
@@ -6127,6 +6413,7 @@ DATA TO REVIEW:
                         ? translations[currentLanguage].correct
                         : `${translations[currentLanguage].incorrect} ${answer.expected.map(value => value.toUpperCase()).join(', ')}`;
                     document.querySelectorAll(`input[name="question${currentQuestionIndex}"]`).forEach(input => input.disabled = true);
+                    applyQuestionKeywordHighlights(currentQuestionIndex);
                 }
             }
             updateFocusCardView();
@@ -6145,8 +6432,10 @@ DATA TO REVIEW:
             quizData = savedState.quizData;
             questionMapping = savedState.questionMapping;
             correctAnswers = savedState.correctAnswers;
+            keywordHighlights = savedState.keywordHighlights || {};
             originalQuestionsText = savedState.originalQuestionsText;
             originalAnswersText = savedState.originalAnswersText;
+            originalKeywordsText = savedState.originalKeywordsText || '';
             questionDisplayMode = savedState.questionDisplayMode || 'list';
             quizSessionMode = savedState.quizSessionMode || (
                 ['flashcard', 'mastery', 'sprint'].includes(questionDisplayMode)
@@ -6373,6 +6662,7 @@ DATA TO REVIEW:
                 resultDiv.className = 'question-result incorrect';
                 resultDiv.textContent = `${translations[currentLanguage].incorrect} ${correctAnswerDisplay}`;
             }
+            applyQuestionKeywordHighlights(questionIndex);
         }
 
         function updateProgressBar(event) {
@@ -6512,6 +6802,7 @@ DATA TO REVIEW:
 
                 document.getElementById('questionsInput').value = questionFile.text;
                 document.getElementById('answersInput').value = answerFile.text;
+                document.getElementById('keywordsInput').value = '';
                 const quizName = questionFile.file.name
                     .replace(/\.[^.]+$/, '')
                     .replace(/[\s_-]*(c[aâ]u[\s_-]*h[oỏ]i|questions?)$/iu, '')
@@ -6522,6 +6813,7 @@ DATA TO REVIEW:
 
                 autoSaveQuestions();
                 autoSaveAnswers();
+                autoSaveKeywords();
                 renderValidationSummary(validation);
                 setStatus(translations[currentLanguage].pairImportSuccess
                     .replace('{count}', questions.length)
@@ -6578,6 +6870,28 @@ DATA TO REVIEW:
             }
 
             // Reset file input
+            event.target.value = '';
+        }
+
+        async function handleKeywordsFileUpload(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            const fileInfo = document.getElementById('keywordsFileInfo');
+            fileInfo.textContent = `Đang xử lý: ${file.name}...`;
+
+            try {
+                const text = await readFile(file);
+                document.getElementById('keywordsInput').value = text;
+                fileInfo.textContent = `✓ Đã import: ${file.name}`;
+                fileInfo.style.color = '#28a745';
+                clearValidationSummary();
+                autoSaveKeywords();
+            } catch (error) {
+                fileInfo.textContent = `✗ Lỗi: ${error.message}`;
+                fileInfo.style.color = '#dc3545';
+            }
+
             event.target.value = '';
         }
 
@@ -6766,6 +7080,20 @@ DATA TO REVIEW:
                 downloadTextFile(text, 'dap-an.txt');
             } else if (format === 'xlsx') {
                 downloadExcelFile(text, 'dap-an.xlsx');
+            }
+        }
+
+        function exportKeywords(format) {
+            const text = document.getElementById('keywordsInput').value;
+            if (!text.trim()) {
+                alert(translations[currentLanguage].alertNoKeywords);
+                return;
+            }
+
+            if (format === 'txt') {
+                downloadTextFile(text, 'tu-khoa.txt');
+            } else if (format === 'xlsx') {
+                downloadExcelFile(text, 'tu-khoa.xlsx');
             }
         }
 
