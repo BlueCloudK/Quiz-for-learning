@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="application-version" content="1.3.4">
+    <meta name="application-version" content="1.3.5">
     <title>BlueQuiz - Tạo và Chấm Điểm</title>
     <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='20' fill='%23667eea'/><text x='50' y='70' font-size='60' text-anchor='middle' fill='white' font-family='Arial, sans-serif' font-weight='bold'>Q</text></svg>">
     <!-- Libraries for file import -->
@@ -395,7 +395,8 @@
         }
 
         .mode-detail-row.visible { display: flex; }
-        .mode-detail-row select {
+        .mode-detail-row select,
+        .mode-detail-row input {
             min-width: 110px;
             padding: 8px 10px;
             color: var(--text-primary);
@@ -610,7 +611,7 @@
             border-radius: 12px;
         }
 
-        .focus-card-mode .focus-card-controls {
+        .focus-card-mode .focus-card-controls:not(.hidden) {
             display: grid;
         }
 
@@ -692,8 +693,6 @@
             border-left: 4px solid #28a745;
             border-radius: 8px;
         }
-        .flashcard-mode .question-card.focus-active .options { display: none; }
-        .flashcard-mode.flashcard-revealed .question-card.focus-active .options { display: block; }
         .flashcard-mode .question-card.focus-active .question-result { display: none !important; }
         .sprint-break-panel { text-align: center; }
         .sprint-break-panel strong { font-size: 1.12em; }
@@ -2953,12 +2952,7 @@
                                 </div>
                                 <div class="mode-detail-row" id="sprintSettingsRow">
                                     <label for="sprintSize" data-i18n="sprintSizeLabel">Số câu mỗi chặng:</label>
-                                    <select id="sprintSize">
-                                        <option value="5">5</option>
-                                        <option value="10" selected>10</option>
-                                        <option value="20">20</option>
-                                        <option value="30">30</option>
-                                    </select>
+                                    <input type="number" id="sprintSize" min="1" max="9999" step="1" value="10" inputmode="numeric">
                                 </div>
                             </fieldset>
                         </div>
@@ -3059,19 +3053,6 @@
                         </div>
                         <div class="flashcard-answer hidden" id="flashcardAnswer" aria-live="polite"></div>
 
-                        <nav class="focus-card-controls hidden" id="focusCardControls" aria-label="Điều hướng Focus Card"
-                             data-i18n-aria-label="focusNavigation">
-                            <button class="focus-nav-btn" id="focusPreviousBtn" type="button" onclick="moveFocusQuestion(-1)">
-                                <span aria-hidden="true">←</span> <span data-i18n="focusPrevious">Câu trước</span>
-                            </button>
-                            <div class="focus-card-position" aria-live="polite">
-                                <span id="focusCardPosition">1 / 1</span>
-                                <small data-i18n="focusShortcuts">A–F chọn đáp án · ← → chuyển câu · P để pin</small>
-                            </div>
-                            <button class="focus-nav-btn" id="focusNextBtn" type="button" onclick="moveFocusQuestion(1)">
-                                <span data-i18n="focusNext">Câu tiếp</span> <span aria-hidden="true">→</span>
-                            </button>
-                        </nav>
                         <section class="study-mode-panel" id="flashcardPanel" aria-live="polite">
                             <div class="study-status" id="flashcardStatus"></div>
                             <div class="study-actions">
@@ -3095,6 +3076,19 @@
                                 <button class="btn-primary" type="button" onclick="continueSprint()" data-i18n="sprintContinue">Bắt đầu chặng tiếp</button>
                             </div>
                         </section>
+                        <nav class="focus-card-controls hidden" id="focusCardControls" aria-label="Điều hướng Focus Card"
+                             data-i18n-aria-label="focusNavigation">
+                            <button class="focus-nav-btn" id="focusPreviousBtn" type="button" onclick="moveFocusQuestion(-1)">
+                                <span aria-hidden="true">←</span> <span data-i18n="focusPrevious">Câu trước</span>
+                            </button>
+                            <div class="focus-card-position" aria-live="polite">
+                                <span id="focusCardPosition">1 / 1</span>
+                                <small data-i18n="focusShortcuts">A–F chọn đáp án · ← → chuyển câu · P để pin</small>
+                            </div>
+                            <button class="focus-nav-btn" id="focusNextBtn" type="button" onclick="moveFocusQuestion(1)">
+                                <span data-i18n="focusNext">Câu tiếp</span> <span aria-hidden="true">→</span>
+                            </button>
+                        </nav>
                     </div>
 
                     <!-- Desktop side rail; becomes normal content below the quiz on mobile. -->
@@ -3165,7 +3159,7 @@
         <div class="footer-content">
             <p>
                 Made with ❤️ by <a href="https://github.com/BlueCloudK" target="_blank" rel="noopener noreferrer">BlueCloudK</a>
-                <span class="app-version">BlueQuiz v1.3.4</span>
+                <span class="app-version">BlueQuiz v1.3.5</span>
             </p>
             <p>
                 <a href="https://github.com/BlueCloudK/Quiz-for-learning" target="_blank" rel="noopener noreferrer">
@@ -3433,6 +3427,11 @@
             return document.querySelector('input[name="questionDisplayMode"]:checked')?.value || 'list';
         }
 
+        function normalizeSprintSize(value) {
+            const parsed = Math.floor(Number(value));
+            return Number.isFinite(parsed) && parsed > 0 ? Math.min(parsed, 9999) : 10;
+        }
+
         function isSingleCardMode(mode = questionDisplayMode) {
             return ['focus', 'flashcard', 'mastery', 'sprint'].includes(mode);
         }
@@ -3461,6 +3460,12 @@
             return quizData
                 .map((_, index) => index)
                 .filter(questionMatchesCurrentFilter);
+        }
+
+        function getFlashcardNavigationState(queue, currentPosition, offset) {
+            if (!queue.length) return { position: 0, questionIndex: null };
+            const position = Math.max(0, Math.min(queue.length - 1, currentPosition + offset));
+            return { position, questionIndex: queue[position] };
         }
 
         function syncQuestionDisplayMode() {
@@ -3493,7 +3498,7 @@
                 masteryChecked = false;
                 currentQuestionIndex = masteryQueue[0] ?? 0;
             } else if (questionDisplayMode === 'sprint') {
-                sprintSize = Math.max(1, Number(document.getElementById('sprintSize')?.value) || 10);
+                sprintSize = normalizeSprintSize(document.getElementById('sprintSize')?.value);
                 sprintBreakPending = false;
                 sprintPendingIndex = null;
             }
@@ -3519,24 +3524,29 @@
                 return;
             }
 
+            const flashcardFinished = questionDisplayMode === 'flashcard' && flashcardQueuePosition >= flashcardQueue.length;
             const availableIndices = questionDisplayMode === 'flashcard'
-                ? flashcardQueue.slice(flashcardQueuePosition)
+                ? flashcardQueue
                 : questionDisplayMode === 'mastery'
                     ? masteryQueue.slice(masteryQueuePosition)
                     : getFocusableQuestionIndices();
-            controls.classList.toggle('hidden', ['flashcard', 'mastery'].includes(questionDisplayMode) || sprintBreakPending);
+            controls.classList.toggle('hidden', questionDisplayMode === 'mastery' || sprintBreakPending || flashcardFinished);
             const showEmptyState = availableIndices.length === 0 && !['flashcard', 'mastery'].includes(questionDisplayMode);
             emptyState?.classList.toggle('hidden', !showEmptyState);
-            if (!availableIndices.includes(currentQuestionIndex)) {
+            if (questionDisplayMode === 'flashcard' && !flashcardFinished) {
+                currentQuestionIndex = flashcardQueue[flashcardQueuePosition] ?? 0;
+            } else if (!availableIndices.includes(currentQuestionIndex)) {
                 currentQuestionIndex = availableIndices[0] ?? 0;
             }
 
             cards.forEach((card, index) => {
                 card.style.display = '';
-                card.classList.toggle('focus-active', availableIndices.length > 0 && index === currentQuestionIndex);
+                card.classList.toggle('focus-active', availableIndices.length > 0 && !flashcardFinished && index === currentQuestionIndex);
             });
 
-            const activePosition = availableIndices.indexOf(currentQuestionIndex);
+            const activePosition = questionDisplayMode === 'flashcard'
+                ? flashcardQueuePosition
+                : availableIndices.indexOf(currentQuestionIndex);
             const positionLabel = document.getElementById('focusCardPosition');
             const previousButton = document.getElementById('focusPreviousBtn');
             const nextButton = document.getElementById('focusNextBtn');
@@ -3555,6 +3565,17 @@
         }
 
         function moveFocusQuestion(offset) {
+            if (questionDisplayMode === 'flashcard') {
+                const nextState = getFlashcardNavigationState(flashcardQueue, flashcardQueuePosition, offset);
+                if (nextState.questionIndex === null || nextState.position === flashcardQueuePosition) return;
+                flashcardQueuePosition = nextState.position;
+                currentQuestionIndex = nextState.questionIndex;
+                flashcardRevealed = false;
+                updateFocusCardView({ scroll: true });
+                saveQuizState();
+                return;
+            }
+
             if (!['focus', 'sprint'].includes(questionDisplayMode) || sprintBreakPending) return;
             const availableIndices = getFocusableQuestionIndices();
             const currentPosition = availableIndices.indexOf(currentQuestionIndex);
@@ -3758,7 +3779,7 @@
         }
 
         function handleFocusCardKeyboard(event) {
-            if (!isSingleCardMode() || questionDisplayMode === 'flashcard' || sprintBreakPending || document.getElementById('quizSection')?.classList.contains('hidden')) return;
+            if (!isSingleCardMode() || sprintBreakPending || document.getElementById('quizSection')?.classList.contains('hidden')) return;
             if (document.getElementById('questionNavigator')?.classList.contains('open')) return;
             if (event.altKey || event.ctrlKey || event.metaKey) return;
 
@@ -5123,7 +5144,7 @@ DATA TO REVIEW:
             currentFilter = 'all';
             currentQuestionIndex = 0;
             questionDisplayMode = readQuestionDisplayMode();
-            sprintSize = Math.max(1, Number(document.getElementById('sprintSize')?.value) || 10);
+            sprintSize = normalizeSprintSize(document.getElementById('sprintSize')?.value);
             document.querySelectorAll('.filter-button').forEach((button, index) => {
                 button.classList.toggle('active', index === 0);
             });
@@ -5823,6 +5844,13 @@ DATA TO REVIEW:
         function navigateToQuestion(index) {
             const questionCard = document.getElementById(`card${index}`);
             if (questionCard) {
+                if (questionDisplayMode === 'flashcard') {
+                    const queuePosition = flashcardQueue.indexOf(index);
+                    if (queuePosition >= 0) {
+                        flashcardQueuePosition = queuePosition;
+                        flashcardRevealed = false;
+                    }
+                }
                 currentQuestionIndex = index;
                 toggleSidebar(false);
 
@@ -6019,7 +6047,7 @@ DATA TO REVIEW:
             practiceModeEnabled = savedState.practiceModeEnabled;
             questionDisplayMode = savedState.questionDisplayMode || 'list';
             eliminationEnabled = Boolean(savedState.eliminationEnabled);
-            sprintSize = Math.max(1, Number(savedState.sprintSize) || 10);
+            sprintSize = normalizeSprintSize(savedState.sprintSize);
             timeRemaining = savedState.timeRemaining;
             currentFilter = 'all';
             currentQuestionIndex = 0;

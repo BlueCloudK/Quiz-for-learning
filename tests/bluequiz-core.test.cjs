@@ -122,6 +122,12 @@ assert.ok(
     html.indexOf('id="flashcardAnswer"') < html.indexOf('id="flashcardPanel"'),
     'Revealed flashcard answer must render above the rating/navigation buttons'
 );
+assert.ok(
+    html.indexOf('id="flashcardPanel"') < html.indexOf('id="focusCardControls"'),
+    'Card navigation must render below the study actions'
+);
+assert.match(html, /<input type="number" id="sprintSize"[^>]*min="1"/);
+assert.doesNotMatch(html, /\.flashcard-mode \.question-card\.focus-active \.options\s*\{\s*display:\s*none/);
 
 const displayModeApi = new Function(`
     let questionDisplayMode = 'list';
@@ -141,6 +147,18 @@ const masteryQueueApi = new Function(`
 assert.deepEqual(masteryQueueApi.getNextMasteryQueueState([0, 1, 2], 0), { position: 1, questionIndex: 1 });
 assert.deepEqual(masteryQueueApi.getNextMasteryQueueState([0, 1, 0], 1), { position: 2, questionIndex: 0 });
 assert.deepEqual(masteryQueueApi.getNextMasteryQueueState([0], 0), { position: 1, questionIndex: null });
+
+const flashcardNavigationApi = new Function(`
+    ${extractFunction('getFlashcardNavigationState')}
+    ${extractFunction('normalizeSprintSize')}
+    return { getFlashcardNavigationState, normalizeSprintSize };
+`)();
+assert.deepEqual(flashcardNavigationApi.getFlashcardNavigationState([2, 4, 6], 0, 1), { position: 1, questionIndex: 4 });
+assert.deepEqual(flashcardNavigationApi.getFlashcardNavigationState([2, 4, 6], 1, -1), { position: 0, questionIndex: 2 });
+assert.deepEqual(flashcardNavigationApi.getFlashcardNavigationState([2, 4, 6], 2, 1), { position: 2, questionIndex: 6 });
+assert.equal(flashcardNavigationApi.normalizeSprintSize('17'), 17);
+assert.equal(flashcardNavigationApi.normalizeSprintSize('4.9'), 4);
+assert.equal(flashcardNavigationApi.normalizeSprintSize('0'), 10);
 
 const focusApi = new Function(`
     const quizData = [{ number: 1 }, { number: 2 }, { number: 3 }];
