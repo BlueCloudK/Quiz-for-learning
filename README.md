@@ -1,6 +1,6 @@
 # 📝 Quiz Application for Learning | Ứng Dụng Quiz Học Tập
 
-![Version](https://img.shields.io/badge/version-1.4.3-586fd8)
+![Version](https://img.shields.io/badge/version-1.4.4-586fd8)
 
 **[English](#english)** | **[Tiếng Việt](#tiếng-việt)**
 
