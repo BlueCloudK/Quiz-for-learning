@@ -191,7 +191,7 @@ assert.match(html, /mark\.keyword-highlight\s*\{[^}]*background:\s*transparent;[
 assert.doesNotMatch(html, /mark\.keyword-highlight\s*\{[^}]*text-decoration/s);
 assert.match(html, /body\.dark-mode mark\.keyword-highlight\s*\{[^}]*color:\s*#afc1ff;/s);
 assert.match(html, /Trích Từ Khóa Tô Sáng/);
-assert.match(html, /name="application-version" content="1\.4\.8"/);
+assert.match(html, /name="application-version" content="1\.4\.9"/);
 assert.match(extractFunction('submitQuiz'), /applyAllKeywordHighlights\(\)/);
 assert.match(extractFunction('checkMasteryAnswer'), /applyQuestionKeywordHighlights\(currentQuestionIndex\)/);
 assert.match(extractFunction('restartQuiz'), /clearKeywordHighlightsInCard/);
@@ -205,10 +205,7 @@ for (const controlId of [
     assert.match(html, new RegExp(`id="${controlId}"`), `Missing study control: ${controlId}`);
 }
 assert.equal((html.match(/class="eliminate-option-btn"/g) || []).length, 2, 'Both quiz render paths must support answer elimination');
-assert.ok(
-    html.indexOf('id="flashcardAnswer"') < html.indexOf('id="flashcardPanel"'),
-    'Revealed flashcard answer must render above the rating/navigation buttons'
-);
+assert.doesNotMatch(html, /id="flashcardAnswer"/, 'Flashcard choices must not be followed by a duplicate answer callout');
 assert.ok(
     html.indexOf('id="flashcardPanel"') < html.indexOf('id="focusCardControls"'),
     'Card navigation must render below the study actions'
@@ -237,41 +234,23 @@ function createClassList(...initialValues) {
     };
 }
 
-const staleFlashcardAnswer = { textContent: 'Stale answer', classList: createClassList() };
-const flashcardAnswerHome = { child: null, appendChild(node) { this.child = node; } };
 const staleQuizSection = { classList: createClassList('flashcard-revealed') };
 const flashcardResetApi = new Function('document', `
     ${extractFunction('resetFlashcardArtifacts')}
     return { resetFlashcardArtifacts };
 `)(
     {
-        getElementById: id => id === 'flashcardAnswer'
-            ? staleFlashcardAnswer
-            : id === 'flashcardAnswerHome'
-                ? flashcardAnswerHome
-                : id === 'quizSection' ? staleQuizSection : null,
+        getElementById: id => id === 'quizSection' ? staleQuizSection : null,
         querySelectorAll: () => []
     }
 );
 flashcardResetApi.resetFlashcardArtifacts();
-assert.equal(staleFlashcardAnswer.textContent, '');
-assert.equal(staleFlashcardAnswer.classList.contains('hidden'), true);
-assert.equal(flashcardAnswerHome.child, staleFlashcardAnswer);
 assert.equal(staleQuizSection.classList.contains('flashcard-revealed'), false);
-assert.match(extractFunction('revealFlashcard'), /placeFlashcardAnswerInActiveCard\(\)/);
+assert.doesNotMatch(extractFunction('revealFlashcard'), /flashcardAnswer/);
 assert.match(extractFunction('revealFlashcard'), /flashcard-correct-option/);
 assert.match(extractFunction('revealFlashcard'), /flashcard-incorrect-option/);
 assert.match(extractFunction('rateFlashcard'), /clearFlashcardFeedback\(current, true\)/);
 assert.match(extractFunction('displayQuiz'), /resetFlashcardArtifacts\(\)/);
-
-const flashcardFeedbackApi = new Function(`
-    ${extractFunction('getFlashcardFeedbackState')}
-    return { getFlashcardFeedbackState };
-`)();
-assert.deepEqual(flashcardFeedbackApi.getFlashcardFeedbackState([], ['a']), { answered: false, correct: false });
-assert.deepEqual(flashcardFeedbackApi.getFlashcardFeedbackState(['b'], ['a']), { answered: true, correct: false });
-assert.deepEqual(flashcardFeedbackApi.getFlashcardFeedbackState(['a'], ['a']), { answered: true, correct: true });
-assert.deepEqual(flashcardFeedbackApi.getFlashcardFeedbackState(['c', 'a'], ['a', 'c']), { answered: true, correct: true });
 
 const masteryQueueApi = new Function(`
     ${extractFunction('getNextMasteryQueueState')}

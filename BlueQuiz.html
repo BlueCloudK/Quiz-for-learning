@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="application-version" content="1.4.8">
+    <meta name="application-version" content="1.4.9">
     <title>BlueQuiz - Tạo và Chấm Điểm</title>
     <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='20' fill='%23667eea'/><text x='50' y='70' font-size='60' text-anchor='middle' fill='white' font-family='Arial, sans-serif' font-weight='bold'>Q</text></svg>">
     <!-- Libraries for file import -->
@@ -701,19 +701,6 @@
         .study-mode-panel .study-status { color: var(--text-secondary); line-height: 1.45; }
         .study-actions { display: flex; flex-wrap: wrap; gap: 8px; }
         .study-actions button { min-height: 42px; padding: 9px 15px; text-transform: none; letter-spacing: 0; }
-        .flashcard-answer {
-            margin-top: 12px;
-            padding: 12px;
-            color: var(--correct-text);
-            background: var(--correct-bg);
-            border-left: 4px solid #28a745;
-            border-radius: 8px;
-        }
-        .flashcard-answer.incorrect {
-            color: var(--incorrect-text);
-            background: var(--incorrect-bg);
-            border-left-color: #dc3545;
-        }
         .flashcard-mode .option.flashcard-correct-option,
         .flashcard-mode .option.flashcard-incorrect-option {
             padding: 8px 10px;
@@ -3120,10 +3107,6 @@
                         <div class="focus-card-empty hidden" id="focusCardEmpty" data-i18n="focusEmpty">
                             Không có câu hỏi phù hợp với bộ lọc này.
                         </div>
-                        <div id="flashcardAnswerHome">
-                            <div class="flashcard-answer hidden" id="flashcardAnswer" aria-live="polite"></div>
-                        </div>
-
                         <section class="study-mode-panel" id="flashcardPanel" aria-live="polite">
                             <div class="study-status" id="flashcardStatus"></div>
                             <div class="study-actions">
@@ -3233,7 +3216,7 @@
         <div class="footer-content">
             <p>
                 Made with ❤️ by <a href="https://github.com/BlueCloudK" target="_blank" rel="noopener noreferrer">BlueCloudK</a>
-                <span class="app-version">BlueQuiz v1.4.8</span>
+                <span class="app-version">BlueQuiz v1.4.9</span>
             </p>
             <p>
                 <a href="https://github.com/BlueCloudK/Quiz-for-learning" target="_blank" rel="noopener noreferrer">
@@ -3638,11 +3621,6 @@
         }
 
         function resetFlashcardArtifacts() {
-            const flashcardAnswer = document.getElementById('flashcardAnswer');
-            flashcardAnswer?.classList.add('hidden');
-            flashcardAnswer?.classList.remove('incorrect');
-            if (flashcardAnswer) flashcardAnswer.textContent = '';
-            if (flashcardAnswer) document.getElementById('flashcardAnswerHome')?.appendChild(flashcardAnswer);
             document.querySelectorAll('#quizContainer .option.flashcard-correct-option, #quizContainer .option.flashcard-incorrect-option').forEach(option => {
                 option.classList.remove('flashcard-correct-option', 'flashcard-incorrect-option');
             });
@@ -3650,26 +3628,6 @@
                 input.disabled = false;
             });
             document.getElementById('quizSection')?.classList.remove('flashcard-revealed');
-        }
-
-        function placeFlashcardAnswerInActiveCard() {
-            const flashcardAnswer = document.getElementById('flashcardAnswer');
-            const activeCard = document.getElementById(`card${currentQuestionIndex}`);
-            const options = activeCard?.querySelector('.options');
-            if (!flashcardAnswer || !options) return;
-            options.after(flashcardAnswer);
-        }
-
-        function getFlashcardFeedbackState(selected, expected) {
-            const selectedValues = [...selected].sort();
-            const expectedValues = [...expected].sort();
-            const answered = selectedValues.length > 0;
-            return {
-                answered,
-                correct: answered
-                    && selectedValues.length === expectedValues.length
-                    && selectedValues.every((value, index) => value === expectedValues[index])
-            };
         }
 
         function clearFlashcardFeedback(index, resetSelection = false) {
@@ -3866,7 +3824,6 @@
                 ['Again', 'Hard', 'Remembered'].forEach(name => {
                     document.getElementById(`flashcard${name}Btn`).classList.toggle('hidden', finished || !flashcardRevealed);
                 });
-                document.getElementById('flashcardAnswer').classList.toggle('hidden', !flashcardRevealed || finished);
                 document.getElementById('quizSection').classList.toggle('flashcard-revealed', flashcardRevealed && !finished);
             }
 
@@ -3901,12 +3858,10 @@
         function revealFlashcard() {
             if (questionDisplayMode !== 'flashcard' || flashcardQueuePosition >= flashcardQueue.length) return;
             flashcardRevealed = true;
-            placeFlashcardAnswerInActiveCard();
             const originalNumber = questionMapping[currentQuestionIndex];
             const expected = Array.isArray(correctAnswers[originalNumber]) ? correctAnswers[originalNumber] : [correctAnswers[originalNumber]];
             const inputs = Array.from(document.querySelectorAll(`input[name="question${currentQuestionIndex}"]`));
             const selected = inputs.filter(input => input.checked).map(input => input.value);
-            const feedback = getFlashcardFeedbackState(selected, expected);
             const card = document.getElementById(`card${currentQuestionIndex}`);
             clearFlashcardFeedback(currentQuestionIndex);
             card?.querySelectorAll('.option').forEach(option => {
@@ -3915,17 +3870,6 @@
                 option.classList.toggle('flashcard-incorrect-option', selected.includes(letter) && !expected.includes(letter));
             });
             inputs.forEach(input => { input.disabled = true; });
-            const optionText = quizData[currentQuestionIndex].options
-                .filter(option => expected.includes(option.letter))
-                .map(option => `${option.letter.toUpperCase()}. ${option.text}`)
-                .join(' · ');
-            const flashcardAnswer = document.getElementById('flashcardAnswer');
-            flashcardAnswer.classList.toggle('incorrect', feedback.answered && !feedback.correct);
-            flashcardAnswer.textContent = feedback.correct
-                ? translations[currentLanguage].correct
-                : feedback.answered
-                    ? `${translations[currentLanguage].incorrect} ${optionText}`
-                    : `${translations[currentLanguage].flashcardAnswer}: ${optionText}`;
             updateStudyModePanels();
             saveQuizState();
         }
@@ -4538,7 +4482,6 @@
                 flashcardAgain: 'Chưa nhớ',
                 flashcardHard: 'Khó',
                 flashcardRemembered: 'Đã nhớ',
-                flashcardAnswer: 'Đáp án',
                 flashcardProgress: 'Thẻ {current}/{total} · Hãy tự trả lời trước khi lật thẻ.',
                 flashcardComplete: 'Hoàn tất · Đã nhớ {remembered} · Khó {hard} · Chưa nhớ {again}',
                 masteryCheck: 'Kiểm tra đáp án',
@@ -4723,7 +4666,6 @@
                 flashcardAgain: 'Again',
                 flashcardHard: 'Hard',
                 flashcardRemembered: 'Remembered',
-                flashcardAnswer: 'Answer',
                 flashcardProgress: 'Card {current}/{total} · Recall it before revealing the answer.',
                 flashcardComplete: 'Complete · Remembered {remembered} · Hard {hard} · Again {again}',
                 masteryCheck: 'Check answer',
