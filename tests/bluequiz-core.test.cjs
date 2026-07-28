@@ -191,7 +191,7 @@ assert.match(html, /mark\.keyword-highlight\s*\{[^}]*background:\s*transparent;[
 assert.doesNotMatch(html, /mark\.keyword-highlight\s*\{[^}]*text-decoration/s);
 assert.match(html, /body\.dark-mode mark\.keyword-highlight\s*\{[^}]*color:\s*#afc1ff;/s);
 assert.match(html, /Trích Từ Khóa Tô Sáng/);
-assert.match(html, /name="application-version" content="1\.4\.5"/);
+assert.match(html, /name="application-version" content="1\.4\.6"/);
 assert.match(extractFunction('submitQuiz'), /applyAllKeywordHighlights\(\)/);
 assert.match(extractFunction('checkMasteryAnswer'), /applyQuestionKeywordHighlights\(currentQuestionIndex\)/);
 assert.match(extractFunction('restartQuiz'), /clearKeywordHighlightsInCard/);
@@ -199,7 +199,8 @@ assert.match(extractFunction('saveQuizSet'), /keywords:\s*keywordsText/);
 assert.match(extractFunction('loadQuizSet'), /quiz\.keywords\s*\|\|\s*''/);
 for (const controlId of [
     'flashcardPanel', 'flashcardRevealBtn', 'masteryPanel', 'masteryCheckBtn',
-    'sprintSettingsRow', 'sprintBreakPanel'
+    'sprintSettingsRow', 'sprintBreakPanel', 'sprintReviewBtn', 'sprintRetryBtn',
+    'sprintContinueBtn', 'sprintFinishBtn'
 ]) {
     assert.match(html, new RegExp(`id="${controlId}"`), `Missing study control: ${controlId}`);
 }
@@ -269,6 +270,21 @@ assert.equal(flashcardNavigationApi.normalizeSprintSize('17', 217), 17);
 assert.equal(flashcardNavigationApi.normalizeSprintSize('400', 217), 217);
 assert.equal(flashcardNavigationApi.normalizeSprintSize('4.9', 217), 4);
 assert.equal(flashcardNavigationApi.normalizeSprintSize('0', 7), 7);
+
+const sprintBoundsApi = new Function(`
+    ${extractFunction('getSprintBlockBounds')}
+    return { getSprintBlockBounds };
+`)();
+assert.deepEqual(sprintBoundsApi.getSprintBlockBounds(10, 25, 10), { start: 0, end: 10, number: 1, isFinal: false });
+assert.deepEqual(sprintBoundsApi.getSprintBlockBounds(20, 25, 10), { start: 10, end: 20, number: 2, isFinal: false });
+assert.deepEqual(sprintBoundsApi.getSprintBlockBounds(25, 25, 10), { start: 20, end: 25, number: 3, isFinal: true });
+assert.match(extractFunction('moveFocusQuestion'), /sprintPendingIndex\s*=\s*-1/);
+assert.match(extractFunction('reopenSprintBlock'), /answeredQuestions\.delete\(index\)/);
+assert.match(extractFunction('reopenSprintBlock'), /saveQuizProgress\(\)/);
+assert.match(extractFunction('restartSprintBlock'), /sprintRetryConfirm/);
+assert.match(extractFunction('finishSprint'), /submitQuiz\(\)/);
+assert.match(extractFunction('finishSprint'), /sprintBreakPending\s*=\s*false/);
+assert.equal((html.match(/sprintRetryConfirm:/g) || []).length, 2, 'Sprint restart confirmation must be bilingual');
 
 const sprintConfig = { questionCount: '', startQuestion: '2', order: 'sequential' };
 const sprintConfigApi = new Function('document', 'parseQuestions', `

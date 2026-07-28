@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="application-version" content="1.4.5">
+    <meta name="application-version" content="1.4.6">
     <title>BlueQuiz - Tạo và Chấm Điểm</title>
     <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='20' fill='%23667eea'/><text x='50' y='70' font-size='60' text-anchor='middle' fill='white' font-family='Arial, sans-serif' font-weight='bold'>Q</text></svg>">
     <!-- Libraries for file import -->
@@ -712,6 +712,7 @@
         .flashcard-mode .question-card.focus-active .question-result { display: none !important; }
         .sprint-break-panel { text-align: center; }
         .sprint-break-panel strong { font-size: 1.12em; }
+        .sprint-break-panel .study-actions { justify-content: center; }
         .sprint-mode.sprint-break-active #quizContainer .question-card.focus-active { display: none !important; }
 
         .option { position: relative; }
@@ -3115,8 +3116,11 @@
                         <section class="study-mode-panel sprint-break-panel" id="sprintBreakPanel" aria-live="polite">
                             <strong id="sprintBreakTitle"></strong>
                             <div class="study-status" id="sprintBreakStatus"></div>
-                            <div class="study-actions" style="justify-content: center;">
-                                <button class="btn-primary" type="button" onclick="continueSprint()" data-i18n="sprintContinue">Bắt đầu chặng tiếp</button>
+                            <div class="study-actions">
+                                <button class="btn-secondary" id="sprintReviewBtn" type="button" onclick="reviewSprintBlock()" data-i18n="sprintReview">Xem lại chặng</button>
+                                <button class="btn-warning" id="sprintRetryBtn" type="button" onclick="restartSprintBlock()" data-i18n="sprintRetry">Làm lại chặng</button>
+                                <button class="btn-primary" id="sprintContinueBtn" type="button" onclick="continueSprint()" data-i18n="sprintContinue">Bắt đầu chặng tiếp</button>
+                                <button class="btn-success hidden" id="sprintFinishBtn" type="button" onclick="finishSprint()" data-i18n="sprintFinish">Chấm điểm</button>
                             </div>
                         </section>
                         <nav class="focus-card-controls hidden" id="focusCardControls" aria-label="Điều hướng Focus Card"
@@ -3202,7 +3206,7 @@
         <div class="footer-content">
             <p>
                 Made with ❤️ by <a href="https://github.com/BlueCloudK" target="_blank" rel="noopener noreferrer">BlueCloudK</a>
-                <span class="app-version">BlueQuiz v1.4.5</span>
+                <span class="app-version">BlueQuiz v1.4.6</span>
             </p>
             <p>
                 <a href="https://github.com/BlueCloudK/Quiz-for-learning" target="_blank" rel="noopener noreferrer">
@@ -3573,6 +3577,39 @@
             return { position, questionIndex: queue[position] };
         }
 
+        function getSprintBlockBounds(completed, total, size) {
+            const safeTotal = Math.max(0, Math.floor(Number(total)) || 0);
+            const safeCompleted = Math.max(0, Math.min(safeTotal, Math.floor(Number(completed)) || 0));
+            const safeSize = Math.max(1, Math.floor(Number(size)) || 1);
+            if (safeCompleted === 0) return { start: 0, end: 0, number: 0, isFinal: false };
+            const start = Math.floor((safeCompleted - 1) / safeSize) * safeSize;
+            return {
+                start,
+                end: safeCompleted,
+                number: Math.floor(start / safeSize) + 1,
+                isFinal: safeCompleted >= safeTotal
+            };
+        }
+
+        function getSprintCheckpointState(availableIndices = getFocusableQuestionIndices()) {
+            if (!sprintBreakPending || sprintPendingIndex === null) return null;
+            const completed = sprintPendingIndex === -1
+                ? availableIndices.length
+                : availableIndices.indexOf(sprintPendingIndex);
+            if (completed <= 0) return null;
+
+            const bounds = getSprintBlockBounds(completed, availableIndices.length, sprintSize);
+            const blockIndices = availableIndices.slice(bounds.start, bounds.end);
+            const answered = blockIndices.filter(index => getQuestionAnswerState(index).answered).length;
+            return {
+                ...bounds,
+                blockIndices,
+                answered,
+                unanswered: blockIndices.length - answered,
+                total: availableIndices.length
+            };
+        }
+
         function resetFlashcardArtifacts() {
             const flashcardAnswer = document.getElementById('flashcardAnswer');
             flashcardAnswer?.classList.add('hidden');
@@ -3669,7 +3706,10 @@
                 ? `${activePosition + 1} / ${availableIndices.length}`
                 : `0 / 0`;
             previousButton.disabled = activePosition <= 0;
-            nextButton.disabled = activePosition < 0 || activePosition >= availableIndices.length - 1;
+            const canFinishSprint = questionDisplayMode === 'sprint'
+                && activePosition === availableIndices.length - 1
+                && availableIndices.length > 0;
+            nextButton.disabled = activePosition < 0 || (activePosition >= availableIndices.length - 1 && !canFinishSprint);
             updateStudyModePanels(availableIndices);
             updateQuestionNavigator();
 
@@ -3693,6 +3733,13 @@
             if (!['focus', 'sprint'].includes(questionDisplayMode) || sprintBreakPending) return;
             const availableIndices = getFocusableQuestionIndices();
             const currentPosition = availableIndices.indexOf(currentQuestionIndex);
+            if (questionDisplayMode === 'sprint' && offset > 0 && currentPosition === availableIndices.length - 1) {
+                sprintBreakPending = true;
+                sprintPendingIndex = -1;
+                updateFocusCardView();
+                saveQuizState();
+                return;
+            }
             const nextPosition = Math.max(0, Math.min(availableIndices.length - 1, currentPosition + offset));
             if (availableIndices[nextPosition] === undefined || nextPosition === currentPosition) return;
 
@@ -3761,12 +3808,19 @@
             }
 
             if (questionDisplayMode === 'sprint' && sprintBreakPending) {
-                const completed = getFocusableQuestionIndices().indexOf(sprintPendingIndex);
-                const sprintNumber = Math.ceil(completed / sprintSize);
-                document.getElementById('sprintBreakTitle').textContent = translations[currentLanguage].sprintBreakTitle.replace('{number}', sprintNumber);
+                const checkpoint = getSprintCheckpointState(availableIndices);
+                if (!checkpoint) return;
+                const titleKey = checkpoint.isFinal ? 'sprintFinalTitle' : 'sprintBreakTitle';
+                document.getElementById('sprintBreakTitle').textContent = translations[currentLanguage][titleKey]
+                    .replace('{number}', checkpoint.number);
                 document.getElementById('sprintBreakStatus').textContent = translations[currentLanguage].sprintBreakStatus
-                    .replace('{completed}', completed)
-                    .replace('{total}', quizData.length);
+                    .replace('{answered}', checkpoint.answered)
+                    .replace('{blockTotal}', checkpoint.blockIndices.length)
+                    .replace('{unanswered}', checkpoint.unanswered)
+                    .replace('{completed}', checkpoint.end)
+                    .replace('{total}', checkpoint.total);
+                document.getElementById('sprintContinueBtn').classList.toggle('hidden', checkpoint.isFinal);
+                document.getElementById('sprintFinishBtn').classList.toggle('hidden', !checkpoint.isFinal);
             }
         }
 
@@ -3855,12 +3909,63 @@
         }
 
         function continueSprint() {
-            if (!sprintBreakPending || sprintPendingIndex === null) return;
+            if (!sprintBreakPending || sprintPendingIndex === null || sprintPendingIndex === -1) return;
             currentQuestionIndex = sprintPendingIndex;
             sprintBreakPending = false;
             sprintPendingIndex = null;
             updateFocusCardView({ scroll: true });
             saveQuizState();
+        }
+
+        function reopenSprintBlock(resetAnswers) {
+            const checkpoint = getSprintCheckpointState();
+            if (!checkpoint || checkpoint.blockIndices.length === 0) return;
+
+            if (resetAnswers) {
+                checkpoint.blockIndices.forEach(index => {
+                    document.querySelectorAll(`input[name="question${index}"]`).forEach(input => {
+                        input.checked = false;
+                        input.disabled = false;
+                    });
+                    answeredQuestions.delete(index);
+                    document.getElementById(`result${index}`)?.classList.add('hidden');
+                    clearKeywordHighlightsInCard(index);
+                    document.getElementById(`card${index}`)?.querySelectorAll('.option.eliminated').forEach(option => {
+                        option.classList.remove('eliminated');
+                        const button = option.querySelector('.eliminate-option-btn');
+                        button?.setAttribute('aria-pressed', 'false');
+                        button?.setAttribute('aria-label', translations[currentLanguage].eliminateOption);
+                    });
+                });
+                const firstInput = document.querySelector(`input[name="question${checkpoint.blockIndices[0]}"]`);
+                if (firstInput) updateProgressBar({ target: firstInput });
+                updateQuestionNavigator();
+                saveQuizProgress();
+            }
+
+            currentQuestionIndex = checkpoint.blockIndices[0];
+            sprintBreakPending = false;
+            sprintPendingIndex = null;
+            updateFocusCardView({ scroll: true });
+            saveQuizState();
+        }
+
+        function reviewSprintBlock() {
+            reopenSprintBlock(false);
+        }
+
+        function restartSprintBlock() {
+            if (!confirm(translations[currentLanguage].sprintRetryConfirm)) return;
+            reopenSprintBlock(true);
+        }
+
+        function finishSprint() {
+            if (!sprintBreakPending || sprintPendingIndex !== -1) return;
+            sprintBreakPending = false;
+            sprintPendingIndex = null;
+            document.getElementById('sprintBreakPanel')?.classList.remove('visible');
+            document.getElementById('quizSection')?.classList.remove('sprint-break-active');
+            submitQuiz();
         }
 
         function selectFocusOption(optionIndex) {
@@ -4349,8 +4454,13 @@
                 masteryProgress: 'Đã làm chủ {mastered}/{total} câu. Câu sai sẽ quay lại.',
                 masteryComplete: 'Hoàn tất! Bạn đã làm đúng toàn bộ {total} câu.',
                 sprintBreakTitle: 'Hoàn thành chặng {number}',
-                sprintBreakStatus: 'Đã đi qua {completed}/{total} câu. Nghỉ ngắn rồi tiếp tục khi sẵn sàng.',
+                sprintFinalTitle: 'Hoàn thành Focus Sprint',
+                sprintBreakStatus: 'Chặng này: đã trả lời {answered}/{blockTotal} câu · bỏ trống {unanswered}. Tổng tiến độ {completed}/{total} câu.',
+                sprintReview: 'Xem lại chặng',
+                sprintRetry: 'Làm lại chặng',
+                sprintRetryConfirm: 'Xóa toàn bộ câu trả lời trong chặng này và làm lại?',
                 sprintContinue: 'Bắt đầu chặng tiếp',
+                sprintFinish: 'Chấm điểm',
                 eliminateOption: 'Loại trừ đáp án này',
                 restoreOption: 'Khôi phục đáp án này',
                 enterFullscreen: 'Toàn màn hình',
@@ -4529,8 +4639,13 @@
                 masteryProgress: 'Mastered {mastered}/{total}. Missed questions will return.',
                 masteryComplete: 'Complete! You answered all {total} questions correctly.',
                 sprintBreakTitle: 'Sprint {number} complete',
-                sprintBreakStatus: 'You covered {completed}/{total} questions. Take a short break, then continue.',
+                sprintFinalTitle: 'Focus Sprint complete',
+                sprintBreakStatus: 'This sprint: {answered}/{blockTotal} answered · {unanswered} unanswered. Overall progress: {completed}/{total}.',
+                sprintReview: 'Review sprint',
+                sprintRetry: 'Restart sprint',
+                sprintRetryConfirm: 'Clear every answer in this sprint and restart it?',
                 sprintContinue: 'Start next sprint',
+                sprintFinish: 'Grade quiz',
                 eliminateOption: 'Eliminate this answer',
                 restoreOption: 'Restore this answer',
                 enterFullscreen: 'Fullscreen',
