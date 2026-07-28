@@ -191,7 +191,7 @@ assert.match(html, /mark\.keyword-highlight\s*\{[^}]*background:\s*transparent;[
 assert.doesNotMatch(html, /mark\.keyword-highlight\s*\{[^}]*text-decoration/s);
 assert.match(html, /body\.dark-mode mark\.keyword-highlight\s*\{[^}]*color:\s*#afc1ff;/s);
 assert.match(html, /Trích Từ Khóa Tô Sáng/);
-assert.match(html, /name="application-version" content="1\.4\.6"/);
+assert.match(html, /name="application-version" content="1\.4\.7"/);
 assert.match(extractFunction('submitQuiz'), /applyAllKeywordHighlights\(\)/);
 assert.match(extractFunction('checkMasteryAnswer'), /applyQuestionKeywordHighlights\(currentQuestionIndex\)/);
 assert.match(extractFunction('restartQuiz'), /clearKeywordHighlightsInCard/);
@@ -238,17 +238,25 @@ function createClassList(...initialValues) {
 }
 
 const staleFlashcardAnswer = { textContent: 'Stale answer', classList: createClassList() };
+const flashcardAnswerHome = { child: null, appendChild(node) { this.child = node; } };
 const staleQuizSection = { classList: createClassList('flashcard-revealed') };
 const flashcardResetApi = new Function('document', `
     ${extractFunction('resetFlashcardArtifacts')}
     return { resetFlashcardArtifacts };
 `)(
-    { getElementById: id => id === 'flashcardAnswer' ? staleFlashcardAnswer : id === 'quizSection' ? staleQuizSection : null }
+    { getElementById: id => id === 'flashcardAnswer'
+        ? staleFlashcardAnswer
+        : id === 'flashcardAnswerHome'
+            ? flashcardAnswerHome
+            : id === 'quizSection' ? staleQuizSection : null }
 );
 flashcardResetApi.resetFlashcardArtifacts();
 assert.equal(staleFlashcardAnswer.textContent, '');
 assert.equal(staleFlashcardAnswer.classList.contains('hidden'), true);
+assert.equal(flashcardAnswerHome.child, staleFlashcardAnswer);
 assert.equal(staleQuizSection.classList.contains('flashcard-revealed'), false);
+assert.match(extractFunction('revealFlashcard'), /placeFlashcardAnswerInActiveCard\(\)/);
+assert.match(extractFunction('displayQuiz'), /resetFlashcardArtifacts\(\)/);
 
 const masteryQueueApi = new Function(`
     ${extractFunction('getNextMasteryQueueState')}

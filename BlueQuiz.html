@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="application-version" content="1.4.6">
+    <meta name="application-version" content="1.4.7">
     <title>BlueQuiz - Tạo và Chấm Điểm</title>
     <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='20' fill='%23667eea'/><text x='50' y='70' font-size='60' text-anchor='middle' fill='white' font-family='Arial, sans-serif' font-weight='bold'>Q</text></svg>">
     <!-- Libraries for file import -->
@@ -3095,7 +3095,9 @@
                         <div class="focus-card-empty hidden" id="focusCardEmpty" data-i18n="focusEmpty">
                             Không có câu hỏi phù hợp với bộ lọc này.
                         </div>
-                        <div class="flashcard-answer hidden" id="flashcardAnswer" aria-live="polite"></div>
+                        <div id="flashcardAnswerHome">
+                            <div class="flashcard-answer hidden" id="flashcardAnswer" aria-live="polite"></div>
+                        </div>
 
                         <section class="study-mode-panel" id="flashcardPanel" aria-live="polite">
                             <div class="study-status" id="flashcardStatus"></div>
@@ -3206,7 +3208,7 @@
         <div class="footer-content">
             <p>
                 Made with ❤️ by <a href="https://github.com/BlueCloudK" target="_blank" rel="noopener noreferrer">BlueCloudK</a>
-                <span class="app-version">BlueQuiz v1.4.6</span>
+                <span class="app-version">BlueQuiz v1.4.7</span>
             </p>
             <p>
                 <a href="https://github.com/BlueCloudK/Quiz-for-learning" target="_blank" rel="noopener noreferrer">
@@ -3614,7 +3616,16 @@
             const flashcardAnswer = document.getElementById('flashcardAnswer');
             flashcardAnswer?.classList.add('hidden');
             if (flashcardAnswer) flashcardAnswer.textContent = '';
+            if (flashcardAnswer) document.getElementById('flashcardAnswerHome')?.appendChild(flashcardAnswer);
             document.getElementById('quizSection')?.classList.remove('flashcard-revealed');
+        }
+
+        function placeFlashcardAnswerInActiveCard() {
+            const flashcardAnswer = document.getElementById('flashcardAnswer');
+            const activeCard = document.getElementById(`card${currentQuestionIndex}`);
+            const options = activeCard?.querySelector('.options');
+            if (!flashcardAnswer || !options) return;
+            options.after(flashcardAnswer);
         }
 
         function syncQuestionDisplayMode() {
@@ -3827,6 +3838,7 @@
         function revealFlashcard() {
             if (questionDisplayMode !== 'flashcard' || flashcardQueuePosition >= flashcardQueue.length) return;
             flashcardRevealed = true;
+            placeFlashcardAnswerInActiveCard();
             const originalNumber = questionMapping[currentQuestionIndex];
             const expected = Array.isArray(correctAnswers[originalNumber]) ? correctAnswers[originalNumber] : [correctAnswers[originalNumber]];
             const optionText = quizData[currentQuestionIndex].options
@@ -5742,6 +5754,7 @@ SOURCE DATA:
                 return;
             }
 
+            resetFlashcardArtifacts();
             container.innerHTML = '';
             console.log('Displaying quiz with', quizData.length, 'questions');
 
