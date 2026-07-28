@@ -8,6 +8,7 @@
 - Focus Card reuses the same question cards, answers, navigator, filters, and grading state as list mode; it must never maintain a separate answer model.
 - Flashcard, Mastery, and Focus Sprint reuse the same rendered question cards and original answer map; their queues only control study order.
 - A revealed Flashcard answer belongs inside the active question card, immediately after its choices; self-rating actions remain below the card and navigation remains last.
+- Flashcard reveal grades an existing selection like a normal quiz: correct choices are green, selected wrong choices are red, and reveal-without-selection shows only the correct choice. Feedback and selections clear before the next recall attempt.
 - Focus Sprint checkpoints summarize answered and unanswered questions for the completed block. Review preserves its answers; restart clears only that block; the final block ends at a grading action.
 - Answer elimination is reversible, clears a selected answer when eliminated, and never changes the correct-answer data.
 - Fullscreen is an explicit exam action because browsers require a user gesture; leaving fullscreen must not stop or duplicate the timer.

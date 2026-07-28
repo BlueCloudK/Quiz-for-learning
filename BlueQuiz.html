@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="application-version" content="1.4.7">
+    <meta name="application-version" content="1.4.8">
     <title>BlueQuiz - Tạo và Chấm Điểm</title>
     <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='20' fill='%23667eea'/><text x='50' y='70' font-size='60' text-anchor='middle' fill='white' font-family='Arial, sans-serif' font-weight='bold'>Q</text></svg>">
     <!-- Libraries for file import -->
@@ -708,6 +708,31 @@
             background: var(--correct-bg);
             border-left: 4px solid #28a745;
             border-radius: 8px;
+        }
+        .flashcard-answer.incorrect {
+            color: var(--incorrect-text);
+            background: var(--incorrect-bg);
+            border-left-color: #dc3545;
+        }
+        .flashcard-mode .option.flashcard-correct-option,
+        .flashcard-mode .option.flashcard-incorrect-option {
+            padding: 8px 10px;
+            border-radius: 8px;
+        }
+        .flashcard-mode .option.flashcard-correct-option {
+            color: var(--correct-text);
+            background: var(--correct-bg);
+            box-shadow: inset 3px 0 0 #28a745;
+        }
+        .flashcard-mode .option.flashcard-incorrect-option {
+            color: var(--incorrect-text);
+            background: var(--incorrect-bg);
+            box-shadow: inset 3px 0 0 #dc3545;
+        }
+        .flashcard-mode .option.flashcard-correct-option input:disabled + label,
+        .flashcard-mode .option.flashcard-incorrect-option input:disabled + label {
+            cursor: default;
+            opacity: 1;
         }
         .flashcard-mode .question-card.focus-active .question-result { display: none !important; }
         .sprint-break-panel { text-align: center; }
@@ -3208,7 +3233,7 @@
         <div class="footer-content">
             <p>
                 Made with ❤️ by <a href="https://github.com/BlueCloudK" target="_blank" rel="noopener noreferrer">BlueCloudK</a>
-                <span class="app-version">BlueQuiz v1.4.7</span>
+                <span class="app-version">BlueQuiz v1.4.8</span>
             </p>
             <p>
                 <a href="https://github.com/BlueCloudK/Quiz-for-learning" target="_blank" rel="noopener noreferrer">
@@ -3615,8 +3640,15 @@
         function resetFlashcardArtifacts() {
             const flashcardAnswer = document.getElementById('flashcardAnswer');
             flashcardAnswer?.classList.add('hidden');
+            flashcardAnswer?.classList.remove('incorrect');
             if (flashcardAnswer) flashcardAnswer.textContent = '';
             if (flashcardAnswer) document.getElementById('flashcardAnswerHome')?.appendChild(flashcardAnswer);
+            document.querySelectorAll('#quizContainer .option.flashcard-correct-option, #quizContainer .option.flashcard-incorrect-option').forEach(option => {
+                option.classList.remove('flashcard-correct-option', 'flashcard-incorrect-option');
+            });
+            document.querySelectorAll('#quizContainer input[type="radio"], #quizContainer input[type="checkbox"]').forEach(input => {
+                input.disabled = false;
+            });
             document.getElementById('quizSection')?.classList.remove('flashcard-revealed');
         }
 
@@ -3626,6 +3658,36 @@
             const options = activeCard?.querySelector('.options');
             if (!flashcardAnswer || !options) return;
             options.after(flashcardAnswer);
+        }
+
+        function getFlashcardFeedbackState(selected, expected) {
+            const selectedValues = [...selected].sort();
+            const expectedValues = [...expected].sort();
+            const answered = selectedValues.length > 0;
+            return {
+                answered,
+                correct: answered
+                    && selectedValues.length === expectedValues.length
+                    && selectedValues.every((value, index) => value === expectedValues[index])
+            };
+        }
+
+        function clearFlashcardFeedback(index, resetSelection = false) {
+            const card = document.getElementById(`card${index}`);
+            if (!card) return;
+            card.querySelectorAll('.option.flashcard-correct-option, .option.flashcard-incorrect-option').forEach(option => {
+                option.classList.remove('flashcard-correct-option', 'flashcard-incorrect-option');
+            });
+            const inputs = Array.from(card.querySelectorAll('input[type="radio"], input[type="checkbox"]'));
+            inputs.forEach(input => {
+                input.disabled = false;
+                if (resetSelection) input.checked = false;
+            });
+            if (resetSelection) {
+                answeredQuestions.delete(index);
+                if (inputs[0]) updateProgressBar({ target: inputs[0] });
+                saveQuizProgress();
+            }
         }
 
         function syncQuestionDisplayMode() {
@@ -3733,6 +3795,7 @@
             if (questionDisplayMode === 'flashcard') {
                 const nextState = getFlashcardNavigationState(flashcardQueue, flashcardQueuePosition, offset);
                 if (nextState.questionIndex === null || nextState.position === flashcardQueuePosition) return;
+                clearFlashcardFeedback(currentQuestionIndex, true);
                 flashcardQueuePosition = nextState.position;
                 currentQuestionIndex = nextState.questionIndex;
                 flashcardRevealed = false;
@@ -3841,11 +3904,28 @@
             placeFlashcardAnswerInActiveCard();
             const originalNumber = questionMapping[currentQuestionIndex];
             const expected = Array.isArray(correctAnswers[originalNumber]) ? correctAnswers[originalNumber] : [correctAnswers[originalNumber]];
+            const inputs = Array.from(document.querySelectorAll(`input[name="question${currentQuestionIndex}"]`));
+            const selected = inputs.filter(input => input.checked).map(input => input.value);
+            const feedback = getFlashcardFeedbackState(selected, expected);
+            const card = document.getElementById(`card${currentQuestionIndex}`);
+            clearFlashcardFeedback(currentQuestionIndex);
+            card?.querySelectorAll('.option').forEach(option => {
+                const letter = option.dataset.optionLetter;
+                option.classList.toggle('flashcard-correct-option', expected.includes(letter));
+                option.classList.toggle('flashcard-incorrect-option', selected.includes(letter) && !expected.includes(letter));
+            });
+            inputs.forEach(input => { input.disabled = true; });
             const optionText = quizData[currentQuestionIndex].options
                 .filter(option => expected.includes(option.letter))
                 .map(option => `${option.letter.toUpperCase()}. ${option.text}`)
                 .join(' · ');
-            document.getElementById('flashcardAnswer').textContent = `${translations[currentLanguage].flashcardAnswer}: ${optionText}`;
+            const flashcardAnswer = document.getElementById('flashcardAnswer');
+            flashcardAnswer.classList.toggle('incorrect', feedback.answered && !feedback.correct);
+            flashcardAnswer.textContent = feedback.correct
+                ? translations[currentLanguage].correct
+                : feedback.answered
+                    ? `${translations[currentLanguage].incorrect} ${optionText}`
+                    : `${translations[currentLanguage].flashcardAnswer}: ${optionText}`;
             updateStudyModePanels();
             saveQuizState();
         }
@@ -3853,6 +3933,7 @@
         function rateFlashcard(rating) {
             if (!flashcardRevealed || flashcardQueuePosition >= flashcardQueue.length) return;
             const current = flashcardQueue[flashcardQueuePosition];
+            clearFlashcardFeedback(current, true);
             flashcardRatings[rating]++;
             if (rating === 'again') flashcardQueue.push(current);
             if (rating === 'hard') flashcardQueue.splice(Math.min(flashcardQueue.length, flashcardQueuePosition + 3), 0, current);

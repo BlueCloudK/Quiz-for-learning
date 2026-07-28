@@ -191,7 +191,7 @@ assert.match(html, /mark\.keyword-highlight\s*\{[^}]*background:\s*transparent;[
 assert.doesNotMatch(html, /mark\.keyword-highlight\s*\{[^}]*text-decoration/s);
 assert.match(html, /body\.dark-mode mark\.keyword-highlight\s*\{[^}]*color:\s*#afc1ff;/s);
 assert.match(html, /Trích Từ Khóa Tô Sáng/);
-assert.match(html, /name="application-version" content="1\.4\.7"/);
+assert.match(html, /name="application-version" content="1\.4\.8"/);
 assert.match(extractFunction('submitQuiz'), /applyAllKeywordHighlights\(\)/);
 assert.match(extractFunction('checkMasteryAnswer'), /applyQuestionKeywordHighlights\(currentQuestionIndex\)/);
 assert.match(extractFunction('restartQuiz'), /clearKeywordHighlightsInCard/);
@@ -244,11 +244,14 @@ const flashcardResetApi = new Function('document', `
     ${extractFunction('resetFlashcardArtifacts')}
     return { resetFlashcardArtifacts };
 `)(
-    { getElementById: id => id === 'flashcardAnswer'
-        ? staleFlashcardAnswer
-        : id === 'flashcardAnswerHome'
-            ? flashcardAnswerHome
-            : id === 'quizSection' ? staleQuizSection : null }
+    {
+        getElementById: id => id === 'flashcardAnswer'
+            ? staleFlashcardAnswer
+            : id === 'flashcardAnswerHome'
+                ? flashcardAnswerHome
+                : id === 'quizSection' ? staleQuizSection : null,
+        querySelectorAll: () => []
+    }
 );
 flashcardResetApi.resetFlashcardArtifacts();
 assert.equal(staleFlashcardAnswer.textContent, '');
@@ -256,7 +259,19 @@ assert.equal(staleFlashcardAnswer.classList.contains('hidden'), true);
 assert.equal(flashcardAnswerHome.child, staleFlashcardAnswer);
 assert.equal(staleQuizSection.classList.contains('flashcard-revealed'), false);
 assert.match(extractFunction('revealFlashcard'), /placeFlashcardAnswerInActiveCard\(\)/);
+assert.match(extractFunction('revealFlashcard'), /flashcard-correct-option/);
+assert.match(extractFunction('revealFlashcard'), /flashcard-incorrect-option/);
+assert.match(extractFunction('rateFlashcard'), /clearFlashcardFeedback\(current, true\)/);
 assert.match(extractFunction('displayQuiz'), /resetFlashcardArtifacts\(\)/);
+
+const flashcardFeedbackApi = new Function(`
+    ${extractFunction('getFlashcardFeedbackState')}
+    return { getFlashcardFeedbackState };
+`)();
+assert.deepEqual(flashcardFeedbackApi.getFlashcardFeedbackState([], ['a']), { answered: false, correct: false });
+assert.deepEqual(flashcardFeedbackApi.getFlashcardFeedbackState(['b'], ['a']), { answered: true, correct: false });
+assert.deepEqual(flashcardFeedbackApi.getFlashcardFeedbackState(['a'], ['a']), { answered: true, correct: true });
+assert.deepEqual(flashcardFeedbackApi.getFlashcardFeedbackState(['c', 'a'], ['a', 'c']), { answered: true, correct: true });
 
 const masteryQueueApi = new Function(`
     ${extractFunction('getNextMasteryQueueState')}
