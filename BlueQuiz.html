@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="application-version" content="1.4.9">
+    <meta name="application-version" content="1.4.10">
     <title>BlueQuiz - Tạo và Chấm Điểm</title>
     <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='20' fill='%23667eea'/><text x='50' y='70' font-size='60' text-anchor='middle' fill='white' font-family='Arial, sans-serif' font-weight='bold'>Q</text></svg>">
     <!-- Libraries for file import -->
@@ -3216,7 +3216,7 @@
         <div class="footer-content">
             <p>
                 Made with ❤️ by <a href="https://github.com/BlueCloudK" target="_blank" rel="noopener noreferrer">BlueCloudK</a>
-                <span class="app-version">BlueQuiz v1.4.9</span>
+                <span class="app-version">BlueQuiz v1.4.10</span>
             </p>
             <p>
                 <a href="https://github.com/BlueCloudK/Quiz-for-learning" target="_blank" rel="noopener noreferrer">
@@ -5728,23 +5728,33 @@ SOURCE DATA:
             }
         }
 
-        // Parse [IMG:...] tags and convert to HTML <img> tags
+        function escapeHtml(text) {
+            return String(text ?? '').replace(/[&<>"']/g, character => ({
+                '&': '&amp;',
+                '<': '&lt;',
+                '>': '&gt;',
+                '"': '&quot;',
+                "'": '&#39;'
+            })[character]);
+        }
+
+        // Escape user text, then convert only trusted [IMG:...] placeholders to image elements.
         function parseQuestionImages(questionText) {
-            // Replace [IMGx:filename] placeholders with actual images from storage
-            let result = questionText.replace(/\[(IMG\d+):[^\]]+\]/g, (match, imageId) => {
-                const base64 = imageStorage[imageId];
-                if (base64) {
-                    return `<img src="${base64}" class="question-image" alt="Question image" onclick="openImageModal(this.src)" />`;
-                }
-                return match; // Keep original if not found
-            });
+            const source = String(questionText ?? '');
+            const imagePattern = /\[(IMG\d+):[^\]]+\]|\[IMG:(data:image[^\]]+)\]/g;
+            let result = '';
+            let cursor = 0;
 
-            // Also support old format [IMG:data:image...] for backward compatibility
-            result = result.replace(/\[IMG:(data:image[^\]]+)\]/g, (match, src) => {
-                return `<img src="${src}" class="question-image" alt="Question image" onclick="openImageModal(this.src)" />`;
-            });
+            for (const match of source.matchAll(imagePattern)) {
+                result += escapeHtml(source.slice(cursor, match.index));
+                const imageSrc = match[1] ? imageStorage[match[1]] : match[2];
+                result += imageSrc
+                    ? `<img src="${escapeHtml(imageSrc)}" class="question-image" alt="Question image" onclick="openImageModal(this.src)" />`
+                    : escapeHtml(match[0]);
+                cursor = match.index + match[0].length;
+            }
 
-            return result;
+            return result + escapeHtml(source.slice(cursor));
         }
 
         // Open image in modal for full-size viewing
@@ -5824,7 +5834,7 @@ SOURCE DATA:
                                    value="${option.letter}"
                                    id="q${index}_${option.letter}">
                             <label for="q${index}_${option.letter}">
-                                ${option.letter.toUpperCase()}. ${option.text}
+                                ${option.letter.toUpperCase()}. ${escapeHtml(option.text)}
                             </label>
                             <button class="eliminate-option-btn" type="button"
                                     onclick="toggleOptionElimination(event, ${index}, '${option.letter}')"
@@ -6694,7 +6704,7 @@ SOURCE DATA:
                                    value="${option.letter}"
                                    id="q${index}_${option.letter}">
                             <label for="q${index}_${option.letter}">
-                                ${option.letter.toUpperCase()}. ${option.text}
+                                ${option.letter.toUpperCase()}. ${escapeHtml(option.text)}
                             </label>
                             <button class="eliminate-option-btn" type="button"
                                     onclick="toggleOptionElimination(event, ${index}, '${option.letter}')"

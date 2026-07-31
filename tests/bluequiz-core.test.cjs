@@ -191,7 +191,24 @@ assert.match(html, /mark\.keyword-highlight\s*\{[^}]*background:\s*transparent;[
 assert.doesNotMatch(html, /mark\.keyword-highlight\s*\{[^}]*text-decoration/s);
 assert.match(html, /body\.dark-mode mark\.keyword-highlight\s*\{[^}]*color:\s*#afc1ff;/s);
 assert.match(html, /Trích Từ Khóa Tô Sáng/);
-assert.match(html, /name="application-version" content="1\.4\.9"/);
+assert.match(html, /name="application-version" content="1\.4\.10"/);
+assert.equal((html.match(/\$\{escapeHtml\(option\.text\)\}/g) || []).length, 2, 'Both quiz render paths must escape option text');
+
+const safeRenderingApi = new Function('imageStorage', `
+    ${extractFunction('escapeHtml')}
+    ${extractFunction('parseQuestionImages')}
+    return { escapeHtml, parseQuestionImages };
+`)({ IMG1: 'data:image/png;base64,QUJD' });
+assert.equal(
+    safeRenderingApi.escapeHtml('<form action="save">Tom & Jerry</form>'),
+    '&lt;form action=&quot;save&quot;&gt;Tom &amp; Jerry&lt;/form&gt;'
+);
+const renderedCodeQuestion = safeRenderingApi.parseQuestionImages('Choose <form> & <span>.');
+assert.equal(renderedCodeQuestion, 'Choose &lt;form&gt; &amp; &lt;span&gt;.');
+const renderedImageQuestion = safeRenderingApi.parseQuestionImages('Diagram [IMG1:diagram.png] then <script>.');
+assert.match(renderedImageQuestion, /^Diagram <img src="data:image\/png;base64,QUJD"/);
+assert.match(renderedImageQuestion, /then &lt;script&gt;\.$/);
+assert.equal(safeRenderingApi.parseQuestionImages('[IMG9:missing.png]'), '[IMG9:missing.png]');
 assert.match(extractFunction('submitQuiz'), /applyAllKeywordHighlights\(\)/);
 assert.match(extractFunction('checkMasteryAnswer'), /applyQuestionKeywordHighlights\(currentQuestionIndex\)/);
 assert.match(extractFunction('restartQuiz'), /clearKeywordHighlightsInCard/);
